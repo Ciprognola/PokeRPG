@@ -4,11 +4,11 @@ Technical notes owned by Claude Code. Product docs are in `docs/` (read-only for
 
 ## Packages (npm workspaces)
 
-| Package           | Purpose                                                                                                                                                                 | Depends on |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `@pokerpg/core`   | Pure TypeScript shared by every consumer: Asset Spec constants, animation-set registry, filename parsing, validation findings and report types. Future: the validators. | nothing    |
-| `@pokerpg/slicer` | M1 PWA. Vite + vanilla TypeScript + `vite-plugin-pwa`.                                                                                                                  | core       |
-| `@pokerpg/game`   | Phaser runtime (M4). Placeholder today.                                                                                                                                 | core       |
+| Package           | Purpose                                                                                                                                                                                                                           | Depends on |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `@pokerpg/core`   | Pure TypeScript shared by every consumer: Asset Spec constants, animation-set registry, filename parsing, validation findings and report types. The sprite and story validators, the PNG and zip codecs, extraction and assembly. | nothing    |
+| `@pokerpg/slicer` | M1 PWA. Vite + vanilla TypeScript + `vite-plugin-pwa`.                                                                                                                                                                            | core       |
+| `@pokerpg/game`   | Phaser runtime (M4). Placeholder today.                                                                                                                                                                                           | core       |
 
 `core` is consumed as TypeScript source (`exports` points at `src/index.ts`); Vite and Vitest compile it directly, so there is no separate build step for it.
 
@@ -44,11 +44,20 @@ See [pose-templates.md](pose-templates.md): generated mannequin references, comm
 
 See [story-validator.md](story-validator.md): story validator (Ajv structure + semantic checks), `npm run story:check` / `story:pack`, the story template, the [runtime rules](story-runtime-rules.md) M4/M5 build to, greybox locations (format: Asset Spec §8.1). `core` depends on `ajv` for this; the Slicer bundle does not include it (`sideEffects: false` lets the bundler drop it).
 
+## Tools
+
+`tools/` holds the repo scripts, run through npm: `check-story.ts` and `pack-story.ts` (both use `story-node.ts`, the Node-side helpers: read a story folder or zip, load the library, `checkStory`, `packStoryFolder`), `make-schema.ts`, `make-story-template.ts` and `make-pose-templates.ts` (regenerate committed files), `make-icons.mjs`. Anything that needs the file system lives here, never in `core`.
+
+## Session continuity
+
+[HANDOVER.md](HANDOVER.md) is rewritten at the end of each working day: what is merged, open and known. `CLAUDE.md` tells the next session to read it first.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.
 - `assets/registry/animsets.json`: the registry file defined by Asset Spec §3. `REGISTRY` in `core/src/registry.ts` is the same data in code, and `packages/core/test/registry.test.ts` fails if they diverge.
 - When the spec changes: update `docs/` (PM), then these two files together in one PR.
+- Doc version numbers are not constants in code (PKR-013). Only file-format versions (`SPEC_VERSION`, `STORY_FORMAT_VERSION`, both `"0.1"`) are; the sync tests compare the specs' tables, not their headers.
 
 ## Slicer
 

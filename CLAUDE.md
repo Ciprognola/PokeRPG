@@ -4,19 +4,23 @@ Standing brief for Claude Code. Keep it short; the product truth is in `docs/`.
 
 ## What this is
 
-A sandbox story platform (Phaser 3 + TypeScript + Vite, web/HTML5), not a single game. The first
-deliverable (M1) is the **Slicer**: an installable, offline PWA that turns raw AI-generated sprite frames
-into spec-compliant layered sheets. Roadmap, decisions and risks: `docs/PROJECT_BRIEF.md`.
+A sandbox story platform (Phaser 3 + TypeScript + Vite, web/HTML5), not a single game. Roadmap, decisions and risks: `docs/PROJECT_BRIEF.md`.
+
+**Built so far:** the **Slicer** (M1: an installable, offline PWA that turns raw AI-generated sprite frames into spec-compliant layered sheets), and the **story pipeline** (validator, JSON Schema, Story Template, greybox library, `story:check`, `story:pack`). **Not built:** the Phaser runtime (`packages/game` is a placeholder; M4/M5), the in-app importer, the UI shell, life tracker and account (Brief v0.9 / GDD v0.4, not yet placed in the roadmap).
+
+**Start of every session:** read `docs-dev/HANDOVER.md` (what is merged, open and known), then `git fetch` and check `main`'s latest CI run before starting a ticket.
 
 **Story pipeline** (Brief §3): authors build stories with **their own Claude Code** in a clone of this public repo, from the Story Template and Story Schema, and run `npm run story:check` until it reports 0 errors; the in-app importer then validates the same package again. Players who only play need no AI. The author-facing guide is `docs/STORY_PROMPT_KIT.md` (Part B is the rulebook for the author's Claude Code); author stories live in the git-ignored `stories/` folder (`stories/story_<id>/`), never in the repo.
 
 ## Source of truth: `docs/`
 
-- `PROJECT_BRIEF.md` (vision, roadmap) · `ASSET_SPEC.md` (the technical contract) · `AI_TEAM_GUIDE.md` (workflow, ticket template).
+- `PROJECT_BRIEF.md` (vision, roadmap) · `ASSET_SPEC.md` (the technical contract for sprites and library data) · `GDD.md` (how the player runtime behaves) · `STORY_SCHEMA.md` (the story package contract) · `STORY_PROMPT_KIT.md` (rulebook for authors' Claude Code) · `AI_TEAM_GUIDE.md` (workflow, ticket template).
+- The runtime rules of Story Schema §6.1/§7.1 are recorded for M4/M5 in `docs-dev/story-runtime-rules.md` (build-to list, open questions).
 - **Read the relevant doc fresh at the start of every task. Never edit `docs/`** (denied in `.claude/settings.json`, enforced by the `docs-guard` CI check). The PM writes it, the owner uploads it.
 - If a spec is unclear, wrong, or blocks good engineering: **stop** and report
   `Spec issue: <file> §<section> — <problem> — <suggestion>`. Do not work around it and do not guess.
 - Spec numbers live in code once, in `packages/core/src/spec.ts` (cites the section). When the spec changes, update that file and `assets/registry/animsets.json` together; a test keeps the registry JSON and code in sync.
+- **Doc version numbers are never constants in code** (PKR-013): a docs-only version bump must not turn `main` red. Only file-format constants (`SPEC_VERSION`, `STORY_FORMAT_VERSION`, both `"0.1"`) exist; the sync tests compare the specs' tables with the code.
 
 ## Layout
 
@@ -25,7 +29,7 @@ packages/core/     pure TS, shared by Slicer + game importer: spec constants, re
 packages/slicer/   M1 PWA (Vite, vanilla TS, vite-plugin-pwa)
 packages/game/     Phaser runtime placeholder (M4)
 assets/registry/   animsets.json (content defined by Asset Spec §3)
-docs-dev/          technical docs owned by Claude Code (architecture, dev setup, decisions)
+docs-dev/          technical docs owned by Claude Code (architecture, decisions, HANDOVER.md, story-runtime-rules.md)
 tools/             repo scripts (pose templates, story check, schema)
 assets/            library data: registry, greybox locations
 templates/         story_template/ (the starting point for user stories)
@@ -57,7 +61,8 @@ Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run bu
 - Validation messages follow Asset Spec §7: file · frame key · pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
 - Images never leave the user's device (no upload, no analytics, no remote fonts/CDNs in the Slicer).
 - Repo is public: no secrets, tokens or personal data in commits.
-- "Poke" is a codename with an IP risk (Brief §7): keep it out of anything user-facing beyond the current tool titles until the name is decided.
+- **Never commit ROMs, or art, fonts, sounds or screenshots taken from other games** (Brief §2, §7). Only original assets, ever; that includes the PO's reference captures of a target UI, which stay out of the repo, PRs, CI artifacts and `docs/`. A private-build overrides folder (Brief §2) will be git-ignored and CI-guarded, but its name and the guard are not specified yet (see HANDOVER open items): don't create one until they are.
+- "Poke" is a codename with an IP risk (Brief §7): keep it out of anything user-facing beyond the current tool titles until the name is decided. The Emerald-style UI adds to that risk, which is why original assets only.
 
 ## Reporting
 
