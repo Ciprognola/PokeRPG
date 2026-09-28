@@ -113,6 +113,11 @@ export interface FigureOptions {
   bob?: readonly number[];
   /** Neutral grey artist's mannequin instead of the coloured figure (pose templates). Body layer only. */
   mannequin?: boolean;
+  /**
+   * Body layer: hands on hips. The arms form closed loops with the torso, so the background shows
+   * through two enclosed gaps (one large, one tiny) that no path from the outside can reach.
+   */
+  gaps?: boolean;
 }
 
 const BOB = [1, 3, 0, 1, 3, 0];
@@ -128,6 +133,21 @@ export const MANNEQUIN = {
   dark: [112, 114, 122],
   light: [196, 198, 204],
 } as const satisfies Record<string, Rgb>;
+
+/**
+ * Hands on hips: bent arms that close two loops against the torso, replacing the plain arms. The
+ * background shows through a 12 × 10 unit gap on the left and a tiny 8 × 2 one on the right.
+ */
+function gapShapes(cx: number, top: number): Shape[] {
+  return [
+    { kind: 'rect', x: cx - 32, y: top + 26, w: 18, h: 5, color: SKIN },
+    { kind: 'rect', x: cx - 32, y: top + 41, w: 18, h: 5, color: SKIN },
+    { kind: 'rect', x: cx - 32, y: top + 26, w: 6, h: 20, color: SKIN },
+    { kind: 'rect', x: cx + 14, y: top + 30, w: 14, h: 3, color: SKIN },
+    { kind: 'rect', x: cx + 14, y: top + 35, w: 14, h: 3, color: SKIN },
+    { kind: 'rect', x: cx + 22, y: top + 30, w: 6, h: 8, color: SKIN },
+  ];
+}
 
 /** Shapes of one layer of one walk frame, in frame units. */
 export function walkFrameShapes(
@@ -186,8 +206,13 @@ export function walkFrameShapes(
       return [
         ...legsFor(SKIN, 0),
         { kind: 'rect', x: cx - 14, y: top + 22, w: 28, h: 38, color: SKIN },
-        { kind: 'rect', x: cx - 20 + armSwing, y: top + 24, w: 6, h: 28, color: SKIN },
-        { kind: 'rect', x: cx + 14 - armSwing, y: top + 24, w: 6, h: 28, color: SKIN },
+        ...((o.gaps
+          ? []
+          : [
+              { kind: 'rect', x: cx - 20 + armSwing, y: top + 24, w: 6, h: 28, color: SKIN },
+              { kind: 'rect', x: cx + 14 - armSwing, y: top + 24, w: 6, h: 28, color: SKIN },
+            ]) as Shape[]),
+        ...(o.gaps ? gapShapes(cx, top) : []),
         { kind: 'ellipse', x: cx - 11, y: top, w: 22, h: 22, color: SKIN },
         ...eyes,
       ];

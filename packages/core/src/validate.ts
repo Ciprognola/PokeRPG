@@ -7,7 +7,14 @@ import { PngError, inspectPng } from './png.js';
 import type { PixelBuffer } from './pixels.js';
 import { REGISTRY, frameRects, getAnimSet, sheetSize } from './registry.js';
 import type { AnimSetRegistry } from './registry.js';
-import { FRAME, SHEET_FILE_LIMITS, SPEC_VERSION, TOLERANCES } from './spec.js';
+import {
+  FRAME,
+  KEY_COLOUR,
+  KEY_TOLERANCE,
+  SHEET_FILE_LIMITS,
+  SPEC_VERSION,
+  TOLERANCES,
+} from './spec.js';
 import type { LayerId } from './spec.js';
 
 /**
@@ -229,6 +236,33 @@ function validateSheet(
         ...base,
         pixel: boxFirst,
         message: `opaque content at (${boxFirst.x}, ${boxFirst.y}) outside the ${overflow ? 'overflow zone' : 'safe box'} x ${box.x0}–${box.x1}, y ${box.y0}–${box.y1} (${boxCount} px)`,
+      });
+    }
+
+    // Key colour left inside the character (all layers). Opaque = alpha >= 128.
+    let keyCount = 0;
+    let keyFirst: { x: number; y: number } | undefined;
+    for (let y = 0; y < rect.height; y++) {
+      for (let x = 0; x < rect.width; x++) {
+        const i = ((rect.y + y) * image.width + rect.x + x) * 4;
+        if (
+          image.data[i + 3]! >= OPAQUE_ALPHA &&
+          Math.abs(image.data[i]! - KEY_COLOUR[0]) <= KEY_TOLERANCE &&
+          Math.abs(image.data[i + 1]! - KEY_COLOUR[1]) <= KEY_TOLERANCE &&
+          Math.abs(image.data[i + 2]! - KEY_COLOUR[2]) <= KEY_TOLERANCE
+        ) {
+          keyCount++;
+          keyFirst ??= { x, y };
+        }
+      }
+    }
+    if (keyFirst) {
+      add(out, {
+        severity: 'warning',
+        check: 'key-colour',
+        ...base,
+        pixel: keyFirst,
+        message: `key-colour pixels remain: ${keyCount} px near #FF00FF, first at (${keyFirst.x}, ${keyFirst.y})`,
       });
     }
 

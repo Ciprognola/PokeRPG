@@ -1,6 +1,7 @@
 import { createPixelBuffer, cropPixels } from './pixels.js';
 import type { PixelBuffer, Rect } from './pixels.js';
 import { REGISTRY, frameRects, getAnimSet } from './registry.js';
+import { KEY_COLOUR } from './spec.js';
 
 /**
  * Frame extraction (PKR-003, docs/ASSET_SPEC.md §6 input and step 1): turn raw image(s) into clean,
@@ -40,6 +41,13 @@ export interface ExtractOptions {
   minComponentRatio?: number;
   /** Enclosed background-coloured holes bigger than this fraction of the character box are cut out. */
   holeRatio?: number;
+  /**
+   * Flat magenta key colour only: remove every enclosed pocket of it, of any size (no key colour may
+   * be left inside a character), and count as pocket any pixel within `keyPocketTolerance` of it
+   * so heavily blended slivers go too. Default true; false restores the size-limited behaviour.
+   */
+  keyPockets?: boolean;
+  keyPocketTolerance?: number;
   /** Width in source pixels of the soft edge that is un-mixed from the background. 0 = automatic. */
   edgeBand?: number;
   /** Return an empty (0 × 0) frame instead of failing on a cell with no character. For optional layers. */
@@ -50,6 +58,8 @@ const DEFAULTS = {
   bgTolerance: 24,
   minComponentRatio: 0.02,
   holeRatio: 0.003,
+  keyPockets: true,
+  keyPocketTolerance: 72,
   edgeBand: 0,
   allowEmpty: false,
 };
@@ -355,13 +365,34 @@ export function extractFrame(
   }
 
   // 3. Enclosed holes that show the background (gap between an arm and the body, ...).
+  // On the magenta key colour nothing of it may stay inside the character: every enclosed pocket
+  // goes, however small, and slivers that are mostly key colour count as pocket too.
+  const isKey =
+    flat !== undefined &&
+    o.keyPockets &&
+    flat.every((c, k) => Math.abs(c - KEY_COLOUR[k]!) <= o.bgTolerance);
+  const pocketTol = isKey ? Math.max(o.bgTolerance, o.keyPocketTolerance) : o.bgTolerance;
+  const nearKey = (i: number): boolean =>
+    isKey &&
+    Math.abs(src[i * 4]! - flat![0]) <= pocketTol &&
+    Math.abs(src[i * 4 + 1]! - flat![1]) <= pocketTol &&
+    Math.abs(src[i * 4 + 2]! - flat![2]) <= pocketTol;
   if (flat) {
     const holeCandidates = new Uint8Array(n);
-    for (let i = 0; i < n; i++) holeCandidates[i] = keep[i] && near(i) ? 1 : 0;
+    for (let i = 0; i < n; i++) {
+      if (!keep[i]) continue;
+      holeCandidates[i] = (isKey ? nearKey(i) : near(i)) ? 1 : 0;
+    }
     const { labels, areas } = label(holeCandidates, w, h, false);
+    // A wide-tolerance component only counts as a pocket if it contains real key colour: the
+    // blended rim on the OUTSIDE of the character is left to the soft-edge step below.
+    const seeded = new Uint8Array(areas.length);
+    if (isKey) for (let i = 0; i < n; i++) if (holeCandidates[i] && near(i)) seeded[labels[i]!] = 1;
     const min = o.holeRatio * box.width * box.height;
     for (let i = 0; i < n; i++) {
-      if (holeCandidates[i] && areas[labels[i]!]! >= min) keep[i] = 0;
+      if (!holeCandidates[i]) continue;
+      const l = labels[i]!;
+      if (isKey ? seeded[l] === 1 : areas[l]! >= min) keep[i] = 0;
     }
   }
 
@@ -436,7 +467,9 @@ export function extractFrame(
     let g = src[i * 4 + 1]!;
     let b = src[i * 4 + 2]!;
     let a = flat ? 255 : src[i * 4 + 3]!;
-    if (flat && edge[i]) {
+    // Pixels that are mostly key colour are un-mixed wherever they are, not only near the outside:
+    // a blended sliver between two limbs must not survive as an opaque magenta speck.
+    if (flat && (edge[i] || nearKey(i))) {
       const F = coreColour(x, y);
       if (F) {
         const u = [F[0] - flat[0], F[1] - flat[1], F[2] - flat[2]];
