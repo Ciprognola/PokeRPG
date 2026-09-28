@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   composeCharacter,
+  decodePng,
   extractFrames,
   packageFiles,
   prepareCharacter,
@@ -184,6 +185,37 @@ function usedCoverage(story: Record<string, any>): Set<string> {
   return used;
 }
 
+/** Where two files differ: first differing byte and, for PNGs, the first differing pixel. */
+function describeDifference(committed: Uint8Array, generated: Uint8Array): string {
+  let firstByte = -1;
+  for (let i = 0; i < Math.max(committed.length, generated.length); i++) {
+    if (committed[i] !== generated[i]) {
+      firstByte = i;
+      break;
+    }
+  }
+  let detail = `sizes ${committed.length} vs ${generated.length}, first differing byte ${firstByte}`;
+  try {
+    const a = decodePng(committed);
+    const b = decodePng(generated);
+    let count = 0;
+    let first = '';
+    for (let i = 0; i < a.data.length; i++) {
+      if (a.data[i] !== b.data[i]) {
+        if (count === 0) {
+          const px = Math.floor(i / 4);
+          first = `pixel (${px % a.width}, ${Math.floor(px / a.width)}) channel ${i % 4}: committed ${a.data[i]} generated ${b.data[i]}`;
+        }
+        count++;
+      }
+    }
+    detail += `; decoded pixels differ in ${count} values${count ? ` (${first})` : ' (pixel data identical, only the PNG encoding differs)'}`;
+  } catch {
+    detail += '; not a decodable PNG';
+  }
+  return detail;
+}
+
 describe('templates/story_template', () => {
   it('passes validation with zero errors and zero warnings', () => {
     const r = validateStory(baseInput, library);
@@ -262,7 +294,9 @@ describe('templates/story_template', () => {
     ] as [string, LayerId[], number][]) {
       for (const [path, data] of build(name, layers, seed)) {
         const committed = readFileSync(join(templateDir, 'characters', path));
-        expect(Buffer.compare(committed, Buffer.from(data)), path).toBe(0);
+        if (Buffer.compare(committed, Buffer.from(data)) !== 0) {
+          expect.fail(`${path}: ${describeDifference(committed, data)}`);
+        }
       }
     }
   });
