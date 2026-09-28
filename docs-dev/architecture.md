@@ -42,7 +42,7 @@ See [pose-templates.md](pose-templates.md): generated mannequin references, comm
 
 ## Stories
 
-See [story-validator.md](story-validator.md): story validator (Ajv structure + semantic checks), `npm run story:check`, the story template, greybox locations ([location-format-proposal.md](location-format-proposal.md)). `core` depends on `ajv` for this; the Slicer bundle does not include it (`sideEffects: false` lets the bundler drop it).
+See [story-validator.md](story-validator.md): story validator (Ajv structure + semantic checks), `npm run story:check`, the story template, greybox locations (format: Asset Spec §8.1). `core` depends on `ajv` for this; the Slicer bundle does not include it (`sideEffects: false` lets the bundler drop it).
 
 ## Spec in code
 

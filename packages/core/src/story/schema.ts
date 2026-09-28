@@ -7,7 +7,10 @@
  * length with placeholders, …) is checked by `validateStory` (§11).
  */
 
-export const STORY_SCHEMA_VERSION = '0.1';
+/** Version of docs/STORY_SCHEMA.md this schema follows. */
+export const STORY_SCHEMA_VERSION = '0.2';
+/** The `schemaVersion` a story.json carries: the file format version, unchanged since v0.1 (§3). */
+export const STORY_FORMAT_VERSION = '0.1';
 
 /** Text limits from Story Schema §5.1 and §6. */
 export const STORY_LIMITS = {
@@ -105,7 +108,7 @@ export const storySchema: Json = {
   description: `Story Schema v${STORY_SCHEMA_VERSION} (docs/STORY_SCHEMA.md). Structure only; references, tiles and text length are checked by the story validator.`,
   ...strict(
     {
-      schemaVersion: { const: STORY_SCHEMA_VERSION },
+      schemaVersion: { const: STORY_FORMAT_VERSION },
       id: {
         type: 'string',
         pattern: '^story_[a-z0-9]+(-[a-z0-9]+)*$',

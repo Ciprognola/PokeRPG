@@ -7,6 +7,7 @@ import {
   DIRECTIONS_LIST,
   QUEST_STATES,
   STORY_CHECKS,
+  STORY_FORMAT_VERSION,
   STORY_LIMITS,
   STORY_SCHEMA_VERSION,
   TASK_STATES,
@@ -58,8 +59,10 @@ const variantsOf = (def: any, key: string): Map<string, any> =>
 describe('Story Schema doc ↔ JSON Schema', () => {
   it('version', () => {
     expect(/\*Version (\d+\.\d+)/.exec(md)?.[1]).toBe(STORY_SCHEMA_VERSION);
+    // The field is the file format version, which stays "0.1" until the format itself changes.
     const row = table(section(3)).find((r) => r[0] === '`schemaVersion`')!;
     expect(ticks(row[2]!)).toEqual([`"${schema.properties.schemaVersion.const}"`]);
+    expect(schema.properties.schemaVersion.const).toBe(STORY_FORMAT_VERSION);
   });
 
   it('§3 top-level fields and which are required', () => {

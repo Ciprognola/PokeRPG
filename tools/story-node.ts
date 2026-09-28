@@ -1,7 +1,7 @@
 // Node helpers for the story tools: read a story folder or zip, load the asset library.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from 'node:path';
-import { buildLibrary, unzipFiles } from '@pokerpg/core';
+import { buildLibrary, unzipFiles, validateLocationAsset } from '@pokerpg/core';
 import type { AudioRegistry, Library, LocationAsset, PackageFile } from '@pokerpg/core';
 
 function walk(dir: string): string[] {
@@ -26,18 +26,27 @@ export function readStoryFiles(target: string): PackageFile[] {
   }));
 }
 
-/** `<assets>/locations/*.json` and `<assets>/registry/audio.json`. */
+/**
+ * `<assets>/locations/*.json` and `<assets>/registry/audio.json`. Every location file is checked
+ * against Asset Spec §8.1 first; a broken library is a repo bug, so it throws with every issue.
+ */
 export function loadLibrary(assetsDir: string): Library {
   const dir = resolve(assetsDir);
   const locDir = join(dir, 'locations');
-  const locations = existsSync(locDir)
-    ? readdirSync(locDir)
-        .filter((f) => f.endsWith('.json'))
-        .map((f) => JSON.parse(readFileSync(join(locDir, f), 'utf8')) as LocationAsset)
-    : [];
   const audioFile = join(dir, 'registry', 'audio.json');
   const audio: AudioRegistry = existsSync(audioFile)
     ? (JSON.parse(readFileSync(audioFile, 'utf8')) as AudioRegistry)
     : { specVersion: '0.1', music: [], sfx: [] };
+  const problems: string[] = [];
+  const locations = (existsSync(locDir) ? readdirSync(locDir) : [])
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => {
+      const data: unknown = JSON.parse(readFileSync(join(locDir, f), 'utf8'));
+      for (const i of validateLocationAsset(data, { fileName: f, music: audio.music }))
+        problems.push(`${f} · ${i.path} · ${i.message}`);
+      return data as LocationAsset;
+    });
+  if (problems.length)
+    throw new Error(`Library locations break Asset Spec §8.1:\n${problems.join('\n')}`);
   return buildLibrary(locations, audio);
 }

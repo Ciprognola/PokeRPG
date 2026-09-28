@@ -239,14 +239,14 @@ function validateSheet(
       });
     }
 
-    // Key colour left inside the character (all layers). Opaque = alpha >= 128.
+    // Key colour left in any layer (§7, §7.1): a pixel with alpha > 0 and every channel within 24.
     let keyCount = 0;
     let keyFirst: { x: number; y: number } | undefined;
     for (let y = 0; y < rect.height; y++) {
       for (let x = 0; x < rect.width; x++) {
         const i = ((rect.y + y) * image.width + rect.x + x) * 4;
         if (
-          image.data[i + 3]! >= OPAQUE_ALPHA &&
+          image.data[i + 3]! > 0 &&
           Math.abs(image.data[i]! - KEY_COLOUR[0]) <= KEY_TOLERANCE &&
           Math.abs(image.data[i + 1]! - KEY_COLOUR[1]) <= KEY_TOLERANCE &&
           Math.abs(image.data[i + 2]! - KEY_COLOUR[2]) <= KEY_TOLERANCE
