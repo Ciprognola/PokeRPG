@@ -71,6 +71,19 @@ function showHome(): void {
           text: 'Load a chr_<name> zip or 768 × 512 sheets (for example layers repainted by an AI), check them, fix them, add a layer.',
         }),
       ),
+      h(
+        'a',
+        {
+          class: 'mode',
+          id: 'download-templates',
+          href: `${import.meta.env.BASE_URL}downloads/pokerpg-pose-templates.zip`,
+          download: 'pokerpg-pose-templates.zip',
+        },
+        h('strong', { text: 'Download pose templates' }),
+        h('span', {
+          text: 'Grey-mannequin references for your image AI: one grid image and the 24 single poses. Works offline.',
+        }),
+      ),
     ),
   );
 }
