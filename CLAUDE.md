@@ -8,7 +8,7 @@ A sandbox story platform (Phaser 3 + TypeScript + Vite, web/HTML5), not a single
 deliverable (M1) is the **Slicer**: an installable, offline PWA that turns raw AI-generated sprite frames
 into spec-compliant layered sheets. Roadmap, decisions and risks: `docs/PROJECT_BRIEF.md`.
 
-**Story pipeline** (Brief §3): authors build stories with **their own Claude Code** in a clone of this public repo, from the Story Template and Story Schema, and run `npm run story:check` until it reports 0 errors; the in-app importer then validates the same package again. Players who only play need no AI.
+**Story pipeline** (Brief §3): authors build stories with **their own Claude Code** in a clone of this public repo, from the Story Template and Story Schema, and run `npm run story:check` until it reports 0 errors; the in-app importer then validates the same package again. Players who only play need no AI. The author-facing guide is `docs/STORY_PROMPT_KIT.md` (Part B is the rulebook for the author's Claude Code); author stories live in the git-ignored `stories/` folder (`stories/story_<id>/`), never in the repo.
 
 ## Source of truth: `docs/`
 
@@ -29,6 +29,7 @@ docs-dev/          technical docs owned by Claude Code (architecture, dev setup,
 tools/             repo scripts (pose templates, story check, schema)
 assets/            library data: registry, greybox locations
 templates/         story_template/ (the starting point for user stories)
+stories/           author stories (git-ignored except .gitkeep)
 schemas/           story.schema.json (generated)
 ```
 

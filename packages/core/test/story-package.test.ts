@@ -205,3 +205,37 @@ describe('command line: npm run story:check', () => {
     expect(r.err).toContain('Not a readable story package');
   }, 30_000);
 });
+
+describe('author stories folder (README "Writing a story")', () => {
+  const repo = fileURLToPath(new URL('../../../', import.meta.url));
+  const git = (...args: string[]): { code: number; out: string } => {
+    const r = spawnSync('git', args, { cwd: repo, encoding: 'utf8' });
+    return { code: r.status ?? -1, out: r.stdout };
+  };
+  const inGit = git('rev-parse', '--git-dir').code === 0;
+
+  it.skipIf(!inGit)('stories/ is kept, and everything an author puts in it is git-ignored', () => {
+    expect(git('check-ignore', '-q', 'stories/story_my-tale/story.json').code).toBe(0);
+    expect(git('check-ignore', '-q', 'stories/story_my-tale/characters/chr_a/a.png').code).toBe(0);
+    expect(git('check-ignore', '-q', 'stories/story_my-tale.zip').code).toBe(0);
+    expect(git('check-ignore', '-q', 'stories/.gitkeep').code).toBe(1);
+    expect(git('ls-files', 'stories/.gitkeep').out.trim()).toBe('stories/.gitkeep');
+  });
+
+  it('a story copied from the template into stories/ passes story:check', () => {
+    const dir = join(repo, 'stories', 'story_template');
+    cpSync(templateDir, dir, { recursive: true });
+    try {
+      const tsx = join(repo, 'node_modules', 'tsx', 'dist', 'cli.mjs');
+      const r = spawnSync(
+        process.execPath,
+        [tsx, join(repo, 'tools', 'check-story.ts'), 'stories/story_template'],
+        { cwd: repo, encoding: 'utf8' },
+      );
+      expect(r.stdout).toContain('story_template: 0 errors, 0 warnings');
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 30_000);
+});

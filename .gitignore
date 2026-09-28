@@ -11,3 +11,7 @@ Thumbs.db
 .claude/settings.local.json
 test-results/
 playwright-report/
+
+# Author stories (README "Writing a story"): never committed
+/stories/*
+!/stories/.gitkeep
