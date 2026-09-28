@@ -45,6 +45,7 @@ Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run bu
 - Non-trivial or new area: propose a short plan first. Tickets state the outcome; the approach is yours.
 - Definition of done: tests added · CI green · `docs-dev/` and this file updated if behaviour changed · PR opened with a "Not verified" section.
 - Related tickets share a session; start fresh between unrelated groups.
+- **CI tests the PR merged with `main`, not the branch alone.** A PR that conflicts with `main` gets no CI run at all, so "no checks" means "resolve the conflict" (merge `main` into the branch, never rebase). After a doc upload lands on `main`, the doc-sync tests may go red there until the next ticket catches the code up; that is expected. Merge-ready = the latest run is green on the PR as merged.
 
 ## Conventions
 

@@ -55,9 +55,9 @@ export const TOLERANCES = {
 } as const;
 
 /**
- * Key colour of raw input (§6): flat magenta #FF00FF. `KEY_TOLERANCE` is what the validator counts as
- * "near the key colour" (max per-channel distance, alpha >= 128). This check is not in the §7 table
- * yet: it comes from ticket PKR-008, and the tolerance is our choice (see docs-dev/report-format.md).
+ * Key colour of raw input (§6): flat magenta #FF00FF. `KEY_TOLERANCE` is the §7.1 definition of
+ * "near the key colour": every RGB channel within 24, on a pixel with alpha > 0. The Slicer's own
+ * removal threshold is a separate, wider choice (`keyPocketTolerance` in extract.ts).
  */
 export const KEY_COLOUR = [255, 0, 255] as const;
 export const KEY_TOLERANCE = 24;

@@ -256,11 +256,13 @@ describe('validator: "key-colour pixels remain" (warning)', () => {
     expect(f!.message).toBe('key-colour pixels remain: 2 px near #FF00FF, first at (64, 80)');
   });
 
-  it('uses the tolerance: 24 counts, 25 and pink do not; faint pixels do not', () => {
+  it('uses §7.1: 24 per channel counts, 25 and pink do not; alpha > 0 counts, alpha 0 does not', () => {
     expect(keyFindings([paint(body(), 64, 80, [255 - 24, 24, 255 - 24, 255])])).toHaveLength(1);
     expect(keyFindings([paint(body(), 64, 80, [255 - 25, 25, 255, 255])])).toEqual([]);
     expect(keyFindings([paint(body(), 64, 80, [255, 105, 180, 255])])).toEqual([]);
-    expect(keyFindings([paint(body(), 64, 80, [255, 0, 255, 127])])).toEqual([]);
+    expect(keyFindings([paint(body(), 64, 80, [255, 0, 255, 127])])).toHaveLength(1);
+    expect(keyFindings([paint(body(), 64, 80, [255, 0, 255, 1])])).toHaveLength(1);
+    expect(keyFindings([paint(body(), 64, 80, [255, 0, 255, 0])])).toEqual([]);
   });
 
   it('checks every layer, not only the body', () => {

@@ -77,5 +77,6 @@ committed files drift). `story.json` is hand-written.
 Stories refer to library locations and audio ids. The real library arrives in M7; until then:
 
 - `assets/locations/loc_greybox-harbour.json` and `loc_greybox-bakery.json`: size, collision grid, spawns, exits (tiles or a
-  map edge) and areas. **The format is our proposal**; see [location-format-proposal.md](location-format-proposal.md).
+  map edge) and areas, in the format of Asset Spec §8.1 (`validateLocationAsset` checks every rule of its field table;
+  `tools/story-node.ts` `loadLibrary` refuses a library that breaks one, including a file whose name differs from its `id`).
 - `assets/registry/audio.json`: placeholder music and sound-effect ids.

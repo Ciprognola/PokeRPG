@@ -72,7 +72,7 @@ export const STORY_CHECKS: readonly {
     checks: ['character'],
   },
   {
-    row: 'Tiles inside the location and not blocked; move paths straight between points',
+    row: 'Placement, spawn and task tiles inside the location and not blocked (Asset Spec §8.1); scene `move` paths straight between points',
     severity: 'Error',
     checks: ['tile', 'path'],
   },

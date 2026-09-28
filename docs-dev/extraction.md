@@ -58,6 +58,11 @@ frames). **Not measured on a real phone**; the browser's own decoded bitmap (up 
 Guarantee: after extraction no pixel that is mostly `#FF00FF` remains opaque inside a character, and the validator
 warns if any does (check `key-colour`, see [report-format.md](report-format.md)).
 
+Two thresholds, on purpose: the **warning** uses the Asset Spec §7.1 definition (every channel within 24 of `#FF00FF`, any
+pixel with alpha > 0; `KEY_TOLERANCE` in `spec.ts`), while **removal** is wider (`keyPocketTolerance`, 72 per channel, our
+choice, not spec) so blended slivers around a pocket go too. The gap between them is the safety margin: anything the
+validator would flag was already inside the removal range.
+
 - A frame changes compared with the previous behaviour only if its old output still had key-coloured pixels: a shape
   without gaps is pixel-identical (tested). Mentioned for honesty: the synthetic walker itself has a thin gap under the
   chin, so its frames did change — the old output had opaque magenta-tinted flecks there.
