@@ -23,5 +23,5 @@ it('stage hashes', () => {
     `STAGE canvases ${perFrame.join(',')}`,
     `STAGE sheet ${md5([new Uint8Array(sheet.data.buffer)])}`,
   ];
-  console.log(lines.join('\n'));
+  throw new Error(`\n${lines.join('\n')}`);
 });
