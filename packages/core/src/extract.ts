@@ -360,6 +360,11 @@ export function extractFrame(
     for (let i = 0; i < n; i++) holeCandidates[i] = keep[i] && near(i) ? 1 : 0;
     const { labels, areas } = label(holeCandidates, w, h, false);
     const min = o.holeRatio * box.width * box.height;
+    (globalThis as { __dbg?: (v: unknown) => void }).__dbg?.({
+      box,
+      min,
+      areas: areas.slice(1).filter((a) => a > 20),
+    });
     for (let i = 0; i < n; i++) {
       if (holeCandidates[i] && areas[labels[i]!]! >= min) keep[i] = 0;
     }

@@ -10,6 +10,8 @@ it('frame 8 edge pixels', () => {
     layer: 'body',
     seed: 1,
   });
+  const dbg: unknown[] = [];
+  (globalThis as { __dbg?: (v: unknown) => void }).__dbg = (v) => dbg.push(v);
   const f = extractFrame(raw);
   const { width: w, data } = f.pixels;
   const lines: string[] = [];
@@ -21,5 +23,7 @@ it('frame 8 edge pixels', () => {
       );
     }
   }
-  throw new Error(`\nEDGECOUNT ${lines.length} size ${w}x${f.pixels.height}\n${lines.join('\n')}`);
+  throw new Error(
+    `\nDBG ${JSON.stringify(dbg)}\nEDGECOUNT ${lines.length} size ${w}x${f.pixels.height}\n${lines.join('\n')}`,
+  );
 });
