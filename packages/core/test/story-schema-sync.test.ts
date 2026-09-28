@@ -9,7 +9,6 @@ import {
   STORY_CHECKS,
   STORY_FORMAT_VERSION,
   STORY_LIMITS,
-  STORY_SCHEMA_VERSION,
   TASK_STATES,
   storySchema,
 } from '../src/index.js';
@@ -58,7 +57,10 @@ const variantsOf = (def: any, key: string): Map<string, any> =>
 
 describe('Story Schema doc ↔ JSON Schema', () => {
   it('version', () => {
-    expect(/\*Version (\d+\.\d+)/.exec(md)?.[1]).toBe(STORY_SCHEMA_VERSION);
+    // The document's own version is deliberately not mirrored in code: a docs-only bump (v0.4 →
+    // v0.5) must not turn CI red. Drift is caught by the table comparisons below; here we only
+    // require the header line the PM's docs always carry, so a mangled upload is noticed.
+    expect(/^\*Version \d+\.\d+ · /m.test(md)).toBe(true);
     // The field is the file format version, which stays "0.1" until the format itself changes.
     const row = table(section(3)).find((r) => r[0] === '`schemaVersion`')!;
     expect(ticks(row[2]!)).toEqual([`"${schema.properties.schemaVersion.const}"`]);

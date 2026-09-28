@@ -1,8 +1,6 @@
 // Validates a story package: a story_<id>/ folder or a story_<id>.zip. See USAGE below.
 // Exit code 0 = no errors (warnings are allowed), 1 = errors, 2 = could not read the package.
-import { fileURLToPath } from 'node:url';
-import { formatStoryFinding, readStoryPackage, validateStory } from '@pokerpg/core';
-import { loadLibrary, readStoryFiles } from './story-node.js';
+import { checkStory } from './story-node.js';
 
 const USAGE = `Check a story package against the Story Schema (docs/STORY_SCHEMA.md).
 
@@ -50,34 +48,4 @@ if (libIndex >= 0 && (libValue === undefined || libValue.startsWith('-')))
   usageError('--library needs a folder, e.g. --library assets');
 if (!target) usageError('No story given: say which folder or .zip to check.');
 
-try {
-  const read = readStoryPackage(readStoryFiles(target!));
-  if (!read.input) {
-    for (const e of read.errors) console.error(e);
-    console.error(
-      'Not a readable story package. Expected a story_<id>/ folder with story.json in it (or a .zip of one).',
-    );
-    process.exit(2);
-  }
-  const assets = libValue ?? fileURLToPath(new URL('../assets', import.meta.url));
-  const report = validateStory(read.input, loadLibrary(assets));
-  if (flag('--json')) {
-    console.log(JSON.stringify({ ...report, packageErrors: read.errors }, null, 2));
-  } else {
-    for (const e of read.errors) console.log(`warning · ${e}`);
-    for (const f of report.findings) console.log(`${f.severity} · ${formatStoryFinding(f)}`);
-    const { errors, warnings } = report.summary;
-    console.log(
-      `${report.storyId ?? target}: ${errors} error${errors === 1 ? '' : 's'}, ${warnings} warning${warnings === 1 ? '' : 's'}`,
-    );
-    console.log(
-      report.ok
-        ? 'OK: no errors. The story is ready to import.'
-        : 'Fix the errors above and run the check again until it reports 0 errors.',
-    );
-  }
-  process.exit(report.ok ? 0 : 1);
-} catch (e) {
-  console.error((e as Error).message);
-  process.exit(2);
-}
+process.exit(checkStory(target!, libValue, flag('--json')));

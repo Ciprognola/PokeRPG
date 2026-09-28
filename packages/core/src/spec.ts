@@ -1,5 +1,5 @@
 /**
- * Asset Spec constants (docs/ASSET_SPEC.md, v0.2). This file is the code-side
+ * Asset Spec constants (docs/ASSET_SPEC.md). This file is the code-side
  * copy of the spec: change the spec first, then here. Every number cites its section.
  */
 
