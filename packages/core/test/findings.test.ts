@@ -30,3 +30,20 @@ describe('findings', () => {
     expect(makeReport('0.1', [error]).ok).toBe(false);
   });
 });
+
+describe('report shape', () => {
+  it('carries version, summary and sheet list', () => {
+    const report = makeReport(
+      '0.1',
+      [error, { ...error, severity: 'warning' }],
+      [{ file: 'a.png', width: 768, height: 512 }],
+    );
+    expect(report).toMatchObject({
+      reportVersion: 1,
+      specVersion: '0.1',
+      ok: false,
+      summary: { errors: 1, warnings: 1 },
+      sheets: [{ file: 'a.png', width: 768, height: 512 }],
+    });
+  });
+});

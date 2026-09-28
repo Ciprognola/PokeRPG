@@ -2,3 +2,7 @@ export * from './spec.js';
 export * from './registry.js';
 export * from './naming.js';
 export * from './findings.js';
+export * from './pixels.js';
+export * from './png.js';
+export * from './measure.js';
+export * from './validate.js';
