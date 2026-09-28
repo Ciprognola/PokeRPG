@@ -32,6 +32,10 @@ See [assemble.md](assemble.md): one scale per character, body-driven whole-pixel
 
 See [slicer-app.md](slicer-app.md): setup → process → review (preview, findings, nudge) → zip export.
 
+## Validate-only mode
+
+See [validate-only.md](validate-only.md): import on-spec sheets or a package, add a layer, nudge per layer, re-export identically.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.

@@ -7,7 +7,15 @@ import {
   packageFiles,
   zipFiles,
 } from '@pokerpg/core';
-import type { AssembledCharacter, Finding, LayerId, Nudges, Prepared, Shift } from '@pokerpg/core';
+import type {
+  AssembledCharacter,
+  Finding,
+  LayerId,
+  LayerNudges,
+  Nudges,
+  Prepared,
+  Shift,
+} from '@pokerpg/core';
 import { describeError } from '../util.js';
 import { canvasesFor, drawFrame, drawOverlay } from './canvas.js';
 import type { SheetCanvases } from './canvas.js';
@@ -15,26 +23,38 @@ import { h } from './dom.js';
 
 const PREVIEW_FPS = 8;
 const NUDGE_LIMIT = 16;
+const ALL_LAYERS = '*';
+
+export interface ReviewOptions {
+  backLabel: string;
+  /** Called with the character as edited (nudges baked into the sheets) when the user goes back. */
+  onBack: (edited: AssembledCharacter) => void;
+}
 
 export interface ReviewHandle {
   /** Stop timers and listeners. */
   dispose(): void;
 }
 
-/** The review screen: preview, layers, findings, frame nudge, export. */
+/** The review screen: preview, layers, findings, frame nudge, export. Shared by both modes. */
 export function mountReview(
   root: HTMLElement,
   prepared: Prepared,
-  onStartOver: () => void,
+  options: ReviewOptions,
 ): ReviewHandle {
   const set = getAnimSet(prepared.setId)!;
   const rects = frameRects(set);
+  /** Shifts of a frame in every layer. */
   const nudges: Record<string, Shift> = {};
+  /** Shifts of one layer of a frame: `<layer>/<frameKey>`. */
+  const layerNudges: Record<string, Shift> = {};
   let assembled: AssembledCharacter;
   let sheets: SheetCanvases = new Map();
   let selected = 0;
   let showOverlay = true;
   let playing = true;
+  let scope: string = ALL_LAYERS;
+  let allFrames = false;
   const visible = new Set<LayerId>(prepared.layers.map((l) => l.layer));
 
   // ---- elements ----
@@ -47,16 +67,16 @@ export function mountReview(
   const exportNote = h('p', { id: 'export-note', class: 'hint' });
   const notes = h('ul', { id: 'notes', class: 'notes' });
 
-  const previewCanvases = DIRECTIONS.map((dir) => {
-    const canvas = h('canvas', {
+  const previewCanvases = DIRECTIONS.map((dir) => ({
+    dir,
+    canvas: h('canvas', {
       width: 128,
       height: 128,
       'data-dir': dir,
       class: 'frame-canvas',
       'aria-label': `Walk preview, ${dir}`,
-    });
-    return { dir, canvas };
-  });
+    }),
+  }));
   const previews = h(
     'div',
     { class: 'previews' },
@@ -117,7 +137,36 @@ export function mountReview(
   });
   const inspectorTitle = h('h3', { id: 'inspector-title' });
   const nudgeInfo = h('p', { id: 'nudge-info', class: 'hint' });
-  const nudgeBtn = (label: string, dx: number, dy: number, aria: string) =>
+
+  const scopeSelect = h(
+    'select',
+    {
+      id: 'nudge-layer',
+      'aria-label': 'Which layers the nudge moves',
+      onchange: () => {
+        scope = scopeSelect.value;
+        refreshSelection();
+      },
+    },
+    h('option', { value: ALL_LAYERS, text: 'All layers' }),
+    ...prepared.layers.map((l) => h('option', { value: l.layer, text: `Only ${l.layer}` })),
+  );
+  const allFramesBox = h('input', {
+    type: 'checkbox',
+    id: 'nudge-all',
+    onchange: () => {
+      allFrames = allFramesBox.checked;
+      refreshSelection();
+    },
+  });
+  const scopeRow = h(
+    'div',
+    { class: 'row wrap scope' },
+    prepared.layers.length > 1 ? scopeSelect : null,
+    h('label', { class: 'check' }, allFramesBox, ' All frames'),
+  );
+
+  const nudgeBtn = (label: string, dx: number, dy: number, aria: string): HTMLButtonElement =>
     h(
       'button',
       {
@@ -176,8 +225,19 @@ export function mountReview(
         exportBtn,
         h(
           'button',
-          { class: 'btn', id: 'start-over', type: 'button', onclick: onStartOver },
-          'Start over',
+          {
+            class: 'btn',
+            id: 'start-over',
+            type: 'button',
+            onclick: () =>
+              options.onBack(
+                composeCharacter(prepared, nudges as Nudges, {
+                  encode: false,
+                  layerNudges: layerNudges as LayerNudges,
+                }),
+              ),
+          },
+          options.backLabel,
         ),
       ),
       exportNote,
@@ -201,29 +261,44 @@ export function mountReview(
       {},
       h('h3', { text: 'Frames' }),
       grid,
-      h('div', { class: 'inspect' }, inspectorTitle, inspector, nudgeInfo, pad),
+      h('div', { class: 'inspect' }, inspectorTitle, inspector, nudgeInfo, scopeRow, pad),
     ),
   );
 
   // ---- behaviour ----
-  function frameNudge(key: string): Shift {
-    return nudges[key] ?? { dx: 0, dy: 0 };
+  const zero: Shift = { dx: 0, dy: 0 };
+  const clamp = (v: number): number => Math.max(-NUDGE_LIMIT, Math.min(NUDGE_LIMIT, v));
+
+  /** The store and key that the current scope writes to for a frame. */
+  function slot(key: string): { store: Record<string, Shift>; id: string } {
+    return scope === ALL_LAYERS
+      ? { store: nudges, id: key }
+      : { store: layerNudges, id: `${scope}/${key}` };
+  }
+
+  function currentNudge(key: string): Shift {
+    const { store, id } = slot(key);
+    return store[id] ?? zero;
   }
 
   function nudge(dx: number, dy: number): void {
-    const key = rects[selected]!.key;
-    const cur = frameNudge(key);
-    const next = {
-      dx: Math.max(-NUDGE_LIMIT, Math.min(NUDGE_LIMIT, cur.dx + dx)),
-      dy: Math.max(-NUDGE_LIMIT, Math.min(NUDGE_LIMIT, cur.dy + dy)),
-    };
-    if (next.dx === 0 && next.dy === 0) delete nudges[key];
-    else nudges[key] = next;
+    const targets = allFrames ? rects.map((r) => r.key) : [rects[selected]!.key];
+    for (const key of targets) {
+      const { store, id } = slot(key);
+      const cur = store[id] ?? zero;
+      const next = { dx: clamp(cur.dx + dx), dy: clamp(cur.dy + dy) };
+      if (next.dx === 0 && next.dy === 0) delete store[id];
+      else store[id] = next;
+    }
     recompose();
   }
 
   function resetNudge(): void {
-    delete nudges[rects[selected]!.key];
+    const targets = allFrames ? rects.map((r) => r.key) : [rects[selected]!.key];
+    for (const key of targets) {
+      const { store, id } = slot(key);
+      delete store[id];
+    }
     recompose();
   }
 
@@ -235,7 +310,10 @@ export function mountReview(
 
   /** Recompute sheets and validation after a nudge. Fast: no PNG encoding. */
   function recompose(): void {
-    assembled = composeCharacter(prepared, nudges as Nudges, { encode: false });
+    assembled = composeCharacter(prepared, nudges as Nudges, {
+      encode: false,
+      layerNudges: layerNudges as LayerNudges,
+    });
     sheets = canvasesFor(assembled.sheets);
     refreshFindings();
     refreshSelection();
@@ -284,6 +362,7 @@ export function mountReview(
             class: `finding ${f.severity}`,
             'data-check': f.check,
             ...(f.frameKey ? { 'data-frame': f.frameKey } : {}),
+            ...(f.file ? { 'data-file': f.file } : {}),
           },
           h('span', { class: 'dot', 'aria-hidden': 'true' }),
           f.frameKey
@@ -312,13 +391,19 @@ export function mountReview(
       t.button.classList.toggle('has-warning', sev.get(k) === 'warning');
       t.button.setAttribute('aria-pressed', String(i === selected));
     });
-    const auto = prepared.shift[key] ?? { dx: 0, dy: 0 };
-    const n = frameNudge(key);
+    const auto = prepared.shift[key] ?? zero;
+    const n = currentNudge(key);
+    const who = scope === ALL_LAYERS ? 'all layers' : `${scope} only`;
+    const where = allFrames ? 'every frame' : 'this frame';
     inspectorTitle.textContent = key;
-    nudgeInfo.textContent = `Auto shift (${auto.dx}, ${auto.dy}) · your nudge (${n.dx}, ${n.dy})`;
+    nudgeInfo.textContent =
+      (prepared.scale === null ? '' : `Auto shift (${auto.dx}, ${auto.dy}) · `) +
+      `nudge for ${who}, ${where}: (${n.dx}, ${n.dy})`;
     nudgeInfo.dataset['dx'] = String(n.dx);
     nudgeInfo.dataset['dy'] = String(n.dy);
-    resetBtn.disabled = n.dx === 0 && n.dy === 0;
+    resetBtn.disabled = allFrames
+      ? !rects.some((r) => currentNudge(r.key) !== zero)
+      : n.dx === 0 && n.dy === 0;
   }
 
   function redraw(): void {
@@ -375,7 +460,10 @@ export function mountReview(
     exportNote.textContent = 'Building the package…';
     await new Promise((r) => setTimeout(r, 30)); // let the message paint
     try {
-      const full = composeCharacter(prepared, nudges as Nudges, { encode: true });
+      const full = composeCharacter(prepared, nudges as Nudges, {
+        encode: true,
+        layerNudges: layerNudges as LayerNudges,
+      });
       if (!full.report.ok) {
         assembled = full;
         refreshFindings();
@@ -391,10 +479,9 @@ export function mountReview(
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      exportNote.textContent = `Saved chr_${prepared.characterName}.zip (${(zip.length / 1024).toFixed(0)} KB).`;
-      exportNote.dataset['done'] = 'true';
       refreshFindings();
       exportNote.textContent = `Saved chr_${prepared.characterName}.zip (${(zip.length / 1024).toFixed(0)} KB).`;
+      exportNote.dataset['done'] = 'true';
     } catch (e) {
       exportNote.textContent = describeError(e);
       refreshFindings();

@@ -11,6 +11,7 @@ test.beforeAll(() => {
 test.describe('desktop flow', () => {
   test('raw images → review → a zip that passes validation', async ({ page }) => {
     await page.goto('/');
+    await page.locator('#mode-slice').click();
     await page.locator('#char-name').fill('Mira Rose');
     await expect(page.locator('#char-name')).toHaveValue('mira-rose');
     await expect(page.locator('#process')).toBeDisabled(); // no body yet
@@ -125,6 +126,7 @@ test.describe('desktop flow', () => {
 
   test('says clearly what is wrong with the input', async ({ page }) => {
     await page.goto('/');
+    await page.locator('#mode-slice').click();
     await page.locator('#file-input').setInputFiles(fx.hairFrames.slice(0, 23));
     await expect(page.locator('#notice')).toContainText('You picked 23 images');
     await page.locator('#file-input').setInputFiles(fx.notes);
@@ -133,6 +135,7 @@ test.describe('desktop flow', () => {
 
   test('a file that cannot be decoded fails with a named error', async ({ page }) => {
     await page.goto('/');
+    await page.locator('#mode-slice').click();
     await page.locator('#char-name').fill('mira');
     // a text file renamed as an image passes the picker but cannot be decoded
     await page

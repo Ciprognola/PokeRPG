@@ -3,6 +3,7 @@ import { SPEC_VERSION } from '@pokerpg/core';
 import type { Prepared } from '@pokerpg/core';
 import { buildCharacter } from './session.js';
 import type { BuildProgress } from './session.js';
+import { mountCheck, newCheckModel } from './ui/check.js';
 import { h } from './ui/dom.js';
 import { mountReview } from './ui/review.js';
 import type { ReviewHandle } from './ui/review.js';
@@ -13,6 +14,7 @@ import './style.css';
 registerSW({ immediate: true });
 
 const model = newSetupModel();
+const checkModel = newCheckModel();
 let review: ReviewHandle | undefined;
 
 const status = h('span', { class: 'status', id: 'net-status' });
@@ -23,10 +25,15 @@ updateStatus();
 window.addEventListener('online', updateStatus);
 window.addEventListener('offline', updateStatus);
 
+const homeBtn = h(
+  'button',
+  { class: 'btn small', id: 'home', type: 'button', onclick: () => showHome() },
+  'Home',
+);
 const main = h('main', { id: 'screen' });
 const app = document.getElementById('app');
 app?.replaceChildren(
-  h('header', { class: 'app-head' }, h('h1', { text: 'PokeRPG Slicer' }), status),
+  h('header', { class: 'app-head' }, h('h1', { text: 'PokeRPG Slicer' }), homeBtn, status),
   main,
   h('footer', {
     class: 'app-foot',
@@ -34,16 +41,74 @@ app?.replaceChildren(
   }),
 );
 
-function showSetup(notice?: string): void {
+function leave(): void {
   review?.dispose();
   review = undefined;
+}
+
+function showHome(): void {
+  leave();
+  main.dataset['screen'] = 'home';
+  homeBtn.hidden = true;
+  main.replaceChildren(
+    h('h2', { text: 'What do you want to do?' }),
+    h(
+      'div',
+      { class: 'modes' },
+      h(
+        'button',
+        { class: 'mode', id: 'mode-slice', type: 'button', onclick: () => showSetup() },
+        h('strong', { text: 'Slice raw images' }),
+        h('span', {
+          text: 'Turn AI-generated frames (a grid or 24 separate images) into a spec-compliant character package.',
+        }),
+      ),
+      h(
+        'button',
+        { class: 'mode', id: 'mode-check', type: 'button', onclick: () => showCheck() },
+        h('strong', { text: 'Check existing sheets' }),
+        h('span', {
+          text: 'Load a chr_<name> zip or 768 × 512 sheets (for example layers repainted by an AI), check them, fix them, add a layer.',
+        }),
+      ),
+    ),
+  );
+}
+
+function showSetup(notice?: string): void {
+  leave();
   main.dataset['screen'] = 'setup';
+  homeBtn.hidden = false;
   mountSetup(main, model, () => void process(), notice);
+}
+
+function showCheck(notice?: string): void {
+  leave();
+  main.dataset['screen'] = 'check';
+  homeBtn.hidden = false;
+  mountCheck(
+    main,
+    checkModel,
+    (prepared) => {
+      main.dataset['screen'] = 'review';
+      homeBtn.hidden = true;
+      review = mountReview(main, prepared, {
+        backLabel: 'Back to files',
+        onBack: (edited) => {
+          // keep the edits (nudges) as the new sheets, so more layers can be added on top
+          checkModel.sheets = edited.sheets.map((s) => ({ filename: s.filename, image: s.image }));
+          showCheck();
+        },
+      });
+    },
+    notice,
+  );
 }
 
 function showReview(prepared: Prepared): void {
   main.dataset['screen'] = 'review';
-  review = mountReview(main, prepared, () => showSetup());
+  homeBtn.hidden = true;
+  review = mountReview(main, prepared, { backLabel: 'Start over', onBack: () => showSetup() });
 }
 
 async function process(): Promise<void> {
@@ -51,6 +116,7 @@ async function process(): Promise<void> {
   const bar = h('progress', { max: 100, value: 0, id: 'progress' });
   const label = h('p', { id: 'busy-label', text: 'Starting…' });
   main.dataset['screen'] = 'busy';
+  homeBtn.hidden = true;
   main.replaceChildren(
     h('h2', { text: 'Processing' }),
     label,
@@ -82,4 +148,4 @@ async function process(): Promise<void> {
   }
 }
 
-showSetup();
+showHome();
