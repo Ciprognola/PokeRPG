@@ -1,5 +1,5 @@
 # PokeRPG — Project Brief
-*Version 0.3 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 ## 1. Vision
 A functional **sandbox story platform**, not a single game. We build the engine, the tools, the specs and the asset library once; users create the stories. The app is a player and validator, not a heavy editor.
@@ -25,7 +25,7 @@ A functional **sandbox story platform**, not a single game. We build the engine,
 | Storage | Local first (browser storage) with file export/import. Online sharing later |
 | AI cost | Users bring their own AI. No built-in AI at launch |
 | Planning | Full game planned up front, built and tested in milestones |
-| Repo | Fully maintained by Claude Code. PO provides the repo when needed |
+| Repo | Public GitHub repo `Ciprognola/PokeRPG`, MIT licence. Fully maintained by Claude Code |
 | Docs | Repo `docs/` is the source of truth. PM writes, PO uploads, Project knowledge syncs from the repo. Claude Code reads `docs/` and chooses how to implement |
 
 ## 3. Pipelines
@@ -48,7 +48,7 @@ PM writes batch brief → Firefly generates from the locked style reference → 
 - **Run Manifest**: locks a run's assets.
 - **Prompt kits**: user-facing guides for text and image AIs.
 
-## 5. Slicer tool — platform decision (proposed)
+## 5. Slicer tool — platform
 Build it first as a **local browser tool (installable PWA)** in the same TypeScript codebase. One build runs on desktop and Android, works offline, keeps images on the user's device, and shares validation code with the in-game importer. A native Android app is built later only if the PWA proves insufficient.
 
 ## 6. Roadmap
@@ -88,3 +88,4 @@ Build it first as a **local browser tool (installable PWA)** in the same TypeScr
 | 2026-09-28 | Sprites v1 walking only (4×6); future animations as modular sets |
 | 2026-09-28 | Asset Spec v0.1: 128×128 frame, 64 px tiles, anchor (64, 120), 96 px height, layered sheets, animation-set registry |
 | 2026-09-28 | Docs live in repo `docs/`; PO uploads PM files; Claude Code reads docs and picks the approach |
+| 2026-09-28 | Repo public with MIT licence; Slicer PWA deployed to GitHub Pages (offline install confirmed on Android) |

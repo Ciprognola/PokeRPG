@@ -1,5 +1,5 @@
 # PokeRPG — Asset Spec
-*Version 0.1 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.2 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
 Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
@@ -172,11 +172,25 @@ Placeholder: this carries expressions. Canvas size, expression list and naming a
 | 4 px empty border in every frame | Error |
 | Lowest opaque body pixel on row 119 ± 0 (ground-locked sets) | Error if > 2 px off, warning if 1–2 px |
 | Torso centreline x = 64 ± 2 | Warning |
-| Body height 96 ± 4 px | Warning, error if outside ± 8 |
+| Body height 96 ± 4 px in every body frame (bob included) | Warning, error if outside ± 8 |
 | Content outside the safe box / overflow zone | Warning |
 | Sheet file > 1 MB / > 2 MB | Warning / Error |
 
 Every message names the file, the frame key and the pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
+
+### 7.1 Measurement definitions
+The Slicer and the validator use these definitions identically.
+
+| Term | Definition |
+|---|---|
+| Opaque | Alpha ≥ 128. Used for ground row, body height, torso centreline and safe box |
+| Empty | Alpha = 0. Any alpha > 0 counts as content. Used for the empty-frame and 4 px border checks |
+| Body height | Ground line (y = 120) minus the top-most opaque row of the `body` layer |
+| Torso centreline | x of the alpha centroid of opaque `body` pixels in the band 35–65 % of body height, measured down from the top of the head |
+| Body-only checks | Empty frame, ground row, torso centreline, body height |
+| Other layers | Format, filename, grid, 4 px border, safe box and file size. No cross-layer registration check in this version |
+
+The `specVersion` field in JSON files is the asset format version. It stays `"0.1"` until the file format itself changes.
 
 ---
 
@@ -203,3 +217,4 @@ Every message names the file, the frame key and the pixel, e.g. `spr_walk_body_m
 | 2026-09-28 | Character frame 128 × 128, 64 px tiles, anchor (64, 120), standard height 96 px |
 | 2026-09-28 | Walk set = 4 rows (down, left, right, up) × 6 frames; no mirroring |
 | 2026-09-28 | Modular animation-set registry with a shared canvas and anchor |
+| 2026-09-28 | v0.2: §7.1 measurement definitions (opaque, empty, height, torso centreline, layer checks), from Claude Code's M1 plan |
