@@ -242,3 +242,135 @@ export function makeWalkSheetInput(
 }
 
 export { frameKey };
+
+// ---------------------------------------------------------------------------------------------
+// Raw "AI output" fixtures (PKR-003): big, soft-edged, on a background, with specks and noise
+// ---------------------------------------------------------------------------------------------
+
+/** Small deterministic PRNG (mulberry32). */
+export function makeRng(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export interface RawOptions {
+  cellWidth?: number;
+  cellHeight?: number;
+  layer?: LayerId;
+  /** Flat opaque background colour; omit for a transparent background. */
+  background?: Rgb;
+  /** Anti-aliasing samples per axis. Default 4 (soft edges). */
+  aa?: number;
+  /** Random offset of the figure inside its cell, in pixels. Default 6. */
+  jitter?: number;
+  /** Scattered 1–3 px specks in the background. */
+  specks?: number;
+  /** ± per-channel noise on flat background pixels (JPEG-like). */
+  noise?: number;
+  /** Transparent input only: colour written into partially transparent pixels (a matte halo). */
+  matte?: Rgb;
+  seed?: number;
+  figure?: FigureOptions;
+}
+
+/** One raw frame image, with placement jitter derived from (seed, frameIndex). */
+export function makeRawFrame(
+  dir: Direction,
+  col: number,
+  frameIndex: number,
+  o: RawOptions = {},
+): PixelBuffer {
+  const w = o.cellWidth ?? 256;
+  const h = o.cellHeight ?? 320;
+  const s = (h * 0.72) / FRAME.standardHeight;
+  const rng = makeRng((o.seed ?? 1) * 1000 + frameIndex);
+  const jitter = o.jitter ?? 6;
+  const offsetX = w / 2 - FRAME.torsoCentreX * s + (rng() * 2 - 1) * jitter;
+  const offsetY = h * 0.88 - FRAME.anchor.y * s + (rng() * 2 - 1) * jitter;
+  const shapes = walkFrameShapes(o.layer ?? 'body', dir, col, o.figure);
+  const img = renderShapes(shapes, w, h, {
+    scale: s,
+    offsetX,
+    offsetY,
+    aa: o.aa ?? 4,
+    ...(o.background ? { background: o.background } : {}),
+  });
+  const d = img.data;
+  if (!o.background && o.matte) {
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] > 0 && d[i + 3] < 255) [d[i], d[i + 1], d[i + 2]] = o.matte;
+    }
+  }
+  if (o.background && o.noise) {
+    const [br, bg, bb] = o.background;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i] === br && d[i + 1] === bg && d[i + 2] === bb) {
+        for (let k = 0; k < 3; k++)
+          d[i + k] = Math.max(0, Math.min(255, d[i + k] + Math.round((rng() * 2 - 1) * o.noise)));
+      }
+    }
+  }
+  for (let n = 0; n < (o.specks ?? 0); n++) {
+    const size = 1 + Math.floor(rng() * 3);
+    const x = Math.floor(rng() * (w - size));
+    const y = Math.floor(rng() * (h - size));
+    const colour: Rgb = [Math.floor(rng() * 256), Math.floor(rng() * 256), Math.floor(rng() * 256)];
+    // Only speck the background, never touch the character.
+    const bgLike = (i: number): boolean =>
+      o.background
+        ? Math.abs(d[i] - o.background[0]) < 40 &&
+          Math.abs(d[i + 1] - o.background[1]) < 40 &&
+          Math.abs(d[i + 2] - o.background[2]) < 40
+        : d[i + 3] === 0;
+    let free = true;
+    for (let j = -3; j < size + 3 && free; j++) {
+      for (let i = -3; i < size + 3; i++) {
+        const xx = x + i;
+        const yy = y + j;
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+        if (!bgLike((yy * w + xx) * 4)) free = false;
+      }
+    }
+    if (!free) continue;
+    for (let j = 0; j < size; j++) {
+      for (let i = 0; i < size; i++) {
+        const k = ((y + j) * w + x + i) * 4;
+        d[k] = colour[0];
+        d[k + 1] = colour[1];
+        d[k + 2] = colour[2];
+        d[k + 3] = o.background ? 255 : 40;
+      }
+    }
+  }
+  return img;
+}
+
+/** 24 separate raw frames in spec order. */
+export function makeRawFrames(o: RawOptions = {}): PixelBuffer[] {
+  const walk = getAnimSet('walk');
+  if (!walk) throw new Error('walk set missing');
+  return frameRects(walk).map((r, i) => makeRawFrame(r.row, r.col, i, o));
+}
+
+/** One image holding the 24 raw frames as a 6 × 4 grid. */
+export function makeRawGrid(o: RawOptions = {}): PixelBuffer {
+  const frames = makeRawFrames(o);
+  const cw = o.cellWidth ?? 256;
+  const ch = o.cellHeight ?? 320;
+  const grid = createPixelBuffer(cw * 6, ch * 4);
+  frames.forEach((f, i) => {
+    const gx = (i % 6) * cw;
+    const gy = Math.floor(i / 6) * ch;
+    for (let y = 0; y < ch; y++) {
+      const src = y * cw * 4;
+      grid.data.set(f.data.subarray(src, src + cw * 4), ((gy + y) * grid.width + gx) * 4);
+    }
+  });
+  return grid;
+}

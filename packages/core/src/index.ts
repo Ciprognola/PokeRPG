@@ -6,3 +6,4 @@ export * from './pixels.js';
 export * from './png.js';
 export * from './measure.js';
 export * from './validate.js';
+export * from './extract.js';
