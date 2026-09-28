@@ -36,6 +36,10 @@ See [slicer-app.md](slicer-app.md): setup → process → review (preview, findi
 
 See [validate-only.md](validate-only.md): import on-spec sheets or a package, add a layer, nudge per layer, re-export identically.
 
+## Pose templates
+
+See [pose-templates.md](pose-templates.md): generated mannequin references, committed zip served (and precached) by the Slicer.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.

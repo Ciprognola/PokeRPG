@@ -416,3 +416,7 @@ button[hidden] {
 .scope {
   justify-content: center;
 }
+
+a.mode {
+  text-decoration: none;
+}

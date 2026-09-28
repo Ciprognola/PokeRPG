@@ -32,7 +32,7 @@ work takes plain pixel buffers (`{width,height,data:Uint8ClampedArray}`), so val
 
 ## Commands (Node 24, see `.nvmrc`)
 
-`npm ci` · `npm run dev` (Slicer) · `npm run check` (typecheck + lint + format:check + test + build — run before every PR) · `npm test` · `npm run e2e` (Playwright in real Chromium; first time: `npx playwright install chromium`; CI runs it as its own job — run it when you touch the Slicer app, atlases or the PNG/zip code).
+`npm ci` · `npm run dev` (Slicer) · `npm run check` (typecheck + lint + format:check + test + build — run before every PR) · `npm test` · `npm run templates` (regenerate the pose-template zip; commit it) · `npm run e2e` (Playwright in real Chromium; first time: `npx playwright install chromium`; CI runs it as its own job — run it when you touch the Slicer app, atlases or the PNG/zip code).
 Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run build -w @pokerpg/slicer`
 (Git Bash on Windows rewrites `/…` args: prefix `MSYS_NO_PATHCONV=1`).
 

@@ -111,6 +111,8 @@ export interface FigureOptions {
   ground?: number;
   /** How much shorter each walk column is than `height` (body bob). Default keeps within ±4. */
   bob?: readonly number[];
+  /** Neutral grey artist's mannequin instead of the coloured figure (pose templates). Body layer only. */
+  mannequin?: boolean;
 }
 
 const BOB = [1, 3, 0, 1, 3, 0];
@@ -121,6 +123,11 @@ const BLUE: Rgb = [52, 92, 200];
 const BROWN: Rgb = [110, 70, 40];
 const GREY: Rgb = [90, 90, 100];
 const DARK: Rgb = [30, 30, 40];
+export const MANNEQUIN = {
+  base: [156, 158, 164],
+  dark: [112, 114, 122],
+  light: [196, 198, 204],
+} as const satisfies Record<string, Rgb>;
 
 /** Shapes of one layer of one walk frame, in frame units. */
 export function walkFrameShapes(
@@ -163,6 +170,7 @@ export function walkFrameShapes(
 
   switch (layer) {
     case 'body': {
+      if (o.mannequin) return mannequinShapes(dir, col, cx, top, ground, sw, side);
       const eyes: Shape[] =
         dir === 'down'
           ? [
@@ -200,6 +208,108 @@ export function walkFrameShapes(
     case 'accessory-back':
       return [{ kind: 'rect', x: cx - 14, y: top + 22, w: 28, h: 40, color: GREY }];
   }
+}
+
+/**
+ * A grey artist's mannequin doing the same walk cycle as the coloured fixture (same skeleton, bob
+ * and swing). Facing must read at a glance: the face has a visor band (and a nose that sticks out
+ * of the silhouette in profile), feet point where the figure looks, and the back view has a
+ * spine stripe and no face.
+ */
+function mannequinShapes(
+  dir: Direction,
+  col: number,
+  cx: number,
+  top: number,
+  ground: number,
+  sw: number,
+  side: boolean,
+): Shape[] {
+  const { base, dark, light } = MANNEQUIN;
+  // Profile: a real stride (legs spread around the hips) and arms swinging clear of the torso.
+  const stride = side ? sw * 2 : 0;
+  const arm = side ? sw * 2.6 : 0;
+  const passing = sw === 0;
+  // Which foot is in the air: on "passing" frames the trailing one is lifted; otherwise, seen from
+  // the front or back, the leg that is stepping forward reaches lower than the other.
+  const liftL = passing ? (col === 2 ? 0 : 6) : side ? 0 : sw > 0 ? 0 : Math.abs(sw) / 2;
+  const liftR = passing ? (col === 2 ? 6 : 0) : side ? 0 : sw > 0 ? Math.abs(sw) / 2 : 0;
+  const legTop = top + 60;
+  const legs = side
+    ? [
+        { x: cx - 5 + stride, lift: liftL },
+        { x: cx - 5 - stride, lift: liftR },
+      ]
+    : [
+        { x: cx - 12, lift: liftL },
+        { x: cx + 2, lift: liftR },
+      ];
+  const out: Shape[] = [];
+  for (const leg of legs) {
+    const bottom = ground - leg.lift;
+    const shift = passing && leg.lift > 0 && side ? (dir === 'left' ? -3 : 3) : 0;
+    out.push({ kind: 'rect', x: leg.x + shift, y: legTop, w: 10, h: bottom - legTop, color: base });
+    out.push({
+      kind: 'ellipse',
+      x: leg.x + shift - 1,
+      y: legTop + (bottom - legTop) / 2 - 5,
+      w: 12,
+      h: 10,
+      color: light,
+    });
+    const toe = dir === 'left' ? -6 : dir === 'right' ? 6 : 0;
+    const fx = side ? (toe < 0 ? leg.x + shift + toe : leg.x + shift) : leg.x + shift - 1;
+    out.push({
+      kind: 'rect',
+      x: fx,
+      y: bottom - 5,
+      w: side ? 10 + Math.abs(toe) : 12,
+      h: 5,
+      color: dark,
+    });
+  }
+  out.push(
+    { kind: 'ellipse', x: cx - 12, y: legTop - 5, w: 24, h: 10, color: light },
+    ...((side
+      ? [
+          // far arm behind the torso, near arm in front of it
+          { kind: 'rect', x: cx - 3 - arm, y: top + 24, w: 6, h: 28, color: dark },
+          { kind: 'rect', x: cx - 14, y: top + 22, w: 28, h: 38, color: base },
+          { kind: 'rect', x: cx - 3 + arm, y: top + 24, w: 6, h: 28, color: light },
+          { kind: 'ellipse', x: cx - 4 + arm, y: top + 49, w: 8, h: 8, color: dark },
+          { kind: 'ellipse', x: cx - 4 - arm, y: top + 49, w: 8, h: 8, color: dark },
+        ]
+      : [
+          { kind: 'rect', x: cx - 14, y: top + 22, w: 28, h: 38, color: base },
+          { kind: 'rect', x: cx - 20, y: top + 24, w: 6, h: 28, color: base },
+          { kind: 'rect', x: cx + 14, y: top + 24, w: 6, h: 28, color: base },
+          { kind: 'ellipse', x: cx - 21, y: top + 49, w: 8, h: 8, color: dark },
+          { kind: 'ellipse', x: cx + 13, y: top + 49, w: 8, h: 8, color: dark },
+          { kind: 'ellipse', x: cx - 19, y: top + 34, w: 10, h: 8, color: light },
+          { kind: 'ellipse', x: cx + 9, y: top + 34, w: 10, h: 8, color: light },
+        ]) as Shape[]),
+    { kind: 'rect', x: cx - 4, y: top + 19, w: 8, h: 6, color: dark },
+    { kind: 'ellipse', x: cx - 11, y: top, w: 22, h: 22, color: base },
+  );
+  if (dir === 'down') {
+    out.push(
+      { kind: 'rect', x: cx - 8, y: top + 8, w: 16, h: 5, color: dark },
+      { kind: 'rect', x: cx - 2, y: top + 14, w: 4, h: 4, color: dark },
+    );
+  } else if (dir === 'left') {
+    out.push(
+      { kind: 'rect', x: cx - 11, y: top + 8, w: 9, h: 5, color: dark },
+      { kind: 'rect', x: cx - 15, y: top + 10, w: 5, h: 4, color: dark },
+    );
+  } else if (dir === 'right') {
+    out.push(
+      { kind: 'rect', x: cx + 2, y: top + 8, w: 9, h: 5, color: dark },
+      { kind: 'rect', x: cx + 10, y: top + 10, w: 5, h: 4, color: dark },
+    );
+  } else {
+    out.push({ kind: 'rect', x: cx - 1, y: top + 24, w: 2, h: 34, color: dark });
+  }
+  return out;
 }
 
 export interface SheetOptions extends FigureOptions {
