@@ -1,0 +1,29 @@
+{
+  "specVersion": "0.1",
+  "character": { "frame": [128, 128], "anchor": [64, 120], "standardHeight": 96 },
+  "directions": ["down", "left", "right", "up"],
+  "sets": [
+    {
+      "id": "walk",
+      "version": 1,
+      "rows": ["down", "left", "right", "up"],
+      "framesPerRow": 6,
+      "loop": true,
+      "mirrorable": false,
+      "groundLock": true,
+      "requiredLayers": ["body"],
+      "zOrder": {
+        "default": [
+          "hair-back",
+          "accessory-back",
+          "body",
+          "outfit",
+          "hair",
+          "headwear",
+          "accessory"
+        ],
+        "up": ["body", "outfit", "accessory-back", "hair-back", "hair", "headwear", "accessory"]
+      }
+    }
+  ]
+}

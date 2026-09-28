@@ -1,0 +1,24 @@
+name: Spec issue
+description: A doc in docs/ is unclear, wrong or blocks good engineering (Claude Code reports it here; the PM fixes the spec first).
+title: 'Spec issue: '
+labels: [spec-issue]
+body:
+  - type: input
+    id: file
+    attributes:
+      label: File and section
+      placeholder: docs/ASSET_SPEC.md §2.2
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+    validations:
+      required: false

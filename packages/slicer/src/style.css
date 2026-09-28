@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+  --bg: #14161c;
+  --fg: #e8eaf0;
+  --muted: #9aa1b2;
+  --accent: #6ea8fe;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+}
+
+#app {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+}
+
+h1 {
+  margin: 0;
+  color: var(--accent);
+}
+
+.status {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
