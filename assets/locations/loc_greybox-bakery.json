@@ -1,0 +1,39 @@
+{
+  "specVersion": "0.1",
+  "id": "loc_greybox-bakery",
+  "size": [10, 8],
+  "collision": [
+    "##########",
+    "#........#",
+    "#..####..#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "#........#",
+    "####..####"
+  ],
+  "spawns": {
+    "spawn_door_inside": {
+      "tile": [4, 6],
+      "facing": "up"
+    },
+    "spawn_counter": {
+      "tile": [4, 3],
+      "facing": "down"
+    }
+  },
+  "exits": {
+    "exit_house_door": {
+      "tiles": [
+        [4, 7],
+        [5, 7]
+      ]
+    }
+  },
+  "areas": {
+    "area_counter": {
+      "rect": [2, 3, 6, 1]
+    }
+  },
+  "music": "mus_house_greybox"
+}

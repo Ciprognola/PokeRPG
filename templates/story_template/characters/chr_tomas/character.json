@@ -1,0 +1,12 @@
+{
+  "id": "chr_tomas",
+  "specVersion": "0.1",
+  "layers": {
+    "body": {
+      "walk": "spr_walk_body_tomas.png"
+    },
+    "headwear": {
+      "walk": "spr_walk_headwear_tomas.png"
+    }
+  }
+}

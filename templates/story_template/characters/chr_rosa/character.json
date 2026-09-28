@@ -1,0 +1,15 @@
+{
+  "id": "chr_rosa",
+  "specVersion": "0.1",
+  "layers": {
+    "body": {
+      "walk": "spr_walk_body_rosa.png"
+    },
+    "outfit": {
+      "walk": "spr_walk_outfit_rosa.png"
+    },
+    "hair": {
+      "walk": "spr_walk_hair_rosa.png"
+    }
+  }
+}
