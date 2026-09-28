@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.5 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and the story author's own Claude Code builds stories from it (Project Brief §3). Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -75,7 +75,9 @@ story_<id>/
 A line is one dialogue page: a string, or an object `{ "speaker", "text" }`.
 - `speaker` is an NPC id, `player`, or `narrator`. A plain string in NPC dialogue is spoken by that NPC; in a scene, `speaker` is required.
 - **Max 120 characters per line**, after placeholders are counted at 12 characters. Longer text is split into more lines.
+- `{player.name}` counts as 12 because a player name is at most 12 characters (GDD §6).
 - A line of 120 characters or fewer always fits one dialogue page (3 rendered lines, GDD §6). The runtime guarantees this; authors only count characters.
+- The 120-character limit depends on the dialogue box, which is still open (GDD §15 Q5). Changing it is a format change: this file, the JSON Schema, the Story Template and the Story Prompt Kit change together.
 
 ## 6. Quests and tasks
 ```json
@@ -102,7 +104,7 @@ Every task has `id` and `objective` (max 60 characters). `onComplete` is optiona
 ### 6.1 Task runtime rules
 - **`reach`** completes when the player is in the area (or on the spawn) **while the task is active**, however they got there: walking, an exit or a `warp`. If the player is already there when the task becomes active, it completes at once. Visits before the task was active don't count.
 - **Completion order:** the task is marked complete → if it was the quest's last task, the quest is marked complete → `onComplete.flags` are set → `onComplete.scene` runs → the next task becomes active. Conditions checked during the `onComplete` scene already see the task (and quest) as complete.
-- **Story end:** after the last task of the last quest, its `onComplete` scene plays in full, then the story ends. Use that scene for the closing; a trailing `scene` task also works.
+- **Story end:** after the last task of the last quest, its `onComplete` scene plays in full, then the story ends and the platform shows its end card (GDD §7.1). Use that scene for the closing; a trailing `scene` task also works.
 
 ## 7. Scenes
 A scene is an array of commands. Each runs to completion before the next, unless it has `"parallel": true`.
@@ -125,8 +127,8 @@ A scene is an array of commands. Each runs to completion before the next, unless
 Example: `{ "cmd": "move", "actor": "rosa", "path": [[12, 7], [12, 4], [9, 4]], "parallel": true }`
 
 ### 7.1 Scene runtime rules
-- **`move` paths start where the actor stands:** the first point is the actor's current tile. A corner needs three points (start, corner, end).
-- **NPC behaviour during scenes:** every NPC's `behaviour` pauses while a scene runs. Afterwards it resumes from the NPC's new tile (a `wander` radius is centred there) until the player leaves the location; then placements apply again (GDD §8).
+- **`move` paths start where the actor stands:** the first point is the actor's current tile. A corner needs three points (start, corner, end). If the first point isn't the actor's tile, the runtime logs a warning and walks from the actor's actual tile.
+- **NPC behaviour during scenes:** every NPC's `behaviour` pauses while a scene runs. Afterwards it resumes from the NPC's new tile (a `wander` radius is centred there; a `patrol` NPC first walks back to the nearest point on its path, then continues the loop) until the player leaves the location; then placements apply again (GDD §8).
 - **Screen at story start:** the story opens on a black screen. A scene may `fade` in itself; if the screen is still black when the player gets control, the runtime fades in (400 ms).
 
 ## 8. Triggers
@@ -142,6 +144,7 @@ Triggers start scenes outside the task flow.
 | `talk` | `npc` |
 
 **Talking priority:** an active `talk` task for that NPC → a matching `talk` trigger → the NPC's dialogues.
+**Start order:** at story start, `storyStart` triggers run first, in the order listed, then the first task becomes active (a first `scene` task starts after them).
 Task-based events use the task itself (`scene` tasks and `onComplete`), not triggers.
 
 ## 9. Conditions
@@ -169,7 +172,7 @@ Claude Code maintains `templates/story_template/` in the repo: a small, playable
 | Declared flag never used · scene never used · NPC never placed | Warning |
 | Character warnings from the Asset Spec validator | Warning |
 
-Scene `move` and `camera` tiles are not checked against collision at import, because the actor's location is only known at run time. The runtime handles them.
+Scene `move` and `camera` tiles are not checked against collision at import, and neither is the rule that a `move` path starts on the actor's tile (§7.1), because the actor's location and tile are only known at run time. The runtime handles both.
 
 Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`.
 
@@ -184,3 +187,4 @@ Every message names the file, the JSON path and the line, e.g. `story.json:84 ·
 | 2026-09-28 | v0.2: location data now defined in Asset Spec §8.1; scene tiles are checked for straightness only (collision at run time) |
 | 2026-09-28 | v0.3: stories are built by the author's own Claude Code; `schemaVersion` is the file format version and stays `"0.1"` until the format changes |
 | 2026-09-28 | v0.4: runtime rules from the M2 story spike: `reach` completion, completion order and story end (§6.1); `move` start tile, NPC behaviour in scenes, screen at story start (§7.1); 120 characters always fit one page (§5.1). Format unchanged |
+| 2026-09-29 | v0.5: open runtime questions decided: wrong `move` start tile → warning, walk from the actual tile; `patrol` returns to the nearest path point after a scene; `storyStart` triggers run before the first task; player name max 12 characters; end card after the story (§5.1, §6.1, §7.1, §8). §11 notes the `move` start tile is checked at run time; §5.1 points to GDD §15 Q5. Format unchanged |
