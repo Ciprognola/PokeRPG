@@ -16,6 +16,10 @@ Technical notes owned by Claude Code. Product docs are in `docs/` (read-only for
 
 Asset Spec §6 requires the Slicer and the in-game importer to share validation code. Keeping `core` free of the DOM, Phaser and other packages means the same checks run in Node tests, in the Slicer and in the game. ESLint enforces it (`no-restricted-globals` / `no-restricted-imports` for `packages/core`). Image checks take plain pixel buffers, not `ImageData` or canvases; each host converts at its own edge.
 
+## Validation
+
+`validateCharacter()` (`core/src/validate.ts`) implements Asset Spec §7/§7.1 and returns the `report.json` shape documented in [report-format.md](report-format.md). Measurements (`measure.ts`) are shared with the Slicer's aligner so both agree by construction. PNG bytes are handled by `core/src/png.ts`.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.

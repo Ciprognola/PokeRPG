@@ -1,8 +1,9 @@
 /**
- * Asset Spec constants (docs/ASSET_SPEC.md, v0.1). This file is the code-side
+ * Asset Spec constants (docs/ASSET_SPEC.md, v0.2). This file is the code-side
  * copy of the spec: change the spec first, then here. Every number cites its section.
  */
 
+/** Asset format version (Asset Spec §7.1: stays 0.1 until the file format itself changes). */
 export const SPEC_VERSION = '0.1';
 
 /** §1 */
