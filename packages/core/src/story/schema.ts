@@ -8,7 +8,7 @@
  */
 
 /** Version of docs/STORY_SCHEMA.md this schema follows. */
-export const STORY_SCHEMA_VERSION = '0.2';
+export const STORY_SCHEMA_VERSION = '0.3';
 /** The `schemaVersion` a story.json carries: the file format version, unchanged since v0.1 (§3). */
 export const STORY_FORMAT_VERSION = '0.1';
 

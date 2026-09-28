@@ -8,6 +8,8 @@ A sandbox story platform (Phaser 3 + TypeScript + Vite, web/HTML5), not a single
 deliverable (M1) is the **Slicer**: an installable, offline PWA that turns raw AI-generated sprite frames
 into spec-compliant layered sheets. Roadmap, decisions and risks: `docs/PROJECT_BRIEF.md`.
 
+**Story pipeline** (Brief §3): authors build stories with **their own Claude Code** in a clone of this public repo, from the Story Template and Story Schema, and run `npm run story:check` until it reports 0 errors; the in-app importer then validates the same package again. Players who only play need no AI.
+
 ## Source of truth: `docs/`
 
 - `PROJECT_BRIEF.md` (vision, roadmap) · `ASSET_SPEC.md` (the technical contract) · `AI_TEAM_GUIDE.md` (workflow, ticket template).
