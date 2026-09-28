@@ -20,6 +20,22 @@ Asset Spec §6 requires the Slicer and the in-game importer to share validation 
 
 `validateCharacter()` (`core/src/validate.ts`) implements Asset Spec §7/§7.1 and returns the `report.json` shape documented in [report-format.md](report-format.md). Measurements (`measure.ts`) are shared with the Slicer's aligner so both agree by construction. PNG bytes are handled by `core/src/png.ts`.
 
+## Extraction
+
+See [extraction.md](extraction.md). `core` extracts one cell at a time; `slicer/src/io` decodes in the browser cell by cell. E2E tests (`npm run e2e`, Playwright + Chromium) import app modules by URL from the dev server via `src/dev/e2e-api.ts`, which the app never imports.
+
+## Assembly
+
+See [assemble.md](assemble.md): one scale per character, body-driven whole-pixel alignment applied to all layers, packing, atlases, package files.
+
+## Slicer app
+
+See [slicer-app.md](slicer-app.md): setup → process → review (preview, findings, nudge) → zip export.
+
+## Validate-only mode
+
+See [validate-only.md](validate-only.md): import on-spec sheets or a package, add a layer, nudge per layer, re-export identically.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.
@@ -34,7 +50,7 @@ PWA: `vite-plugin-pwa` (`generateSW`, `autoUpdate`) precaches the app shell for 
 
 ## CI and deployment
 
-- `ci.yml` — every PR and push to `main`: typecheck, lint, format check, tests, build.
+- `ci.yml` — every PR and push to `main`: typecheck, lint, format check, tests, build; plus an `e2e` job (Playwright, Chromium).
 - `docs-guard.yml` — fails a PR that changes `docs/` unless it carries the `docs-upload` label. The owner uploads docs straight to `main`, so normal docs uploads never hit it.
 - `deploy-slicer.yml` — on push to `main`: test, build with `BASE_PATH=/<repo>/slicer/`, publish to GitHub Pages under `/slicer/`, leaving the site root free for the game. Requires Settings → Pages → Source = "GitHub Actions".
 - Dependabot: weekly, npm minor/patch grouped, plus GitHub Actions. TypeScript majors are ignored until typescript-eslint supports them.
