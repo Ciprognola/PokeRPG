@@ -1,5 +1,5 @@
 # PokeRPG — Project Brief
-*Version 0.5 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.7 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 ## 1. Vision
 A functional **sandbox story platform**, not a single game. We build the engine, the tools, the specs and the asset library once; users create the stories. The app is a player and validator, not a heavy editor.
@@ -14,12 +14,12 @@ A functional **sandbox story platform**, not a single game. We build the engine,
 | Platform | Web browser (HTML5) |
 | Engine | Phaser 3 + TypeScript + Vite |
 | Art style | 2D hand-painted |
-| Gameplay | NPCs, quests, tasks, dialogue, items, world state. No battles, no creatures |
-| Player character | Character creator (layered parts) + sprite import that must meet the Asset Spec |
+| Gameplay | NPCs, linear quests (talk, reach a place, scripted scenes), dialogue, world-state flags. Items and branching choices come after launch. No battles, no creatures |
+| Player character | Always the player's own character: character creator (layered parts) or sprite import that meets the Asset Spec. Stories never define the hero |
 | Sprites v1 | Walking only: 24 frames = 4 directions × 6 walk frames |
 | Future animations | Modular add-on animation sets (running, fishing, gym…) on the same canvas and anchor; expressions via dialogue portraits, not body frames |
 | Story creation | Users prompt their own AI; files are produced by Claude Code following our Story Template and Schema |
-| Asset library | Locations, maps, props, animations, music made by our team. Users select only from the library |
+| Asset library | Locations, maps, props, animations, music made by our team. Users select only from the library. Story NPCs are the exception: imported character packages bundled with each story |
 | Scenes | Dev-made scenes are fixed story content, not reusable templates |
 | Runs | A story run locks the exact assets and characters it uses (Run Manifest) |
 | Storage | Local first (browser storage) with file export/import. Online sharing later |
@@ -91,3 +91,6 @@ Build it first as a **local browser tool (installable PWA)** in the same TypeScr
 | 2026-09-28 | Docs live in repo `docs/`; PO uploads PM files; Claude Code reads docs and picks the approach |
 | 2026-09-28 | Repo public with MIT licence; Slicer PWA deployed to GitHub Pages (offline install confirmed on Android) |
 | 2026-09-28 | M1 Slicer built (PKR-002 to PKR-006). M2 sprite spike uses Adobe Firefly; key colour magenta `#FF00FF` |
+| 2026-09-28 | M2 sprite spike: first Firefly character sliced with zero errors and consistent frames |
+| 2026-09-28 | Player always brings their own character; launch quests are linear (talk, reach, scenes); items and branching after launch. GDD v0.1 |
+| 2026-09-28 | Story NPCs are imported character packages bundled with the story (GDD v0.2); Story Schema v0.1 |

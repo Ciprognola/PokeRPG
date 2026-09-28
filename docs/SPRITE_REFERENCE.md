@@ -1,5 +1,5 @@
 # PokeRPG — Sprite Reference Document
-*Version 0.1 · 2026-09-28 · Owner: PM · Status: draft for the M2 spike · Public*
+*Version 0.2 · 2026-09-28 · Owner: PM · Status: draft for the M2 spike · Public*
 
 How to make your own walking character with an image AI and bring it into PokeRPG.
 You don't need to hit exact pixel sizes: the **Slicer** (https://ciprognola.github.io/PokeRPG/slicer/) cuts, resizes, aligns and checks everything. Your job is to give the AI clear instructions and pick good results.
@@ -68,6 +68,7 @@ It takes longer, but each frame is easier to control.
 - [ ] Heads and feet fully visible, and nothing touching the image edge
 - [ ] A clean flat magenta background with no shadows
 - [ ] No magenta or pink in the character
+- [ ] The walking-away row keeps back details (ponytails, hair ties, backpacks, tails). AIs often drop them
 
 ## 7. Slice it
 1. Open the Slicer. It works on phone and desktop, including offline once installed.
@@ -109,3 +110,4 @@ If the AI keeps drawing the whole character, go back to a single dressed body la
 | Date | Decision |
 |---|---|
 | 2026-09-28 | v0.1 for the M2 spike: magenta key colour, one-image sheet with pose templates as the main method, frame by frame as the fallback, layers experimental, Firefly-tuned tips |
+| 2026-09-28 | v0.2: back-view check added after the first M2 character lost its ponytail in the walking-away row |
