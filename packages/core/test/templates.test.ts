@@ -24,6 +24,9 @@ import {
 } from '../src/testing/index.js';
 
 const files = poseTemplateFiles();
+// Generated once each at load time: rendering 26 images is slow on a busy CI runner.
+const zipA = poseTemplateZip();
+const zipB = poseTemplateZip();
 const byPath = new Map(files.map((f) => [f.path, f.data]));
 const keys = frameRects(getAnimSet('walk')!).map((r) => r.key);
 const grid = decodePng(byPath.get('pose-templates/grid-template.png')!);
@@ -120,9 +123,9 @@ describe('the pose template files', () => {
   });
 
   it('is deterministic, and the zip lists the same files', () => {
-    expect(poseTemplateZip()).toEqual(poseTemplateZip());
+    expect(zipA).toEqual(zipB);
     expect(
-      unzipFiles(poseTemplateZip())
+      unzipFiles(zipA)
         .map((f) => f.path)
         .sort(),
     ).toEqual(files.map((f) => f.path).sort());
@@ -134,7 +137,7 @@ describe('the pose template files', () => {
         new URL(`../../slicer/public/downloads/${POSE_TEMPLATE_ZIP_NAME}`, import.meta.url),
       ),
     );
-    expect(Buffer.compare(committed, Buffer.from(poseTemplateZip()))).toBe(0);
+    expect(Buffer.compare(committed, Buffer.from(zipA))).toBe(0);
   });
 });
 
