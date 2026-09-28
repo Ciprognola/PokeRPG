@@ -3,7 +3,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { unzipFiles } from '../src/index.js';
 import { templateDir } from './story-helpers.js';
 
@@ -12,6 +12,9 @@ import { templateDir } from './story-helpers.js';
  * folder with forward-slash paths (Story Schema §1), then check the zip. The runner is
  * `node --import tsx`, the same loader the npm script uses, so no shell or `.cmd` shim is involved.
  */
+
+// Each test starts a Node process (~0.5 s idle); the default 5 s limit flakes on a busy machine.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 const script = join(repo, 'tools', 'pack-story.ts');
