@@ -1,5 +1,5 @@
 /**
- * The machine-readable JSON Schema of `story.json` (docs/STORY_SCHEMA.md v0.1). Authored here,
+ * The machine-readable JSON Schema of `story.json` (docs/STORY_SCHEMA.md). Authored here,
  * written to `schemas/story.schema.json` by `npm run schema`, and kept in sync with the spec by
  * `packages/core/test/story-schema-sync.test.ts`, which reads the spec's tables and compares.
  *
@@ -7,8 +7,6 @@
  * length with placeholders, …) is checked by `validateStory` (§11).
  */
 
-/** Version of docs/STORY_SCHEMA.md this schema follows. */
-export const STORY_SCHEMA_VERSION = '0.3';
 /** The `schemaVersion` a story.json carries: the file format version, unchanged since v0.1 (§3). */
 export const STORY_FORMAT_VERSION = '0.1';
 
@@ -105,7 +103,8 @@ export const storySchema: Json = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
   $id: 'https://ciprognola.github.io/PokeRPG/schemas/story.schema.json',
   title: 'PokeRPG story.json',
-  description: `Story Schema v${STORY_SCHEMA_VERSION} (docs/STORY_SCHEMA.md). Structure only; references, tiles and text length are checked by the story validator.`,
+  description:
+    'Story Schema (docs/STORY_SCHEMA.md). Structure only; references, tiles and text length are checked by the story validator.',
   ...strict(
     {
       schemaVersion: { const: STORY_FORMAT_VERSION },

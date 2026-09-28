@@ -20,6 +20,7 @@
     "e2e": "npm run e2e -w @pokerpg/slicer",
     "templates": "tsx tools/make-pose-templates.ts",
     "story:check": "tsx tools/check-story.ts",
+    "story:pack": "tsx tools/pack-story.ts",
     "story-template": "tsx tools/make-story-template.ts",
     "schema": "tsx tools/make-schema.ts"
   },

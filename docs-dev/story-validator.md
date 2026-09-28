@@ -1,6 +1,6 @@
 # Story validator and Story Template (PKR-009)
 
-Implements `docs/STORY_SCHEMA.md` v0.3 §10–§11 (`STORY_SCHEMA_VERSION` in `schema.ts`; the `story.json` `schemaVersion` field is the file format version and stays `"0.1"`, `STORY_FORMAT_VERSION`). Code: `packages/core/src/story/` (pure, DOM-free, shared with the future
+Implements `docs/STORY_SCHEMA.md` §10–§11 (the document's own version is not tracked in code; the `story.json` `schemaVersion` field is the file format version and stays `"0.1"`, `STORY_FORMAT_VERSION`). The runtime rules of §6.1/§7.1 are in [story-runtime-rules.md](story-runtime-rules.md). Code: `packages/core/src/story/` (pure, DOM-free, shared with the future
 importer). Runtime playback is out of scope (M4–M5).
 
 ## Who runs it
@@ -15,7 +15,15 @@ npm run story:check -- <story_<id> folder | story_<id>.zip> [--library <assets d
 
 `npm run story:check -- --help` prints the usage, options, examples and exit codes; no arguments, an unknown option or a missing `--library` value prints what is wrong followed by the same usage (exit 2). In text mode the last line says what to do next ("Fix the errors above and run the check again until it reports 0 errors." or "OK: no errors. The story is ready to import."); `--json` output is unchanged.
 
-Exit code 0 = no errors (warnings allowed), 1 = errors, 2 = not a readable package. Findings look like
+Exit code 0 = no errors (warnings allowed), 1 = errors, 2 = not a readable package.
+
+```
+npm run story:pack -- <story_<id> folder>
+```
+
+`story:pack` (`tools/pack-story.ts`, `packStoryFolder` in `tools/story-node.ts`) writes `story_<id>.zip` next to the folder, then runs the same check on the zip (the shared `checkStory`), so its exit code is the check's (0 / 1), or 2 if the folder can't be packed. Entries keep `story_<id>/` as their root and use `/` on every OS (paths are normalised when the folder is read); the bytes are deterministic (`zipFiles`: sorted, fixed timestamp), so packing twice gives the same file. OS junk (`.DS_Store`, `Thumbs.db`, `desktop.ini`) is left out. A zip is written even when the check then finds errors; the exit code 1 and the closing message say it is not to be shared. Tests: `story-pack.test.ts` runs the CLI as a real process.
+
+Findings look like
 `error · story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`; character findings use the Asset Spec form
 `error · characters/chr_rosa/spr_walk_body_rosa.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
 
@@ -66,7 +74,7 @@ Also checked (implied by the spec, not a §11 row): `id` equals its `story_<id>`
 ## Schema and spec stay in sync
 
 `schemas/story.schema.json` is generated from `storySchema` (`npm run schema`) and committed; a test fails if they differ.
-`story-schema-sync.test.ts` parses the tables of `docs/STORY_SCHEMA.md` (top-level fields and required flags, task types,
+The document's version number is deliberately **not** mirrored in code (PKR-013): a docs-only bump must not turn `main` red, and the schema's own `description` no longer names it. The test only checks that the `*Version N.N · …` header exists. Real drift is caught by the table comparison. `story-schema-sync.test.ts` parses the tables of `docs/STORY_SCHEMA.md` (top-level fields and required flags, task types,
 scene commands, triggers, condition forms and states, behaviours, directions, id alphabet, text limits, the §11 rows) and
 compares them with the schema. When the PM changes the spec, that test fails until the schema and code catch up.
 

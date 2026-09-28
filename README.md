@@ -35,7 +35,13 @@ Stories are built by the author's **own Claude Code** in a clone of this public 
    npm run story:check -- --help                        # usage, options, exit codes
    ```
 
-5. Import the story in the app, which validates it again (the importer is not built yet).
+5. Pack it (writes `stories/story_<id>.zip` and checks it; don't zip by hand):
+
+   ```sh
+   npm run story:pack -- stories/story_my-tale
+   ```
+
+6. Import the story in the app, which validates it again (the importer is not built yet).
 
 Details of the checker: [`docs-dev/story-validator.md`](docs-dev/story-validator.md).
 
