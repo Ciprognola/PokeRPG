@@ -1,5 +1,5 @@
 # PokeRPG — Asset Spec
-*Version 0.3 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
 Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
@@ -155,7 +155,7 @@ Placeholder: this carries expressions. Canvas size, expression list and naming a
 The background is transparent or flat **magenta `#FF00FF`** (the key colour; the Sprite Reference Document explains it to users). The Slicer detects which one automatically. Optional extra layers use the same frame layout as the body.
 
 **Processing (required result, not the method):**
-1. Remove the background and defringe.
+1. Remove the background, including key-colour pockets enclosed by the character (e.g. between the legs), and defringe.
 2. Scale **once per character**, using one factor for every frame and every layer, so the `body` measures 96 px in `walk_down_00`. Frames are never scaled individually, because that makes the animation jitter.
 3. Align each frame so its body is on the ground line (row 119) and its torso centreline is on x = 64. **Apply the same per-frame offset to every layer of that frame** so the layers never drift apart.
 4. Pack each layer into a 768 × 512 sheet and write the atlas JSON.
@@ -174,6 +174,7 @@ The background is transparent or flat **magenta `#FF00FF`** (the key colour; the
 | `body` sheet present | Error |
 | No frame completely empty (body layer) | Error |
 | 4 px empty border in every frame | Error |
+| Key-colour pixels remain (any layer) | Warning |
 | Lowest opaque body pixel on row 119 ± 0 (ground-locked sets) | Error if > 2 px off, warning if 1–2 px |
 | Torso centreline x = 64 ± 2 | Warning |
 | Body height 96 ± 4 px in every body frame (bob included) | Warning, error if outside ± 8 |
@@ -192,7 +193,8 @@ The Slicer and the validator use these definitions identically.
 | Body height | Ground line (y = 120) minus the top-most opaque row of the `body` layer |
 | Torso centreline | x of the alpha centroid of opaque `body` pixels in the band 35–65 % of body height, measured down from the top of the head |
 | Body-only checks | Empty frame, ground row, torso centreline, body height |
-| Other layers | Format, filename, grid, 4 px border, safe box and file size. No cross-layer registration check in this version |
+| Near the key colour | Every RGB channel within 24 of `#FF00FF`, on a pixel with alpha > 0 |
+| Other layers | Format, filename, grid, 4 px border, key colour, safe box and file size. No cross-layer registration check in this version |
 
 The `specVersion` field in JSON files is the asset format version. It stays `"0.1"` until the file format itself changes.
 
@@ -206,6 +208,36 @@ The `specVersion` field in JSON files is the asset format version. It stays `"0.
 | Scale references | Character 96 px tall · door 64 × 128 · adult-height counter 64 px |
 | Naming | `<type>_<name>_<variant>.png` (AI Team Guide), e.g. `prop_barrel_01.png`, `loc_harbour_day.png` |
 | Music | MP3, 44.1 kHz stereo, `mus_<use>_<name>.mp3`. Loop points live in the asset registry, not in the audio file |
+
+### 8.1 Library location data
+Every library location has a gameplay data file, **`loc_<name>.json`**, separate from its art. It works with tilesets or painted backgrounds (§9 item 1).
+
+```json
+{
+  "specVersion": "0.1",
+  "id": "loc_harbour",
+  "size": [20, 12],
+  "collision": ["....................", "....####............"],
+  "spawns": { "spawn_start": { "tile": [10, 6], "facing": "down" } },
+  "exits": { "exit_house_door": { "tiles": [[5, 5]] }, "edge_south": { "edge": "down" } },
+  "areas": { "area_plaza": { "rect": [8, 4, 6, 4] } },
+  "music": "mus_town_harbour"
+}
+```
+
+| Field | Rule |
+|---|---|
+| `id` | `loc_<name>`, matches the file name |
+| `size` | `[width, height]` in 64 px tiles |
+| `collision` | Exactly `height` strings of `width` characters. `.` walkable, `#` blocked. Tiles outside the map count as blocked. No other characters in v0.1 |
+| `spawns` | `spawn_<name>` → `{ tile, facing }`. The tile is inside the map and walkable |
+| `exits` | `exit_<name>` → `{ tiles: [[x, y], …] }` (walkable tiles), or `edge_<name>` → `{ edge: down \| left \| right \| up }` |
+| `areas` | `area_<name>` → `{ rect: [x, y, width, height] }`, fully inside the map |
+| `music` | Optional default track (library id) |
+
+- Coordinates are `[x, y]` tiles from the top-left, as in the Story Schema.
+- The art reference is added to this file when §9 item 1 (map construction) is decided.
+- Until M7, the library contains only greybox test locations in this format.
 
 ---
 
@@ -224,3 +256,4 @@ The `specVersion` field in JSON files is the asset format version. It stays `"0.
 | 2026-09-28 | Modular animation-set registry with a shared canvas and anchor |
 | 2026-09-28 | v0.2: §7.1 measurement definitions (opaque, empty, height, torso centreline, layer checks), from Claude Code's M1 plan |
 | 2026-09-28 | v0.3: §6 input forms fixed (equal-cell grid, frame-key file names) and key colour magenta `#FF00FF`; §9 adds cross-layer registration |
+| 2026-09-28 | v0.4: enclosed key-colour pockets removed; `key-colour` warning and "near the key colour" defined (PKR-008); §8.1 library location data format adopted from Spec issue #17 |

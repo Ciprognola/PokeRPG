@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.1 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.2 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and Claude Code builds user stories from it. Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -151,21 +151,23 @@ Claude Code maintains `templates/story_template/` in the repo: a small, playable
 | JSON is valid and matches this schema | Error |
 | Ids unique; every reference (location, spawn, exit, area, NPC, character, flag, quest, task, scene, track, sfx) resolves | Error |
 | Every NPC character passes the Asset Spec §7 validator with zero errors | Error |
-| Tiles inside the location and not blocked; move paths straight between points | Error |
+| Placement, spawn and task tiles inside the location and not blocked (Asset Spec §8.1); scene `move` paths straight between points | Error |
 | Line over 120 characters, objective over 60, unknown placeholder | Error |
 | The last dialogue of an NPC has a `when` | Error |
 | A quest has no tasks | Error |
 | Declared flag never used · scene never used · NPC never placed | Warning |
 | Character warnings from the Asset Spec validator | Warning |
 
+Scene `move` and `camera` tiles are not checked against collision at import, because the actor's location is only known at run time. The runtime handles them.
+
 Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`.
 
 ## 12. Open items
-1. **Library location data:** the file format for a location's size, collision grid and named anchors belongs in the Asset Spec. Until M7, Claude Code provides greybox test locations with the same data.
-2. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M7.
-3. **Localisation:** one language per story in v0.1. Translations *later*.
+1. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M7.
+2. **Localisation:** one language per story in v0.1. Translations *later*.
 
 ## 13. Decision log
 | Date | Decision |
 |---|---|
 | 2026-09-28 | v0.1: `story_<id>` package with bundled NPC characters; locations, music and sounds by library reference; linear quests with `scene`, `reach` and `talk` tasks; scenes, triggers, flags and conditions per GDD v0.2 |
+| 2026-09-28 | v0.2: location data now defined in Asset Spec §8.1; scene tiles are checked for straightness only (collision at run time) |
