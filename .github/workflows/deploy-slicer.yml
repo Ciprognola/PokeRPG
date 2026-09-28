@@ -36,7 +36,7 @@ jobs:
           mkdir -p site
           cp -r packages/slicer/dist site/slicer
           echo '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=slicer/"><a href="slicer/">Slicer</a>' > site/index.html
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
