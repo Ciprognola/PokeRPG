@@ -281,6 +281,8 @@ function maskBounds(mask: Uint8Array, w: number, h: number): Rect | undefined {
  * Extract the character from one cell. Throws `ExtractionError` for an empty cell or a background
  * that is neither transparent nor flat. `frameKey` only decorates error messages.
  */
+const dbg = (v: unknown): void => (globalThis as { __dbg?: (v: unknown) => void }).__dbg?.(v);
+
 export function extractFrame(
   cell: PixelBuffer,
   options: ExtractOptions = {},
@@ -342,12 +344,14 @@ export function extractFrame(
       if (i < n - w) seed(i + w);
     }
     for (let i = 0; i < n; i++) keep[i] = isBg[i] ? 0 : 1;
+    dbg({ stage: 'flood', removed: isBg.reduce((x, y) => x + y, 0), queued: qt });
   } else {
     for (let i = 0; i < n; i++) keep[i] = src[i * 4 + 3]! >= ALPHA_CUT ? 1 : 0;
   }
 
   // 2. Specks and noise.
   dropSpecks(keep, w, h, o.minComponentRatio);
+  dbg({ stage: 'specks', keep: keep.reduce((x, y) => x + y, 0) });
   const box = maskBounds(keep, w, h);
   if (!box) {
     if (o.allowEmpty) return emptyFrame();
@@ -359,6 +363,28 @@ export function extractFrame(
     const holeCandidates = new Uint8Array(n);
     for (let i = 0; i < n; i++) holeCandidates[i] = keep[i] && near(i) ? 1 : 0;
     const { labels, areas } = label(holeCandidates, w, h, false);
+    dbg({
+      stage: 'holes',
+      candidates: holeCandidates.reduce((x, y) => x + y, 0),
+      comps: areas
+        .map((a, id) => {
+          let x0 = w,
+            y0 = h,
+            x1 = -1,
+            y1 = -1;
+          for (let i = 0; i < n; i++)
+            if (labels[i] === id && id > 0) {
+              const x = i % w,
+                y = (i - x) / w;
+              x0 = Math.min(x0, x);
+              y0 = Math.min(y0, y);
+              x1 = Math.max(x1, x);
+              y1 = Math.max(y1, y);
+            }
+          return `${id}:${a}@${x0},${y0}-${x1},${y1}`;
+        })
+        .filter((t) => Number(t.split(':')[1]!.split('@')[0]) > 5),
+    });
     const min = o.holeRatio * box.width * box.height;
     (globalThis as { __dbg?: (v: unknown) => void }).__dbg?.({
       box,
