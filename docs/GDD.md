@@ -1,7 +1,8 @@
 # PokeRPG — Game Design Document (GDD)
-*Version 0.3 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 How the player runtime behaves. The Story Schema turns these systems into story files; the Asset Spec covers asset formats.
+The platform systems outside stories (UI shell, life tracker, account) are in §12–§14.
 Scope is **launch (v1)**. Anything marked *later* is planned but not built for launch.
 
 ---
@@ -10,6 +11,7 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 - **The player brings the hero.** Every story is played with the player's own character. Stories never define the hero's name, looks or gender, and dialogue refers to the player only through placeholders (§5).
 - **Linear stories at launch.** A story is an ordered chain of quests. There are no items, inventory or branching choices in v1 (*later*).
 - **Classic top-down RPG feel.** Grid movement, talk to people, walk to places, watch scripted scenes.
+- **Platform systems sit outside stories.** The UI shell, life tracker and account belong to the platform. Stories fill the UI with text but can't restyle it, and can't read or change tracker data in v1.
 - **Stories are data.** Everything a story does is expressible in the Story Schema. Stories contain no code.
 
 ## 2. Controls
@@ -55,11 +57,11 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 | Dialogue variants | An NPC has an ordered list of dialogues with conditions. The **first one whose condition is true** plays; the last one has no condition and is the default |
 
 ## 6. Dialogue
-- **Box:** bottom of the screen, speaker name plate, up to **3 lines per page**. Text wraps automatically. The box and font are sized so that any line within the Story Schema's 120-character limit fits one page; stories never overflow it.
+- **Box:** the Emerald-style dialogue box of the UI shell (§12), at the bottom of the screen, speaker name plate, up to **3 lines per page**. Text wraps automatically. The box and font are sized so that any line within the Story Schema's 120-character limit fits one page; stories never overflow it.
 - **Reveal:** typewriter effect, speed set in the settings. **A** finishes the page or advances to the next. **B** shows the whole page instantly.
 - **Placeholders:** `{player.name}` in dialogue text. More placeholders (*later*) are added to the Story Schema, never invented by stories.
 - **Speakers:** an NPC, the player (`player`), or a narrator (no name plate).
-- **Portraits:** none at launch. Expressions and portraits come before M6 (§12 Q1).
+- **Portraits:** none at launch. Expressions and portraits come before M6 (§15 Q1).
 - **Choices:** none at launch (*later*, with branching).
 
 ## 7. Quests, tasks and scenes
@@ -103,7 +105,8 @@ Scenes and task progress are started by: **story start**, **task becomes active*
 - NPC positions changed by a scene last until the location is left. Lasting changes use flags and conditional placements.
 
 ## 9. Menu and UI
-- **Menu:** quest log (current objective and completed quests), save, settings, return to title.
+- **Look:** every screen, menu and box uses the UI shell (§12).
+- **Menu:** quest log (current objective and completed quests), life tracker (§13), save, settings, account (§14), return to title.
 - **Settings:** text speed, music and sound volume, touch control size.
 - **HUD:** none while walking. The current objective appears briefly when a task starts.
 
@@ -112,19 +115,46 @@ Scenes and task progress are started by: **story start**, **task becomes active*
 - **Autosave** when a task completes and on every location change, plus a manual save in the menu. **3 slots per story.**
 - A save holds the story id and version, the Run Manifest id, the player character, location, tile, facing, flags and quest/task progress.
 - Saving is blocked during scenes, and a load always restores a non-scene moment.
+- Life tracker and account data are platform data, stored separately from story saves (§13, §14).
 
 ## 11. Run Manifest
 Starting a story creates a Run Manifest that **locks** the story package version, the player's character package, every library asset version the story uses (locations, NPC characters, music, sounds) and the animation-set versions. Saves point to their manifest, so later library or story updates never break a run in progress.
 
-## 12. Open questions
+## 12. UI shell
+- **Look and feel:** an exact match to Pokémon Emerald: dialogue box, menus, font style, cursor, text reveal, menu sounds and screen transitions. A UI spec, written from the PO's reference captures, fixes layout, proportions, colours and timings.
+- **Fixed:** stories and players cannot restyle it. Stories only supply content (text, names, objectives).
+- **Assets:** public builds use original, recreated art, font and sounds. A private build may swap them for the builder's own files from the git-ignored overrides folder (Brief §2). Override files use the same names and sizes as the originals.
+- **Screen fit** and **lines per page** are open (§15 Q4, Q5).
+
+## 13. Life tracker
+- **What:** the player's own real-life tasks and progress, kept outside any story.
+- **Coins:** completing a real-life task earns in-game coins.
+- **Rewards:** coins unlock rewards, in-game or real-life. A real-life reward is something the player gives themselves once it is unlocked.
+- **Storage:** works without an account. Data is local and is included in file export. With an account, time checks use the trusted clock (§14).
+- Details are open (§15 Q6, Q8).
+
+## 14. Account and real-time clock
+- **Optional per player:** Firebase login. A player can set it up or skip it at any time; nothing in stories requires it.
+- **With an account:** a trusted server clock drives time and date events and coin rewards, so changing the device clock has no effect.
+- **Without an account:** everything runs locally on the device clock.
+- **Privacy:** minimal data; a privacy notice ships with the account.
+- Which time and date events exist, and what syncs, is open (§15 Q7).
+
+## 15. Open questions
 1. **Portraits and expressions:** canvas, expression list and whether the player's character needs a portrait. Decide before M6. Asset Spec §5 points here.
 2. **Items and branching choices:** scope and timing after launch.
 3. **Title and story selection flow:** how the player picks a story and a character. Decide before M5.
+4. **Emerald UI on 16:9:** Emerald was built for 240 × 160 (3:2). Letterbox (for example 240 × 160 at 3× = 720 × 480 inside 960 × 540) or adapt the layout. Decide in the UI spec, before M4.
+5. **Lines per page:** Emerald's box shows 2 lines; §6 promises 3 lines and any 120-character line (Story Schema §5.1). Matching Emerald may lower the line limit, which is a story format change. Decide in the UI spec, before M4.
+6. **Life tracker rules:** who sets rewards and their prices, task kinds (one-off, recurring, streaks), coins per task, and what coins buy in-game.
+7. **Time and date events:** which exist (day/night, calendar dates, holidays), whether stories can use time conditions (a Story Schema change), and what an account syncs (tracker, saves, settings).
+8. **Where the tracker lives:** title screen, in-game menu, or both.
 
-## 13. Decision log
+## 16. Decision log
 | Date | Decision |
 |---|---|
 | 2026-09-28 | v0.1: player always brings the hero; linear quests with `talk`, `reach` and `scene` tasks; scripted scenes; flags; no items or choices at launch |
 | 2026-09-28 | Grid movement at 4 tiles/s, walk at 12 fps, 960 × 540 base resolution, landscape on phones, A/B/Menu controls |
 | 2026-09-28 | v0.2: NPC characters are imported character packages bundled with each story |
 | 2026-09-28 | v0.3: M2 story spike rules: dialogue box fits any 120-character line; `reach` completes on arrival while active; story ends after the last `onComplete` scene; NPC behaviour pauses during scenes; story opens on black |
+| 2026-09-28 | v0.4: platform systems outside stories: Emerald-style UI shell (fixed, recreated assets, private overrides), life tracker with coins and rewards, optional Firebase account with a trusted real-time clock. Open questions added for screen fit, lines per page, tracker rules and time events |
