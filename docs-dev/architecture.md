@@ -24,6 +24,10 @@ Asset Spec §6 requires the Slicer and the in-game importer to share validation 
 
 See [extraction.md](extraction.md). `core` extracts one cell at a time; `slicer/src/io` decodes in the browser cell by cell. E2E tests (`npm run e2e`, Playwright + Chromium) import app modules by URL from the dev server via `src/dev/e2e-api.ts`, which the app never imports.
 
+## Assembly
+
+See [assemble.md](assemble.md): one scale per character, body-driven whole-pixel alignment applied to all layers, packing, atlases, package files.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.

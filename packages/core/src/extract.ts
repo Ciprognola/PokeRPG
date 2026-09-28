@@ -42,9 +42,17 @@ export interface ExtractOptions {
   holeRatio?: number;
   /** Width in source pixels of the soft edge that is un-mixed from the background. 0 = automatic. */
   edgeBand?: number;
+  /** Return an empty (0 × 0) frame instead of failing on a cell with no character. For optional layers. */
+  allowEmpty?: boolean;
 }
 
-const DEFAULTS = { bgTolerance: 24, minComponentRatio: 0.02, holeRatio: 0.003, edgeBand: 0 };
+const DEFAULTS = {
+  bgTolerance: 24,
+  minComponentRatio: 0.02,
+  holeRatio: 0.003,
+  edgeBand: 0,
+  allowEmpty: false,
+};
 
 export interface ExtractedFrame {
   /** Character pixels, cropped to their bounding box (straight alpha, background gone). */
@@ -289,6 +297,12 @@ export function extractFrame(
     if (e instanceof ExtractionError) throw new ExtractionError(e.code, e.message, frameKey);
     throw e;
   }
+  const emptyFrame = (): ExtractedFrame => ({
+    pixels: createPixelBuffer(0, 0),
+    origin: { x: 0, y: 0 },
+    cell: { width: w, height: h },
+    background,
+  });
   const band =
     o.edgeBand > 0 ? o.edgeBand : Math.min(6, Math.max(2, Math.round(Math.min(w, h) / 150)));
   const flat = background.kind === 'flat' ? background.color : undefined;
@@ -336,6 +350,7 @@ export function extractFrame(
   dropSpecks(keep, w, h, o.minComponentRatio);
   const box = maskBounds(keep, w, h);
   if (!box) {
+    if (o.allowEmpty) return emptyFrame();
     throw new ExtractionError('empty-cell', 'no character found (the cell is empty)', frameKey);
   }
 
@@ -460,8 +475,10 @@ export function extractFrame(
   const finalMask = new Uint8Array(n);
   for (let i = 0; i < n; i++) finalMask[i] = out.data[i * 4 + 3]! > 0 ? 1 : 0;
   const bounds = maskBounds(finalMask, w, h);
-  if (!bounds)
+  if (!bounds) {
+    if (o.allowEmpty) return emptyFrame();
     throw new ExtractionError('empty-cell', 'no character found (the cell is empty)', frameKey);
+  }
   return {
     pixels: cropPixels(out, bounds),
     origin: { x: bounds.x, y: bounds.y },

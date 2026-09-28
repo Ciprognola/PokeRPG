@@ -2,8 +2,14 @@
  * Test-only entry point. The app never imports this, so it is not part of the production bundle.
  * Playwright loads it through the dev server: `await import('/src/dev/e2e-api.ts')`.
  */
-import { encodePng, extractGrid, pixelsEqual } from '@pokerpg/core';
-import { makeRawGrid, walkFrameShapes } from '@pokerpg/core/testing';
+import {
+  assembleCharacter,
+  encodePng,
+  extractFrames,
+  extractGrid,
+  pixelsEqual,
+} from '@pokerpg/core';
+import { makeRawFrames, makeRawGrid, walkFrameShapes } from '@pokerpg/core/testing';
 import type { RawOptions } from '@pokerpg/core/testing';
 import { extractLayer } from '../io/extract-layer.js';
 
@@ -55,4 +61,19 @@ export async function bigGridFile(size: number, background: string): Promise<Fil
   }
   const blob = await canvas.convertToBlob({ type: 'image/png' });
   return new File([blob], `grid-${size}.png`, { type: 'image/png' });
+}
+
+/** A synthetic body sheet, assembled by the real pipeline, as base64 PNG + atlas JSON. */
+export function assembledBodyFixture(): { png: string; atlas: unknown; frameKeys: string[] } {
+  const frames = extractFrames(
+    makeRawFrames({ cellWidth: 200, cellHeight: 260, background: [255, 255, 255] }),
+  );
+  const result = assembleCharacter({
+    name: 'mira',
+    layers: [{ layer: 'body', name: 'mira', frames }],
+  });
+  const sheet = result.sheets[0]!;
+  let binary = '';
+  for (const b of sheet.png!) binary += String.fromCharCode(b);
+  return { png: btoa(binary), atlas: sheet.atlas, frameKeys: Object.keys(sheet.atlas.frames) };
 }
