@@ -1,5 +1,5 @@
 # PokeRPG — Asset Spec
-*Version 0.2 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.3 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
 Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
@@ -148,7 +148,11 @@ Placeholder: this carries expressions. Canvas size, expression list and naming a
 ---
 
 ## 6. Slicer contract (M1)
-**Input:** either 24 separate raw frames or one image containing the full grid, at any size, on a transparent background or a flat key colour (the Sprite Reference Document specifies which). Optional extra layers must use the same frame layout as the body.
+**Input:** raw AI output at any size, in one of two forms:
+- **Grid image:** 6 columns × 4 rows of equal cells in §2.2 row and column order, at any overall aspect ratio. No grid lines or labels.
+- **24 separate frames:** named by frame key (`walk_down_00.png` … `walk_up_05.png`), otherwise ordered by natural sort.
+
+The background is transparent or flat **magenta `#FF00FF`** (the key colour; the Sprite Reference Document explains it to users). The Slicer detects which one automatically. Optional extra layers use the same frame layout as the body.
 
 **Processing (required result, not the method):**
 1. Remove the background and defringe.
@@ -210,6 +214,7 @@ The `specVersion` field in JSON files is the asset format version. It stays `"0.
 2. Portrait spec (§5), to be decided in the GDD.
 3. HiDPI: keep @2× masters (256 px frames) from Firefly/AI output and ship 1× for now? Decide before M7.
 4. Recolour/tint masks for the character creator, to be decided before M6.
+5. Cross-layer registration check (a repainted layer offset from its body). Decide after the M2 spike shows how real AI layers drift.
 
 ## 10. Decision log
 | Date | Decision |
@@ -218,3 +223,4 @@ The `specVersion` field in JSON files is the asset format version. It stays `"0.
 | 2026-09-28 | Walk set = 4 rows (down, left, right, up) × 6 frames; no mirroring |
 | 2026-09-28 | Modular animation-set registry with a shared canvas and anchor |
 | 2026-09-28 | v0.2: §7.1 measurement definitions (opaque, empty, height, torso centreline, layer checks), from Claude Code's M1 plan |
+| 2026-09-28 | v0.3: §6 input forms fixed (equal-cell grid, frame-key file names) and key colour magenta `#FF00FF`; §9 adds cross-layer registration |

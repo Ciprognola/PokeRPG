@@ -1,5 +1,5 @@
 # PokeRPG — Project Brief
-*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.5 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
 
 ## 1. Vision
 A functional **sandbox story platform**, not a single game. We build the engine, the tools, the specs and the asset library once; users create the stories. The app is a player and validator, not a heavy editor.
@@ -75,6 +75,7 @@ Build it first as a **local browser tool (installable PWA)** in the same TypeScr
 ## 8. Open questions
 1. Long-term animation method: frame-by-frame sets vs skeletal/cutout rig (one painted body in parts, animations as data). Decide before M6.
 2. Final product name.
+3. Phaser 3 (locked) or Phaser 4 (now the current major). Decide before M4.
 
 ## 9. Decision log
 | Date | Decision |
@@ -89,3 +90,4 @@ Build it first as a **local browser tool (installable PWA)** in the same TypeScr
 | 2026-09-28 | Asset Spec v0.1: 128×128 frame, 64 px tiles, anchor (64, 120), 96 px height, layered sheets, animation-set registry |
 | 2026-09-28 | Docs live in repo `docs/`; PO uploads PM files; Claude Code reads docs and picks the approach |
 | 2026-09-28 | Repo public with MIT licence; Slicer PWA deployed to GitHub Pages (offline install confirmed on Android) |
+| 2026-09-28 | M1 Slicer built (PKR-002 to PKR-006). M2 sprite spike uses Adobe Firefly; key colour magenta `#FF00FF` |
