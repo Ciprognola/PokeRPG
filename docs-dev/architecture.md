@@ -40,6 +40,10 @@ See [validate-only.md](validate-only.md): import on-spec sheets or a package, ad
 
 See [pose-templates.md](pose-templates.md): generated mannequin references, committed zip served (and precached) by the Slicer.
 
+## Stories
+
+See [story-validator.md](story-validator.md): story validator (Ajv structure + semantic checks), `npm run story:check`, the story template, greybox locations ([location-format-proposal.md](location-format-proposal.md)). `core` depends on `ajv` for this; the Slicer bundle does not include it (`sideEffects: false` lets the bundler drop it).
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.

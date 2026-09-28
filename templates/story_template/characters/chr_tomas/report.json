@@ -1,0 +1,30 @@
+{
+  "reportVersion": 1,
+  "specVersion": "0.1",
+  "ok": true,
+  "summary": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "sheets": [
+    {
+      "file": "spr_walk_body_tomas.png",
+      "set": "walk",
+      "layer": "body",
+      "name": "tomas",
+      "width": 768,
+      "height": 512,
+      "bytes": 24579
+    },
+    {
+      "file": "spr_walk_headwear_tomas.png",
+      "set": "walk",
+      "layer": "headwear",
+      "name": "tomas",
+      "width": 768,
+      "height": 512,
+      "bytes": 3269
+    }
+  ],
+  "findings": []
+}

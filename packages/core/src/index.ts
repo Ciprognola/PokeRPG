@@ -10,3 +10,4 @@ export * from './extract.js';
 export * from './assemble.js';
 export * from './zip.js';
 export * from './import.js';
+export * from './story/index.js';

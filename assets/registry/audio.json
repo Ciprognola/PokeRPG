@@ -1,0 +1,5 @@
+{
+  "specVersion": "0.1",
+  "music": ["mus_house_greybox", "mus_town_greybox"],
+  "sfx": ["sfx_greybox-boat", "sfx_greybox-door", "sfx_greybox-step"]
+}

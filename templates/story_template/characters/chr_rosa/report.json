@@ -1,0 +1,39 @@
+{
+  "reportVersion": 1,
+  "specVersion": "0.1",
+  "ok": true,
+  "summary": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "sheets": [
+    {
+      "file": "spr_walk_body_rosa.png",
+      "set": "walk",
+      "layer": "body",
+      "name": "rosa",
+      "width": 768,
+      "height": 512,
+      "bytes": 25066
+    },
+    {
+      "file": "spr_walk_hair_rosa.png",
+      "set": "walk",
+      "layer": "hair",
+      "name": "rosa",
+      "width": 768,
+      "height": 512,
+      "bytes": 11136
+    },
+    {
+      "file": "spr_walk_outfit_rosa.png",
+      "set": "walk",
+      "layer": "outfit",
+      "name": "rosa",
+      "width": 768,
+      "height": 512,
+      "bytes": 7497
+    }
+  ],
+  "findings": []
+}

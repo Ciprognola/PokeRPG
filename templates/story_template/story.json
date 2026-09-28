@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "0.1",
+  "id": "story_template",
+  "version": 1,
+  "title": "The Missing Baker",
+  "author": "PokeRPG team",
+  "description": "A tiny playable story that uses every Story Schema field and scene command. Copy it and change it.",
+  "language": "en",
+  "start": { "location": "harbour", "spawn": "spawn_start", "facing": "down" },
+  "locations": [
+    {
+      "id": "harbour",
+      "asset": "loc_greybox-harbour",
+      "links": { "exit_house_door": { "location": "bakery", "spawn": "spawn_door_inside" } }
+    },
+    {
+      "id": "bakery",
+      "asset": "loc_greybox-bakery",
+      "links": { "exit_house_door": { "location": "harbour", "spawn": "spawn_from_house" } }
+    }
+  ],
+  "npcs": [
+    {
+      "id": "rosa",
+      "name": "Rosa",
+      "character": "chr_rosa",
+      "placements": [
+        {
+          "when": { "quest": "find-baker", "is": "complete" },
+          "location": "harbour",
+          "tile": [9, 5],
+          "facing": "down",
+          "behaviour": { "type": "static" }
+        },
+        {
+          "location": "bakery",
+          "tile": [5, 3],
+          "facing": "left",
+          "behaviour": { "type": "wander", "radius": 1 }
+        }
+      ],
+      "dialogues": [
+        {
+          "when": { "all": [{ "flag": "met-rosa" }, { "quest": "find-baker", "is": "complete" }] },
+          "lines": ["Thank you again, {player.name}!"]
+        },
+        {
+          "when": { "quest": "find-baker", "is": "active" },
+          "lines": ["Oh, a visitor. Just a moment."]
+        },
+        { "when": { "flag": "met-rosa" }, "lines": ["Back again, {player.name}?"] },
+        { "lines": ["Welcome to my bakery!", "Fresh bread every morning."] }
+      ]
+    },
+    {
+      "id": "tomas",
+      "name": "Tomas",
+      "character": "chr_tomas",
+      "placements": [
+        {
+          "when": {
+            "any": [
+              { "task": "deliver-note.reach-dock", "is": "active" },
+              { "task": "deliver-note.talk-tomas", "is": "active" }
+            ]
+          },
+          "location": "harbour",
+          "tile": [17, 7],
+          "facing": "down",
+          "behaviour": {
+            "type": "patrol",
+            "path": [
+              [17, 7],
+              [17, 9]
+            ]
+          }
+        },
+        {
+          "location": "harbour",
+          "tile": [13, 6],
+          "facing": "down",
+          "behaviour": { "type": "look-around" }
+        }
+      ],
+      "dialogues": [
+        {
+          "when": { "task": "deliver-note.talk-tomas", "is": "complete" },
+          "lines": ["Fair winds, {player.name}."]
+        },
+        {
+          "when": { "quest": "deliver-note", "is": "notStarted" },
+          "lines": ["Busy day at the docks."]
+        },
+        {
+          "when": { "not": { "flag": "met-tomas" } },
+          "lines": [
+            "Ahoy! I haven't seen you around.",
+            { "speaker": "player", "text": "I'm {player.name}. I'm looking for the baker." }
+          ]
+        },
+        { "lines": ["The tide is coming in."] }
+      ]
+    }
+  ],
+  "flags": ["met-rosa", "met-tomas", "saw-boat", "delivered"],
+  "quests": [
+    {
+      "id": "find-baker",
+      "title": "The missing baker",
+      "tasks": [
+        {
+          "id": "intro",
+          "type": "scene",
+          "scene": "harbour-intro",
+          "objective": "Look around the harbour"
+        },
+        {
+          "id": "reach-plaza",
+          "type": "reach",
+          "location": "harbour",
+          "area": "area_plaza",
+          "objective": "Go to the plaza"
+        },
+        {
+          "id": "talk-rosa",
+          "type": "talk",
+          "npc": "rosa",
+          "objective": "Find the baker",
+          "lines": [
+            "Oh! You found me.",
+            { "speaker": "player", "text": "Everyone is looking for you." },
+            { "speaker": "narrator", "text": "Rosa smiles." }
+          ],
+          "onComplete": { "flags": { "met-rosa": true }, "scene": "rosa-returns" }
+        }
+      ]
+    },
+    {
+      "id": "deliver-note",
+      "title": "A note for Tomas",
+      "tasks": [
+        {
+          "id": "reach-dock",
+          "type": "reach",
+          "location": "harbour",
+          "spawn": "spawn_dock",
+          "objective": "Walk to the docks"
+        },
+        {
+          "id": "talk-tomas",
+          "type": "talk",
+          "npc": "tomas",
+          "objective": "Give Tomas the note",
+          "lines": [
+            { "speaker": "narrator", "text": "You hand over the note." },
+            "Ah, the note! Thanks, {player.name}."
+          ],
+          "onComplete": { "flags": { "delivered": true }, "scene": "tour" }
+        }
+      ]
+    }
+  ],
+  "scenes": {
+    "opening": [
+      { "cmd": "fade", "to": "in", "ms": 800 },
+      { "cmd": "music", "track": "mus_town_greybox" },
+      {
+        "cmd": "say",
+        "lines": [{ "speaker": "narrator", "text": "A quiet morning at the harbour." }]
+      }
+    ],
+    "harbour-intro": [
+      { "cmd": "camera", "to": [10, 4], "ms": 600 },
+      { "cmd": "wait", "ms": 500 },
+      { "cmd": "camera", "to": "tomas" },
+      { "cmd": "camera", "to": "player", "ms": 400 },
+      { "cmd": "sound", "sfx": "sfx_greybox-step" },
+      {
+        "cmd": "say",
+        "lines": [{ "speaker": "player", "text": "Where is everyone? Hello, I'm {player.name}." }]
+      }
+    ],
+    "rosa-returns": [
+      { "cmd": "fade", "to": "out" },
+      { "cmd": "warp", "location": "harbour", "spawn": "spawn_from_house" },
+      { "cmd": "show", "npc": "rosa", "location": "harbour", "tile": [9, 5], "facing": "down" },
+      { "cmd": "fade", "to": "in" },
+      {
+        "cmd": "move",
+        "actor": "rosa",
+        "path": [
+          [9, 5],
+          [9, 7],
+          [11, 7]
+        ],
+        "parallel": true
+      },
+      { "cmd": "face", "actor": "player", "toward": "rosa" },
+      {
+        "cmd": "say",
+        "lines": [{ "speaker": "rosa", "text": "I'm back! Thank you, {player.name}." }]
+      },
+      { "cmd": "face", "actor": "rosa", "dir": "left" }
+    ],
+    "boat-leaves": [
+      { "cmd": "sound", "sfx": "sfx_greybox-boat" },
+      { "cmd": "music", "track": null },
+      { "cmd": "hide", "npc": "tomas" },
+      { "cmd": "wait", "ms": 1200 },
+      { "cmd": "show", "npc": "tomas", "location": "harbour", "tile": [13, 6], "facing": "down" },
+      { "cmd": "flag", "set": { "saw-boat": true } }
+    ],
+    "tomas-hello": [
+      { "cmd": "face", "actor": "tomas", "toward": "player" },
+      {
+        "cmd": "say",
+        "lines": [{ "speaker": "tomas", "text": "Nice to meet you, {player.name}." }]
+      },
+      { "cmd": "flag", "set": { "met-tomas": true } }
+    ],
+    "tour": [
+      { "cmd": "fade", "to": "out", "ms": 300 },
+      { "cmd": "warp", "location": "bakery", "spawn": "spawn_counter", "facing": "up" },
+      { "cmd": "fade", "to": "in" },
+      { "cmd": "sound", "sfx": "sfx_greybox-door" },
+      {
+        "cmd": "say",
+        "lines": [
+          { "speaker": "narrator", "text": "That was the whole template. Now make it yours." }
+        ]
+      }
+    ]
+  },
+  "triggers": [
+    { "on": "storyStart", "scene": "opening" },
+    {
+      "on": "enterArea",
+      "location": "harbour",
+      "area": "area_docks",
+      "once": true,
+      "when": { "not": { "flag": "saw-boat" } },
+      "scene": "boat-leaves"
+    },
+    { "on": "talk", "npc": "tomas", "when": { "flag": "met-rosa" }, "scene": "tomas-hello" }
+  ]
+}

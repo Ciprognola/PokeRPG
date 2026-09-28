@@ -1,0 +1,81 @@
+# Story validator and Story Template (PKR-009)
+
+Implements `docs/STORY_SCHEMA.md` v0.1 §10–§11. Code: `packages/core/src/story/` (pure, DOM-free, shared with the future
+importer). Runtime playback is out of scope (M4–M5).
+
+## Use
+
+```
+npm run story:check -- <story_<id> folder | story_<id>.zip> [--library <assets dir>] [--json]
+```
+
+Exit code 0 = no errors (warnings allowed), 1 = errors, 2 = not a readable package. Findings look like
+`error · story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`; character findings use the Asset Spec form
+`error · characters/chr_rosa/spr_walk_body_rosa.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
+
+In code: `readStoryPackage(files)` → `StoryInput`, then `validateStory(input, library)` → `StoryReport`
+(`{ reportVersion: 1, storyId, ok, summary, findings[] }`, each finding `{ severity, check, file, line?, path?, frameKey?, message }`).
+
+## How it checks
+
+1. **Parse** (`json.ts`): a strict JSON parser that records the line of every value (`quests[0].tasks[2].npc`). Syntax errors
+   and repeated keys (two scenes with the same id) are reported with their line.
+2. **Structure** (`schema.ts`, checked with Ajv): the JSON Schema. Objects with variants (`task.type`, `cmd`, `trigger.on`,
+   `behaviour.type`) use `if/then`, so an error says `missing required field "npc"` or `field "path" is not allowed here`
+   instead of a wall of "does not match" noise. Ajv's messages are rewritten into plain sentences (`explainStructure`).
+3. **Meaning** (`validate.ts`): references, tiles, text limits, dialogue defaults, empty quests, unused things. It is
+   written to tolerate a story that already failed the structure check, so one run reports everything.
+4. **Characters**: each NPC's `characters/chr_<name>/` folder goes through the Asset Spec §7 validator (`validateCharacter`).
+   Its errors stay errors and its warnings stay warnings.
+
+| §11 row                                                        | check id(s)                                   | severity |
+| -------------------------------------------------------------- | --------------------------------------------- | -------- |
+| JSON is valid and matches the schema                           | `json`, `schema`                              | error    |
+| Ids unique; every reference resolves                           | `duplicate-id`, `reference`                   | error    |
+| NPC characters pass Asset Spec §7                              | `character`                                   | error    |
+| Tiles inside the location and not blocked; move paths straight | `tile`, `path`                                | error    |
+| Line > 120, objective > 60, unknown placeholder                | `text`                                        | error    |
+| Last dialogue has a `when`                                     | `dialogue-default`                            | error    |
+| A quest has no tasks                                           | `quest-empty`                                 | error    |
+| Declared flag / scene / NPC unused                             | `unused-flag`, `unused-scene`, `unplaced-npc` | warning  |
+| Character warnings                                             | `character`                                   | warning  |
+
+Also checked (implied by the spec, not a §11 row): `id` equals its `story_<id>` folder (`story-id`), flags used but not declared
+(`reference`, §3), a plain string line in a scene has no speaker (`reference`, §5.1), a character folder no NPC uses
+(`character-unused`, warning), an empty character folder (`character`).
+
+### Choices where the spec is silent
+
+- **Text length**: `{player.name}` counts as 12 characters (§5.1); the length is `String.length` of the text.
+- **What a plain string line means**: in an NPC dialogue or a `talk` task it is spoken by that NPC; in a scene a `speaker` is
+  required.
+- **`move` and `camera` tiles in scenes are not checked against a location's collision grid**: the actor's location is only
+  known at run time. Paths are checked for straightness between consecutive points; the first point is not compared with the
+  actor's start. Tiles that name a location (`placements`, `show`, patrol paths) are checked.
+- **Id shapes** enforced by the schema: library locations `loc_<name>`, characters `chr_<name>`, tracks `mus_<use>_<name>`
+  (Asset Spec §8), sound effects `sfx_<name>` (Story Schema §12.2, still to be added to the Asset Spec), spawns/exits/areas
+  lowercase with `-` and `_`. `language` is a BCP 47-shaped code, not a full registry check.
+- **`onComplete`, `dialogues`, `placements`** are optional; an NPC with no placements is only a warning.
+
+## Schema and spec stay in sync
+
+`schemas/story.schema.json` is generated from `storySchema` (`npm run schema`) and committed; a test fails if they differ.
+`story-schema-sync.test.ts` parses the tables of `docs/STORY_SCHEMA.md` (top-level fields and required flags, task types,
+scene commands, triggers, condition forms and states, behaviours, directions, id alphabet, text limits, the §11 rows) and
+compares them with the schema. When the PM changes the spec, that test fails until the schema and code catch up.
+
+## Template (`templates/story_template/`)
+
+A playable story with two NPCs (Rosa, Tomas), two greybox locations, four flags, two quests, seven scenes and three triggers. It uses
+every schema field, task type, scene command, trigger, behaviour and condition form; `story-template.test.ts` enforces
+that by walking the schema and the story (add a field to the schema and the test lists what the template lacks). The NPC
+characters are real Slicer packages generated from the synthetic fixtures (`npm run story-template`; a test fails if the
+committed files drift). `story.json` is hand-written.
+
+## Library data
+
+Stories refer to library locations and audio ids. The real library arrives in M7; until then:
+
+- `assets/locations/loc_greybox-harbour.json` and `loc_greybox-bakery.json`: size, collision grid, spawns, exits (tiles or a
+  map edge) and areas. **The format is our proposal**; see [location-format-proposal.md](location-format-proposal.md).
+- `assets/registry/audio.json`: placeholder music and sound-effect ids.
