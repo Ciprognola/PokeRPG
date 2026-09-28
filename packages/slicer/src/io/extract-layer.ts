@@ -36,6 +36,7 @@ export async function extractLayer(
   source: LayerSource,
   options: ExtractOptions = {},
   onProgress?: (p: ExtractProgress) => void,
+  signal?: AbortSignal,
 ): Promise<ExtractedFrame[]> {
   const keys = frameKeys();
   const frames: ExtractedFrame[] = [];
@@ -44,6 +45,7 @@ export async function extractLayer(
     try {
       checkGridSize(img.width, img.height);
       for (let i = 0; i < FRAMES; i++) {
+        signal?.throwIfAborted();
         const cell = await img.readRect(gridCellRect(img.width, img.height, i));
         frames.push(extractFrame(cell, options, keys[i]));
         onProgress?.({ done: i + 1, total: FRAMES });
@@ -62,6 +64,7 @@ export async function extractLayer(
   }
   const order = orderFrameFiles(source.files.map((f) => f.name));
   for (let i = 0; i < FRAMES; i++) {
+    signal?.throwIfAborted();
     const file = source.files[order[i]!]!;
     const img = await openImage(file, file.name);
     try {

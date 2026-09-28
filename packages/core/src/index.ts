@@ -8,3 +8,4 @@ export * from './measure.js';
 export * from './validate.js';
 export * from './extract.js';
 export * from './assemble.js';
+export * from './zip.js';

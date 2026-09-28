@@ -1,56 +1,85 @@
 import { registerSW } from 'virtual:pwa-register';
-import { FRAME, SPEC_VERSION, getAnimSet, sheetSize } from '@pokerpg/core';
-import { PIPELINE } from './pipeline.js';
+import { SPEC_VERSION } from '@pokerpg/core';
+import type { Prepared } from '@pokerpg/core';
+import { buildCharacter } from './session.js';
+import type { BuildProgress } from './session.js';
+import { h } from './ui/dom.js';
+import { mountReview } from './ui/review.js';
+import type { ReviewHandle } from './ui/review.js';
+import { mountSetup, newSetupModel, resolvedEntries } from './ui/setup.js';
+import { describeError, finalName } from './util.js';
 import './style.css';
 
 registerSW({ immediate: true });
 
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  text?: string,
-  className?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (className !== undefined) node.className = className;
-  return node;
+const model = newSetupModel();
+let review: ReviewHandle | undefined;
+
+const status = h('span', { class: 'status', id: 'net-status' });
+const updateStatus = (): void => {
+  status.textContent = navigator.onLine ? 'Online' : 'Offline — everything still works';
+};
+updateStatus();
+window.addEventListener('online', updateStatus);
+window.addEventListener('offline', updateStatus);
+
+const main = h('main', { id: 'screen' });
+const app = document.getElementById('app');
+app?.replaceChildren(
+  h('header', { class: 'app-head' }, h('h1', { text: 'PokeRPG Slicer' }), status),
+  main,
+  h('footer', {
+    class: 'app-foot',
+    text: `Asset format ${SPEC_VERSION} · images never leave this device`,
+  }),
+);
+
+function showSetup(notice?: string): void {
+  review?.dispose();
+  review = undefined;
+  main.dataset['screen'] = 'setup';
+  mountSetup(main, model, () => void process(), notice);
 }
 
-function render(root: HTMLElement): void {
-  const walk = getAnimSet('walk');
-  const size = walk ? sheetSize(walk) : undefined;
+function showReview(prepared: Prepared): void {
+  main.dataset['screen'] = 'review';
+  review = mountReview(main, prepared, () => showSetup());
+}
 
-  const header = el('header');
-  header.append(el('h1', 'PokeRPG Slicer'));
-  const status = el('p', '', 'status');
-  const updateStatus = (): void => {
-    status.textContent = navigator.onLine ? 'Online' : 'Offline (everything still works)';
-  };
-  updateStatus();
-  window.addEventListener('online', updateStatus);
-  window.addEventListener('offline', updateStatus);
-  header.append(status);
-
-  const intro = el('section');
-  intro.append(
-    el(
-      'p',
-      `Asset Spec v${SPEC_VERSION}: ${FRAME.width}×${FRAME.height} frames, anchor (${FRAME.anchor.x}, ${FRAME.anchor.y})` +
-        (size ? `, walk sheet ${size.width}×${size.height}.` : '.'),
+async function process(): Promise<void> {
+  const controller = new AbortController();
+  const bar = h('progress', { max: 100, value: 0, id: 'progress' });
+  const label = h('p', { id: 'busy-label', text: 'Starting…' });
+  main.dataset['screen'] = 'busy';
+  main.replaceChildren(
+    h('h2', { text: 'Processing' }),
+    label,
+    bar,
+    h('p', {
+      class: 'hint',
+      text: 'Cutting out the characters, scaling and aligning. This can take a few seconds.',
+    }),
+    h(
+      'button',
+      { class: 'btn', id: 'cancel', type: 'button', onclick: () => controller.abort() },
+      'Cancel',
     ),
-    el('p', 'Images never leave your device. The processing pipeline arrives with milestone M1.'),
   );
-
-  const stages = el('section');
-  stages.append(el('h2', 'Pipeline'));
-  const list = el('ol');
-  for (const stage of PIPELINE) {
-    list.append(el('li', `${stage.title} (${stage.spec})`));
+  const onProgress = (p: BuildProgress): void => {
+    label.textContent = `${p.layer} layer (${p.layerIndex + 1} of ${p.layerCount}) · frame ${p.done} of ${p.total}`;
+    bar.value = ((p.layerIndex + p.done / p.total) / p.layerCount) * 100;
+  };
+  try {
+    const prepared = await buildCharacter(
+      finalName(model.characterName),
+      resolvedEntries(model),
+      onProgress,
+      controller.signal,
+    );
+    showReview(prepared);
+  } catch (e) {
+    showSetup(describeError(e));
   }
-  stages.append(list);
-
-  root.replaceChildren(header, intro, stages);
 }
 
-const root = document.getElementById('app');
-if (root) render(root);
+showSetup();

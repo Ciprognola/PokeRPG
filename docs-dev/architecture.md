@@ -28,6 +28,10 @@ See [extraction.md](extraction.md). `core` extracts one cell at a time; `slicer/
 
 See [assemble.md](assemble.md): one scale per character, body-driven whole-pixel alignment applied to all layers, packing, atlases, package files.
 
+## Slicer app
+
+See [slicer-app.md](slicer-app.md): setup → process → review (preview, findings, nudge) → zip export.
+
 ## Spec in code
 
 - `packages/core/src/spec.ts`: numbers from `docs/ASSET_SPEC.md`, each commented with its section.
