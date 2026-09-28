@@ -53,3 +53,11 @@ export const TOLERANCES = {
   bodyHeightWarnPx: 4,
   bodyHeightErrorPx: 8,
 } as const;
+
+/**
+ * Key colour of raw input (§6): flat magenta #FF00FF. `KEY_TOLERANCE` is what the validator counts as
+ * "near the key colour" (max per-channel distance, alpha >= 128). This check is not in the §7 table
+ * yet: it comes from ticket PKR-008, and the tolerance is our choice (see docs-dev/report-format.md).
+ */
+export const KEY_COLOUR = [255, 0, 255] as const;
+export const KEY_TOLERANCE = 24;
