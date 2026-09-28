@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ciprognola.github.io/PokeRPG/schemas/story.schema.json",
   "title": "PokeRPG story.json",
-  "description": "Story Schema v0.2 (docs/STORY_SCHEMA.md). Structure only; references, tiles and text length are checked by the story validator.",
+  "description": "Story Schema v0.3 (docs/STORY_SCHEMA.md). Structure only; references, tiles and text length are checked by the story validator.",
   "type": "object",
   "properties": {
     "schemaVersion": {

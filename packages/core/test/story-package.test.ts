@@ -162,4 +162,46 @@ describe('command line: npm run story:check', () => {
     expect(run(join(repo, 'docs')).code).toBe(2); // a folder without story.json
     expect(run(join(repo, 'package.json')).code).toBe(2); // a file that is not a zip
   }, 60_000);
+
+  it('--help and -h print the usage on stdout and exit 0', () => {
+    for (const flag of ['--help', '-h']) {
+      const r = run(flag);
+      expect(r.code).toBe(0);
+      expect(r.err).toBe('');
+      expect(r.out).toContain('npm run story:check -- <story folder | story .zip>');
+      expect(r.out).toContain('templates/story_template');
+      expect(r.out).toContain('until it prints "0 errors"');
+    }
+  }, 30_000);
+
+  it('a missing story or an unknown option says what is wrong, then shows the usage (exit 2)', () => {
+    const none = run();
+    expect(none.code).toBe(2);
+    expect(none.err).toContain('No story given');
+    expect(none.err).toContain('Usage:');
+    const bad = run(templateDir, '--fix');
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('Unknown option "--fix"');
+    const lib = run(templateDir, '--library');
+    expect(lib.code).toBe(2);
+    expect(lib.err).toContain('--library needs a folder');
+  }, 60_000);
+
+  it('tells the author what to do next', () => {
+    const ok = run(templateDir);
+    expect(ok.out).toContain('OK: no errors. The story is ready to import.');
+    const dir = copy();
+    rmSync(join(dir, 'characters', 'chr_rosa', 'spr_walk_body_rosa.png'));
+    const bad = run(dir);
+    expect(bad.out).toContain(
+      'Fix the errors above and run the check again until it reports 0 errors.',
+    );
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('a folder that is not a story explains what a story package is', () => {
+    const r = run(join(repo, 'docs'));
+    expect(r.code).toBe(2);
+    expect(r.err).toContain('Not a readable story package');
+  }, 30_000);
 });

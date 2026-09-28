@@ -1,13 +1,19 @@
 # Story validator and Story Template (PKR-009)
 
-Implements `docs/STORY_SCHEMA.md` v0.1 §10–§11. Code: `packages/core/src/story/` (pure, DOM-free, shared with the future
+Implements `docs/STORY_SCHEMA.md` v0.3 §10–§11 (`STORY_SCHEMA_VERSION` in `schema.ts`; the `story.json` `schemaVersion` field is the file format version and stays `"0.1"`, `STORY_FORMAT_VERSION`). Code: `packages/core/src/story/` (pure, DOM-free, shared with the future
 importer). Runtime playback is out of scope (M4–M5).
+
+## Who runs it
+
+The story pipeline is Project Brief §3: the author clones the repo, their **own Claude Code** builds the package from the Story Template and Story Schema, and runs `npm run story:check` until it reports 0 errors; the in-app importer then validates the same package again with the same code (`packages/core`). The Story Prompt Kit (PM-owned) tells the author's Claude Code to do exactly that. Players who only play never run it.
 
 ## Use
 
 ```
 npm run story:check -- <story_<id> folder | story_<id>.zip> [--library <assets dir>] [--json]
 ```
+
+`npm run story:check -- --help` prints the usage, options, examples and exit codes; no arguments, an unknown option or a missing `--library` value prints what is wrong followed by the same usage (exit 2). In text mode the last line says what to do next ("Fix the errors above and run the check again until it reports 0 errors." or "OK: no errors. The story is ready to import."); `--json` output is unchanged.
 
 Exit code 0 = no errors (warnings allowed), 1 = errors, 2 = not a readable package. Findings look like
 `error · story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`; character findings use the Asset Spec form
