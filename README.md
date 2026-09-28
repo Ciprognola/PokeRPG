@@ -22,18 +22,20 @@ Once GitHub Pages is enabled it is published at `https://<owner>.github.io/PokeR
 
 ## Writing a story
 
-Stories are built by the author's **own Claude Code** in a clone of this public repo ([Project brief](docs/PROJECT_BRIEF.md) §3). There is no built-in AI, and players who only play need none of this.
+Stories are built by the author's **own Claude Code** in a clone of this public repo ([Project brief](docs/PROJECT_BRIEF.md) §3). There is no built-in AI, and players who only play need none of this. The whole guide is the **[Story Prompt Kit](docs/STORY_PROMPT_KIT.md)**: Part A is for you, Part B is the rulebook your Claude Code follows.
 
-1. Clone the repo and run `npm ci` (Node 24, see `.nvmrc`).
-2. Start from the Story Template, [`templates/story_template/`](templates/story_template/), and follow the [Story Schema](docs/STORY_SCHEMA.md). The Story Prompt Kit for your Claude Code will be added to `docs/` when it is ready.
-3. Check the story, and have Claude Code fix what it reports until it prints `0 errors`:
+1. Install Node 24 (see `.nvmrc`) and git, clone the repo and run `npm ci` once.
+2. Fill in the plan (kit A2) and paste the starter prompt (kit A3) into Claude Code, opened in the repo folder. It starts from the Story Template, [`templates/story_template/`](templates/story_template/), and follows the [Story Schema](docs/STORY_SCHEMA.md).
+3. **Your story lives in `stories/story_<id>/`** (create the folder from the Template there, not inside `templates/`). Its NPC character folders go in `stories/story_<id>/characters/`, and the shared file is `stories/story_<id>.zip`. Everything in `stories/` except `.gitkeep` is git-ignored, so your story never lands in the repo. Library locations to build on are in [`assets/locations/`](assets/locations/) (`loc_*.json`).
+4. Check the story, and have Claude Code fix what it reports until it prints `0 errors`:
 
    ```sh
-   npm run story:check -- templates/story_template     # replace with your story_<id> folder or .zip
+   npm run story:check -- stories/story_my-tale         # your folder or .zip
+   npm run story:check -- templates/story_template      # the working example
    npm run story:check -- --help                        # usage, options, exit codes
    ```
 
-4. Import the story in the app, which validates it again (the importer is not built yet).
+5. Import the story in the app, which validates it again (the importer is not built yet).
 
 Details of the checker: [`docs-dev/story-validator.md`](docs-dev/story-validator.md).
 
