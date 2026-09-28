@@ -23,6 +23,7 @@ test('installs, then runs the whole flow with no network', async ({ page, contex
   await page.reload();
   await expect(page.locator('#net-status')).toContainText('Offline');
 
+  await page.locator('#mode-slice').click();
   await page.locator('#char-name').fill('offline-mira');
   await page.locator('#file-input').setInputFiles(fx.bodyGrid);
   await page.locator('#process').click();

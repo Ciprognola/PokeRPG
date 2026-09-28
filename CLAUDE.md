@@ -32,7 +32,7 @@ work takes plain pixel buffers (`{width,height,data:Uint8ClampedArray}`), so val
 
 ## Commands (Node 24, see `.nvmrc`)
 
-`npm ci` · `npm run dev` (Slicer) · `npm run check` (typecheck + lint + format:check + test + build — run before every PR) · `npm test`.
+`npm ci` · `npm run dev` (Slicer) · `npm run check` (typecheck + lint + format:check + test + build — run before every PR) · `npm test` · `npm run e2e` (Playwright in real Chromium; first time: `npx playwright install chromium`; CI runs it as its own job — run it when you touch the Slicer app, atlases or the PNG/zip code).
 Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run build -w @pokerpg/slicer`
 (Git Bash on Windows rewrites `/…` args: prefix `MSYS_NO_PATHCONV=1`).
 
@@ -45,6 +45,7 @@ Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run bu
 
 ## Conventions
 
+- Behaviour that must be reproducible (PNG encoding, zip, report, atlases) stays deterministic: no timestamps, no random, no locale-dependent output.
 - English everywhere (code, UI, docs). Strict TypeScript, ESM, Prettier defaults in `.prettierrc.json`. Text files are LF.
 - Validation messages follow Asset Spec §7: file · frame key · pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
 - Images never leave the user's device (no upload, no analytics, no remote fonts/CDNs in the Slicer).

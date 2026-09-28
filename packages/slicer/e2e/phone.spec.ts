@@ -1,5 +1,5 @@
 import { devices, expect, test } from '@playwright/test';
-import { writeFixtures } from './fixtures.js';
+import { writeCheckFixtures, writeFixtures } from './fixtures.js';
 import type { FixtureFiles } from './fixtures.js';
 import { addBodyAndProcess, downloadPackage } from './helpers.js';
 
@@ -33,4 +33,22 @@ test('the whole flow works with taps and fits the screen', async ({ page }) => {
   await expect(page.locator('#nudge-info')).toHaveAttribute('data-dx', '1');
   const pkg = await downloadPackage(page);
   expect(pkg.report.summary.errors).toBe(0);
+});
+
+test('check mode: load a zip, add a layer and nudge it with taps', async ({ page }) => {
+  const check = writeCheckFixtures();
+  await page.goto('/');
+  await page.locator('#mode-check').tap();
+  await page.locator('#sheet-input').setInputFiles(check.zip);
+  await page.locator('#sheet-input').setInputFiles(check.misalignedOutfit);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.locator('#review').tap();
+  await page.locator('#nudge-layer').selectOption('outfit');
+  await page.locator('#nudge-all').check();
+  for (let i = 0; i < 3; i++) await page.locator('.nudge[data-dy="-1"]').tap();
+  await expect(page.locator('#summary')).toHaveAttribute('data-warnings', '0');
+  const pkg = await downloadPackage(page);
+  expect(pkg.report.summary).toEqual({ errors: 0, warnings: 0 });
 });

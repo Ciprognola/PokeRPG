@@ -6,6 +6,7 @@ import type { FixtureFiles } from './fixtures.js';
 
 export async function addBodyAndProcess(page: Page, fx: FixtureFiles, tap = false): Promise<void> {
   await page.goto('/');
+  await page.locator('#mode-slice').click();
   await page.locator('#char-name').fill('Mira Rose');
   await page.locator('#file-input').setInputFiles(fx.bodyGrid);
   await expect(page.locator('.entry')).toHaveCount(1);

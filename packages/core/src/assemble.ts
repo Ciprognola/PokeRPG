@@ -409,9 +409,14 @@ export interface AssembledCharacter {
   notes: string[];
 }
 
+/** Extra shifts for one layer of one frame only, keyed `<layer>/<frameKey>` (e.g. `outfit/walk_up_04`). */
+export type LayerNudges = Readonly<Record<string, Shift>>;
+
 export interface ComposeOptions {
   /** Encode the sheets to PNG (needed for export and the file-level checks). Default true. */
   encode?: boolean;
+  /** Shifts applied to a single layer, on top of the all-layer `nudges`. */
+  layerNudges?: LayerNudges;
 }
 
 function makeAtlas(setId: string, image: string): AtlasJson {
@@ -459,8 +464,14 @@ export function composeCharacter(
       const rect = rects[i]!;
       const auto = prepared.shift[pf.key] ?? { dx: 0, dy: 0 };
       const nudge = nudges[pf.key] ?? { dx: 0, dy: 0 };
+      const own = options.layerNudges?.[`${layer.layer}/${pf.key}`] ?? { dx: 0, dy: 0 };
       const cell = createPixelBuffer(rect.width, rect.height);
-      clipped += blitPixels(cell, pf.canvas, auto.dx + nudge.dx, auto.dy + nudge.dy);
+      clipped += blitPixels(
+        cell,
+        pf.canvas,
+        auto.dx + nudge.dx + own.dx,
+        auto.dy + nudge.dy + own.dy,
+      );
       for (let y = 0; y < rect.height; y++) {
         const s = y * rect.width * 4;
         image.data.set(
