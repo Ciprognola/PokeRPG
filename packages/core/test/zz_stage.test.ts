@@ -10,11 +10,22 @@ const md5 = (parts: Uint8Array[]): string => {
 };
 
 it('stage hashes', () => {
-  const raw = makeRawFrames({ cellWidth: 256, cellHeight: 320, background: [255, 0, 255], layer: 'body', seed: 1 });
+  const raw = makeRawFrames({
+    cellWidth: 256,
+    cellHeight: 320,
+    background: [255, 0, 255],
+    layer: 'body',
+    seed: 1,
+  });
   const ext = extractFrames(raw);
-  const prepared = prepareCharacter({ name: 'rosa', layers: [{ layer: 'body', name: 'rosa', frames: ext }] });
+  const prepared = prepareCharacter({
+    name: 'rosa',
+    layers: [{ layer: 'body', name: 'rosa', frames: ext }],
+  });
   const sheet = composeCharacter(prepared, {}, { encode: false }).sheets[0]!.image;
-  const perFrame = prepared.layers[0]!.frames.map((f) => md5([new Uint8Array(f.canvas.data.buffer)]).slice(0, 6));
+  const perFrame = prepared.layers[0]!.frames.map((f) =>
+    md5([new Uint8Array(f.canvas.data.buffer)]).slice(0, 6),
+  );
   const lines = [
     `STAGE raw ${md5(raw.map((r) => new Uint8Array(r.data.buffer)))}`,
     `STAGE extracted ${md5(ext.map((e) => new Uint8Array(e.pixels.data.buffer)))} origins ${md5([Uint8Array.from(ext.flatMap((e) => [e.origin.x, e.origin.y, e.pixels.width, e.pixels.height]))])}`,
