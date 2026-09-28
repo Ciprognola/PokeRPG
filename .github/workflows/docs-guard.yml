@@ -1,0 +1,31 @@
+name: Docs guard
+
+# docs/ is owned by the PM: Claude Code never edits it (docs/AI_TEAM_GUIDE.md §2).
+# A PR that touches docs/ fails unless the owner adds the "docs-upload" label.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'docs-upload') }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Fail if docs/ changed
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          changed=$(git diff --name-only "origin/${BASE_REF}...HEAD" -- docs/)
+          if [ -n "$changed" ]; then
+            echo "::error::docs/ is PM-owned and must not be edited in a code PR. Changed files:"
+            echo "$changed"
+            echo "If this is a deliberate docs upload, add the 'docs-upload' label."
+            exit 1
+          fi
