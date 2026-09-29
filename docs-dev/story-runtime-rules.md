@@ -62,12 +62,13 @@ A trailing `scene` task is equivalent for the player. Both are valid stories.
 
 - **`storyStart` triggers run first, in the order they're listed**, then the first task becomes active. A first `scene` task (if the story has one) starts only after every `storyStart` trigger has run (GDD/Story Schema v0.5). The two never race and never queue against each other by any other rule.
 
-## Dialogue box (Story Schema §5.1, GDD §6)
+## Dialogue box (Story Schema §5.1, GDD §6, UI Spec §4 — v0.7/v0.1)
 
-- The runtime guarantees that **any line up to 120 characters fits one page** (3 rendered lines). Authors count characters only; they never split for layout.
-- **Player name is at most 12 characters** (GDD v0.5 §6). `{player.name}` counts as 12 in the 120-character budget for exactly this reason — the real name never needs more room than the placeholder already reserves. M6 (character creation) enforces the limit at input.
-- This is a runtime obligation: size the box and font from the worst case. Test to write with M4: render a 120-character line of wide letters (`WWW…`) and a 12-character player name substituted into `{player.name}`, in the smallest supported viewport, and assert it stays within three lines.
-- The 120-character figure itself still depends on the dialogue box, which is open (GDD §15 Q5, Story Schema §5.1) — a change there is a story-format change (schema, JSON Schema, template and Prompt Kit together), not a runtime-rules change.
+- **The box shows 2 rendered lines per page**, not 3 (revised in GDD v0.7 — this file previously said 3, from the v0.5/v0.6 spec; that number is stale). A Story Schema `line` is one dialogue **message**, not one page: the runtime wraps it and **paginates it across as many 2-line pages as it needs** (a `▼` marker advances to the next page), usually 1–2 pages for a line at the 120-character limit. Authors still only count characters; they never split for layout or for pages.
+- **The speaker's name is added inline by the runtime**, in capitals ("ROSA: …"), on the first line of a dialogue and again whenever the speaker changes; there is no separate name plate. The narrator has no name shown. The name is runtime-added chrome: it does **not** count towards the 120-character limit, and authors never write it into `text`.
+- **Player name is at most 12 characters** (GDD §6). `{player.name}` counts as 12 in the 120-character budget for exactly this reason — the real name never needs more room than the placeholder already reserves. M6 (character creation) enforces the limit at input.
+- This is a runtime obligation: size the box and font from the worst case, and get pagination right. Test to write with M4: render a 120-character line of wide letters (`WWW…`) and a 12-character player name substituted into `{player.name}`, in the smallest supported viewport, and assert it paginates into whole 2-line pages with nothing clipped; separately assert the inline speaker name never eats into the 120-character text budget.
+- The 120-character figure and the 2-line page are both **decided** now (GDD §15 Q4/Q5, UI Spec v0.1) — no longer open questions. A future change to either is still a story-format change (schema, JSON Schema, template and Prompt Kit together), not a runtime-rules change.
 
 ## Resolved (GDD v0.5 / Story Schema v0.5, 2026-09-29)
 
@@ -79,4 +80,4 @@ The five questions this file used to leave open are answered above; kept here on
 4. `patrol` after a scene moved the NPC → returns to the nearest path point, then resumes the loop. See "NPC behaviour during and after scenes" above.
 5. What "the story ends" shows → an end card (title, author, "The End"), then story selection. See "Story end" above.
 
-Still open, not part of this file's scope: Story Schema §5.1's 120-character limit depends on GDD §15 Q5 (screen fit); the Story Prompt Kit (v0.2, unchanged this round) cites Schema §7.1 for the "validator can't check collision" claim in its Tiles guidance (B3), which Schema now states in §11 instead — a small citation mismatch, not a runtime-behaviour question, left for the PM to fix in the Kit's own next revision.
+Both loose ends this section used to track are closed: GDD §15 Q4 (screen fit) and Q5 (lines per page) are decided as of GDD v0.7/UI Spec v0.1 (2-line pages, pagination, inline speaker names — see "Dialogue box" above), and the Story Prompt Kit's B3 "Caselle" citation (§11 for what the validator can't check, §7.1 for `move`'s start tile) was already corrected in Kit v0.3 — the "still open" note this file carried about it was itself stale, not a real open item.
