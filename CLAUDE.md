@@ -35,6 +35,7 @@ assets/            library data: registry, greybox locations
 templates/         story_template/ (the starting point for user stories)
 stories/           author stories (git-ignored except .gitkeep)
 schemas/           story.schema.json (generated)
+overrides/         private local build overrides (git-ignored, CI-guarded); see docs-dev/overrides.md
 ```
 
 **Boundary rule:** `packages/core` must not touch the DOM, Phaser, or other packages (ESLint enforces it). Image
@@ -61,7 +62,7 @@ Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run bu
 - Validation messages follow Asset Spec §7: file · frame key · pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
 - Images never leave the user's device (no upload, no analytics, no remote fonts/CDNs in the Slicer).
 - Repo is public: no secrets, tokens or personal data in commits.
-- **Never commit ROMs, or art, fonts, sounds or screenshots taken from other games** (Brief §2, §7). Only original assets, ever; that includes the PO's reference captures of a target UI, which stay out of the repo, PRs, CI artifacts and `docs/`. A private-build overrides folder (Brief §2) will be git-ignored and CI-guarded, but its name and the guard are not specified yet (see HANDOVER open items): don't create one until they are.
+- **Never commit ROMs, or art, fonts, sounds or screenshots taken from other games** (Brief §2, §7). Only original assets, ever; that includes the PO's reference captures of a target UI, which go to the PM chat only and stay out of the repo, PRs, CI artifacts and `docs/` (Brief v0.10). The private-build overrides folder is `overrides/` at the repo root, git-ignored and CI-guarded (PKR-014, docs-dev/overrides.md); nothing loads from it yet — that's M4's job.
 - "Poke" is a codename with an IP risk (Brief §7): keep it out of anything user-facing beyond the current tool titles until the name is decided. The Emerald-style UI adds to that risk, which is why original assets only.
 
 ## Reporting

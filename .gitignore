@@ -15,3 +15,7 @@ playwright-report/
 # Author stories (README "Writing a story"): never committed
 /stories/*
 !/stories/.gitkeep
+
+# Private local build overrides (Project Brief §2, §7; docs-dev/overrides.md): never
+# committed, deployed or shared. tools/check-overrides.ts is the independent CI guard.
+/overrides/

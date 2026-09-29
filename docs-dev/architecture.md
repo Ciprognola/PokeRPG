@@ -46,7 +46,11 @@ See [story-validator.md](story-validator.md): story validator (Ajv structure + s
 
 ## Tools
 
-`tools/` holds the repo scripts, run through npm: `check-story.ts` and `pack-story.ts` (both use `story-node.ts`, the Node-side helpers: read a story folder or zip, load the library, `checkStory`, `packStoryFolder`), `make-schema.ts`, `make-story-template.ts` and `make-pose-templates.ts` (regenerate committed files), `make-icons.mjs`. Anything that needs the file system lives here, never in `core`.
+`tools/` holds the repo scripts, run through npm: `check-story.ts` and `pack-story.ts` (both use `story-node.ts`, the Node-side helpers: read a story folder or zip, load the library, `checkStory`, `packStoryFolder`), `make-schema.ts`, `make-story-template.ts` and `make-pose-templates.ts` (regenerate committed files), `make-icons.mjs`, `overrides.ts`/`check-overrides.ts` (private build overrides, below). Anything that needs the file system lives here, never in `core`.
+
+## Private build overrides
+
+See [overrides.md](overrides.md): the git-ignored `overrides/` folder (Project Brief §2, §7), its CI guard (`npm run overrides:check`, part of `npm run check` and CI), the Pages-deploy verification, and the `resolveOverride()` resolver nothing calls yet (M4 wires it in).
 
 ## Session continuity
 
