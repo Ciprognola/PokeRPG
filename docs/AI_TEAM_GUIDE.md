@@ -1,5 +1,5 @@
 # PokeRPG — AI Team Guide
-*Version 0.2 · 2026-09-28 · Owner: PM*
+*Version 0.3 · 2026-09-29 · Owner: PM*
 
 How work flows: **PO decides → PM updates `docs/` and writes the brief → PO uploads docs and pastes the brief to the right AI → output comes back → PM reviews against acceptance criteria.**
 
@@ -9,8 +9,8 @@ How work flows: **PO decides → PM updates `docs/` and writes the brief → PO 
 | Specs, schemas, GDD, tickets, prompt kits, reviews | Claude chat (PM) | — |
 | Uploading `docs/` files to GitHub | PO | — |
 | Any code, repo setup, CI, tools, story package files, technical docs | Claude Code | Claude chat |
-| Images: locations, props, sprites, UI art | Firefly | Claude chat |
-| Cutting, resizing, packing sprites | Slicer tool | Any AI (after M1) |
+| Images: locations, props, sprites, UI art | Firefly or another image AI | Claude chat |
+| Turning AI images into sprites, props and locations | Slicer tool (map tool from M6) | Any AI (after M1) |
 | Music tracks | Suno (batched) | — |
 
 Rule of thumb: repeated task → tool. Judgment task → AI. Images are never processed in chat once a tool exists.
@@ -42,31 +42,36 @@ Approach: Claude Code's choice. Plan first if non-trivial.
 Definition of done: tests added · CI green · technical docs updated if behaviour changed · PR opened
 ```
 
-## 3. Firefly (Art Director)
+## 3. Firefly (Art)
+There is no official library or locked house style (Brief §2). Image AIs make the PO's own asset packs and the test images for the spikes.
+
 **Rules**
-- Nothing is generated before the style reference is locked (M3). Every batch uses it.
+- Follow the Location Guide and the Sprite Reference Document. Each asset pack keeps one consistent style of its own, set by a reference image.
 - Batch by asset type (all trees together, all interiors together).
 - Iterate with variations of an approved image, not new prompts.
-- Raw output always goes through the Slicer before integration.
+- Raw output always goes through the Slicer before use.
+- Real places: use your own photos, or photos you have rights to, with no identifiable people.
 
 **Batch brief template**
 ```
 Batch ID: ART-###       Asset type:
-Count:                  Output size / aspect:
-Style reference: <locked file>
+Pack:                   Count:
+Output size / aspect:
+Style reference: <the pack's reference image>
 Structure reference: <if needed>
 Prompt template: "<base prompt> {variable}"
 Variables: [list]
 Naming: <type>_<name>_<variant>.png
-Acceptance: palette match · lighting direction · no text/watermarks · matches Asset Spec
+Acceptance: matches the pack's style reference · lighting direction · no text/watermarks · matches Asset Spec
 ```
 
 ## 4. Suno (Music)
-**Two-call rule:** one bulk request for the whole track list, then one refinement batch for rejects. No single-track requests.
+**Two-call rule:** one bulk request for a pack's whole track list, then one refinement batch for rejects. No single-track requests.
 
 **Bulk brief template**
 ```
 Batch ID: MUS-###
+Pack:
 Global style: <genre, instrumentation, mood family>
 Tracks (one per line): name · use (town/route/interior/event) · mood · BPM · length · loop-friendly yes/no
 Naming: mus_<use>_<name>.mp3
@@ -78,7 +83,7 @@ Loop points and fades are handled in the engine, not regenerated.
 - End each delivery with **Upload to docs/:** followed by the file list.
 - Write tickets and batch briefs in the templates above.
 - Review outputs against acceptance criteria before they are marked done.
-- Write the user-facing prompt kits (Story Prompt Kit, Sprite Reference Document).
+- Write the user-facing prompt kits (Story Prompt Kit, Sprite Reference Document, Location Guide).
 
 ## 6. Docs workflow
 1. **Source of truth:** repo `docs/`. Project knowledge is a synced, read-only copy.
@@ -86,3 +91,9 @@ Loop points and fades are handled in the engine, not regenerated.
 3. PO uploads them to `docs/` on GitHub (Add file → Upload files; same filename overwrites) and commits to `main`.
 4. PO taps **Sync** on the repo in Project knowledge.
 5. Claude Code reads `docs/` fresh for each task.
+
+## 7. Decision log
+| Date | Decision |
+|---|---|
+| 2026-09-28 | v0.1–v0.2: routing, Claude Code ownership and ticket template, Firefly and Suno batch rules, PM duties, docs workflow |
+| 2026-09-29 | v0.3: no official library or locked style (Brief v0.14): Firefly batches serve the PO's asset packs and the spikes, with a per-pack style reference; the Slicer processes sprites, props and locations; the PM also writes the Location Guide |

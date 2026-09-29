@@ -1,5 +1,5 @@
 # PokeRPG — UI Spec
-*Version 0.2 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.3 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for the fixed UI shell (GDD §12): layout, proportions, colours, timings and behaviour. It was written from reference captures that stay in the PM chat and never enter the repo (Brief §3). **All UI assets are original**, drawn to match this spec; nothing is traced or extracted from another game.
 Values marked **≈** were measured on scaled video captures. They are verified against 1× captures before UI art is drawn (§14).
@@ -116,11 +116,11 @@ Uses the header and list layout (§6.1).
 |---|---|
 | Title and save slots | Title panels (§5.3). The flow is open (GDD §15 Q3) |
 | Quest log (MISSIONI) | Header and list (§6.1): current objective first, then completed quests. Detail TBD at M5 |
-| AGENDA and shop | Pocket list (§6.2). Detail TBD before M6 |
-| Edit panel | Full-screen, built from the header and list layout (§6.1) and the dialogue box for text input. Detail TBD: quick edits before M6, the full panel before M9 |
+| AGENDA and shop | Pocket list (§6.2). Detail TBD before M7 |
+| Edit panel | Full-screen, built from the header and list layout (§6.1) and the dialogue box for text input. Detail TBD: quick edits before M7, the full panel before M9 |
 | Save | Yes/no prompt (§5.2), then a confirmation line in the dialogue box |
 | End card | Story title, author and "Fine" (GDD §7.1). Layout TBD |
-| Naming screen | Needed by the character creator (M7). TBD (§14) |
+| Naming screen | Needed by the character creator (M8). TBD (§14) |
 | Account | Sign-in state, sign in and out, privacy notice (GDD §14.2). Layout TBD before M9 |
 
 ## 9. Transitions
@@ -162,10 +162,11 @@ Cursor move, confirm, cancel, menu open and save. All are **original** sounds ma
 ## 14. Open items
 1. **Verify every ≈ value** against 1× captures (240 × 160 PNG, no filters) of: the dialogue box, the start menu, OPZIONI and the title panels.
 2. **Captures still needed:** the yes/no prompt, the naming screen, a pocket-list screen, and recordings of text at each speed, the menu, and a door transition.
-3. **Platform screens:** AGENDA and shop detail, the quick edit window and the save slot panels before M6; the Edit panel and the account screen before M9.
+3. **Platform screens:** AGENDA and shop detail, the quick edit window and the save slot panels before M7; the Edit panel and the account screen before M9.
 
 ## 15. Decision log
 | Date | Decision |
 |---|---|
 | 2026-09-29 | v0.1: adapt to 16:9 with 4× pixels on a 240 × 135 layout; 2 lines per page with runtime pagination and the 120-character story limit kept; speaker names inline in capitals when the speaker changes, no name plate; one original font drawn to the reference metrics (answers Claude Code spec issue #3); layouts and colours measured from the PO's video captures, to verify at 1× |
 | 2026-09-29 | v0.2: tracker design (GDD v0.8). AGENDA is the tracker's start-menu entry (§5.1); the title screen shows 4 save slots (§5.3); quick edit window (§5.4); AGENDA and the shop use the pocket-list layout, the card layout stays reserved (§6.2–§6.3); OPZIONI gains MODALITÀ DEV and EDITOR for the slot's dev (§7); screens list updated, naming screen moves to M7 (§8) |
+| 2026-09-29 | v0.3: milestone references follow the renumbered roadmap (Brief v0.14): platform screens before M7, naming screen at M8 |

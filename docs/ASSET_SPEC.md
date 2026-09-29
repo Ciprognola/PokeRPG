@@ -1,8 +1,8 @@
 # PokeRPG — Asset Spec
-*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.7 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
-The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
-Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
+The technical contract for every visual and audio asset: asset packs, user sprites and Slicer output. There is no official library; users make asset packs to this spec. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
+Style guidance (palette, lighting, prompts) is in the Location Guide and the Sprite Reference Document, not this file. Each pack chooses its own look within this spec.
 
 ---
 
@@ -12,6 +12,7 @@ Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not th
 | Image format | PNG-32 (RGBA), sRGB, straight (non-premultiplied) alpha |
 | Units | Pixels. 1 asset px = 1 world px at camera zoom 1 |
 | Grid | **64 px tiles** |
+| Style | **Pixel-look at native resolution:** art may imitate pixel art but isn't snapped to a coarser pixel grid. Painted in neutral daylight with light from the top-left; the engine tints for time of day |
 | Max texture | 2048 × 2048 per file (mobile-safe) |
 | Forbidden | Text, logos, watermarks, signatures, painted drop shadows (the engine draws shadows) |
 | Edges | Painted soft edges are allowed. No coloured halos from the background: the Slicer defringes |
@@ -49,7 +50,7 @@ Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not th
 | 4 | Down: weight on left foot |
 | 5 | Passing: right leg passes |
 
-- **Idle:** column 2 of each row is the standing pose until an `idle` set exists.
+- **Idle:** a character with an `idle` sheet (§2.5) uses it; without one, column 2 of each row is the standing pose.
 - **Ground lock:** every walk frame keeps its lowest opaque body pixel on row 119. Body bob (up to 4 px) happens above the feet.
 - **Horizontal:** the torso centreline sits on x = 64 ± 2 px in every frame. Swinging limbs don't count.
 - Playback fps and walk speed are defined in the GDD, not here.
@@ -80,6 +81,12 @@ The z-order is data in the registry (§3), so sets can override it.
 - One file per layer per set. Maximum 7 layers per character.
 - File size: a warning above 1 MB per sheet, an error above 2 MB.
 
+### 2.5 Idle set (`idle`), from M4
+- **16 frames = 4 rows × 4 columns.** Sheet size **512 × 512 px**, same row order, anchor, ground lock and layers as `walk`.
+- One looping standing cycle per direction: gentle breathing, with one blink. The exact poses come from the pose templates added to the Sprite Reference Document in M4.
+- **Optional per character.** A character without it stays valid and idles on `walk` column 2.
+- **Scene poses** (`sit`, `sleep`…) are further sets, added with Campaign mode (M9) together with scene templates (§9 item 6).
+
 ---
 
 ## 3. Animation-set registry (future-proofing)
@@ -106,6 +113,20 @@ File: `assets/registry/animsets.json` (Claude Code maintains the file; this spec
         "default": ["hair-back", "accessory-back", "body", "outfit", "hair", "headwear", "accessory"],
         "up": ["body", "outfit", "accessory-back", "hair-back", "hair", "headwear", "accessory"]
       }
+    },
+    {
+      "id": "idle",
+      "version": 1,
+      "rows": ["down", "left", "right", "up"],
+      "framesPerRow": 4,
+      "loop": true,
+      "mirrorable": false,
+      "groundLock": true,
+      "requiredLayers": ["body"],
+      "zOrder": {
+        "default": ["hair-back", "accessory-back", "body", "outfit", "hair", "headwear", "accessory"],
+        "up": ["body", "outfit", "accessory-back", "hair-back", "hair", "headwear", "accessory"]
+      }
     }
   ]
 }
@@ -116,7 +137,7 @@ File: `assets/registry/animsets.json` (Claude Code maintains the file; this spec
 2. A set declares its own rows, frame count, loop, `mirrorable` and `groundLock` (false for jumps and similar).
 3. A set's `version` only increases. Runs pin set versions through the Run Manifest.
 4. Validation: a character can use a set only if it has a `body` sheet for that set. Each optional layer it wears must also have a sheet for that set, or the validator returns a warning (it can be raised to an error per set).
-5. A skeletal or cutout rig remains an option to evaluate before M7. If adopted, it will become a new registry type; it does not replace this spec.
+5. A skeletal or cutout rig remains an option to evaluate before M8. If adopted, it will become a new registry type; it does not replace this spec.
 
 ---
 
@@ -149,16 +170,16 @@ Placeholder: this carries expressions. Canvas size, expression list and naming a
 
 ## 6. Slicer contract (M1)
 **Input:** raw AI output at any size, in one of two forms:
-- **Grid image:** 6 columns × 4 rows of equal cells in §2.2 row and column order, at any overall aspect ratio. No grid lines or labels.
-- **24 separate frames:** named by frame key (`walk_down_00.png` … `walk_up_05.png`), otherwise ordered by natural sort.
+- **Grid image:** the set's columns × 4 rows of equal cells (`walk` 6 × 4, `idle` 4 × 4) in the set's row and column order, at any overall aspect ratio. No grid lines or labels.
+- **Separate frames:** one file per frame, named by frame key (`walk_down_00.png` … `walk_up_05.png`), otherwise ordered by natural sort.
 
 The background is transparent or flat **magenta `#FF00FF`** (the key colour; the Sprite Reference Document explains it to users). The Slicer detects which one automatically. Optional extra layers use the same frame layout as the body.
 
 **Processing (required result, not the method):**
 1. Remove the background, including key-colour pockets enclosed by the character (e.g. between the legs), and defringe.
-2. Scale **once per character**, using one factor for every frame and every layer, so the `body` measures 96 px in `walk_down_00`. Frames are never scaled individually, because that makes the animation jitter.
+2. Scale **once per character**, using one factor for every frame and every layer, so the `body` measures 96 px in the set's first down frame (`walk_down_00`, `idle_down_00`). Frames are never scaled individually, because that makes the animation jitter.
 3. Align each frame so its body is on the ground line (row 119) and its torso centreline is on x = 64. **Apply the same per-frame offset to every layer of that frame** so the layers never drift apart.
-4. Pack each layer into a 768 × 512 sheet and write the atlas JSON.
+4. Pack each layer into the set's sheet (`walk` 768 × 512, `idle` 512 × 512) and write the atlas JSON.
 5. Run validation (§7) and produce a report.
 
 **Output:** layer sheets + atlases + `report.json`. The importer reuses the same validation code.
@@ -169,7 +190,7 @@ The background is transparent or flat **magenta `#FF00FF`** (the key colour; the
 | Check | Severity |
 |---|---|
 | PNG-32 RGBA, sRGB | Error |
-| Sheet exactly 768 × 512 (walk) and grid matches the set | Error |
+| Sheet size matches the set (`walk` 768 × 512, `idle` 512 × 512) and grid matches the set | Error |
 | Filename matches the pattern in §4 | Error |
 | `body` sheet present | Error |
 | No frame completely empty (body layer) | Error |
@@ -200,17 +221,18 @@ The `specVersion` field in JSON files is the asset format version. It stays `"0.
 
 ---
 
-## 8. World assets (baseline, to be expanded with the Art Style Guide)
+## 8. World assets and asset packs
 | Asset | Rule |
 |---|---|
 | Grid | 64 px tiles. Movement and collision use this grid |
-| Props | Canvas in 64 px multiples. Anchor at bottom-centre ground contact, 8 px bottom margin, like characters |
+| Location art | `ground`: one PNG of the whole location, exactly `size` × 64 px. `overhead`: a PNG of the same size, transparent except the parts that cover characters, made by the map tool from a painted mask (§8.2) |
+| Props | Canvas in 64 px multiples. Anchor at bottom-centre ground contact, 8 px bottom margin, like characters. AI output on magenta `#FF00FF`, processed by the Slicer |
 | Scale references | Character 96 px tall · door 64 × 128 · adult-height counter 64 px |
 | Naming | `<type>_<name>_<variant>.png` (AI Team Guide), e.g. `prop_barrel_01.png`, `loc_harbour_day.png` |
-| Music | MP3, 44.1 kHz stereo, `mus_<use>_<name>.mp3`. Loop points live in the asset registry, not in the audio file |
+| Music | MP3, 44.1 kHz stereo, `mus_<use>_<name>.mp3`. Loop points live in the pack's data, not in the audio file |
 
-### 8.1 Library location data
-Every library location has a gameplay data file, **`loc_<name>.json`**, separate from its art. It works with tilesets or painted backgrounds (§9 item 1).
+### 8.1 Location data
+Every location has a gameplay data file, **`loc_<name>.json`**, separate from its art. It works with tilesets or painted backgrounds (§9 item 1).
 
 ```json
 {
@@ -233,21 +255,42 @@ Every library location has a gameplay data file, **`loc_<name>.json`**, separate
 | `spawns` | `spawn_<name>` → `{ tile, facing }`. The tile is inside the map and walkable |
 | `exits` | `exit_<name>` → `{ tiles: [[x, y], …] }` (walkable tiles), or `edge_<name>` → `{ edge: down \| left \| right \| up }` |
 | `areas` | `area_<name>` → `{ rect: [x, y, width, height] }`, fully inside the map |
-| `music` | Optional default track (library id) |
+| `music` | Optional default track (pack audio id) |
 
 - Coordinates are `[x, y]` tiles from the top-left, as in the Story Schema.
-- The art reference is added to this file when §9 item 1 (map construction) is decided.
-- Until M8, the library contains only greybox test locations in this format.
+- The map tool (Brief §5) writes this file. Fields for layers, placed props, light points (§8.2), tags and anchors (§9 item 6) are added in M6 and M9.
+- The repo ships only greybox test locations in this format (a greybox test pack from M6).
 
 ---
 
+### 8.2 Location layers
+From bottom to top:
+
+| # | Layer | Content |
+|---|---|---|
+| 1 | `ground` | Terrain, streets, paths, floors, margins: everything under the characters |
+| 2 | `props` + characters | Placed props and all characters, sorted together by the y of their anchor, so a character can pass in front of or behind a prop |
+| 3 | `overhead` | Roof edges, tree canopies, arches, cliff tops: always drawn over characters |
+
+- `overhead` is cut from the `ground` image with a mask painted in the map tool, at tile level with a fine brush for detail. The two layers always line up.
+- Props block movement only through `collision`; art never blocks by itself.
+- **Light points:** positions where the runtime draws glow sprites at dusk and night (windows, lamps, fires). Format decided in M6.
+- A `ground` or `overhead` image is at most 2048 px per side (§1). Larger locations are split; the rule is decided in M6.
+
+### 8.3 Asset packs (draft, finalised in M6)
+- A pack is a folder `pack_<id>/`, shared as `pack_<id>.zip`. It holds a `pack.json` (id, version, title, author, `specVersion`), its locations (data plus `ground` and `overhead` images), props, poses and scene templates, music and sounds.
+- The pack's `version` increases with every release. Stories declare the packs they need by id and version (Story Schema §12 item 7), and runs lock them (GDD §11).
+- Packs are user content. They never enter the public repo, except the greybox test pack.
+- The Slicer exports and validates packs; the importer validates them again with the same code.
+
 ## 9. Open items (non-blocking)
-1. **Map construction:** tilesets vs painted location backgrounds with a collision grid. Decide before the M3 style lock.
+1. *Decided (v0.7):* painted `ground` images, separate props, and an `overhead` layer painted in the map tool (§8.2).
 2. Portrait spec (§5), to be decided in the GDD.
-3. HiDPI: keep @2× masters (256 px frames) from Firefly/AI output and ship 1× for now? Decide before M8.
-4. Recolour/tint masks for the character creator, to be decided before M7.
+3. HiDPI: keep @2× masters (256 px frames) from AI output and ship 1× for now? Decide before M6.
+4. Recolour/tint masks for the character creator, to be decided before M8.
 5. Cross-layer registration check (a repainted layer offset from its body). Decide after the M2 spike shows how real AI layers drift.
-6. **Dynamic scenes** (GDD §14.3): location tags (e.g. `camp`) in `loc_*.json`, the scene template format (a looping animation and the characters it seats), and the anchor points a template needs in a location (e.g. where the fire goes and where characters sit). Decide before M9.
+6. **Dynamic scenes** (GDD §14.3): location tags (e.g. `camp`) in `loc_*.json`, the scene template format (a looping animation and the characters it seats), and the anchor points a template needs in a location (e.g. where the fire goes and where characters sit), and the scene pose sets (`sit`, `sleep`…). Decide before M9.
+7. **Asset pack details:** folder layout, `pack.json`, ids across packs, splitting large locations, prop atlases and animated props, light points. Decide in M6, after the M3 location spike.
 
 ## 10. Decision log
 | Date | Decision |
@@ -260,3 +303,4 @@ Every library location has a gameplay data file, **`loc_<name>.json`**, separate
 | 2026-09-28 | v0.4: enclosed key-colour pockets removed; `key-colour` warning and "near the key colour" defined (PKR-008); §8.1 library location data format adopted from Spec issue #17 |
 | 2026-09-29 | v0.5: validation messages in Italian (§7) |
 | 2026-09-29 | v0.6: §9 item 6 adds dynamic scenes (location tags, scene templates, anchor points; GDD v0.8); milestone references follow the renumbered roadmap (Brief v0.13) |
+| 2026-09-29 | v0.7: no official library, user-made asset packs (§8.3, draft); pixel-look style rule (§1); location layers `ground`, `props` + characters, `overhead` (§8.2), map construction decided (§9 item 1); `idle` set from M4 (§2.5, §3); Slicer and validation cover it (§6, §7); milestone references follow Brief v0.14 |

@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.8 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.9 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and the story author's own Claude Code builds stories from it (Project Brief §3). Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -15,7 +15,7 @@ story_<id>/
 ```
 - Shared as `story_<id>.zip` containing that folder.
 - The player's character is **never** in a story package (GDD §1).
-- Locations, music and sounds are **referenced** from the asset library, never bundled.
+- Locations, music and sounds are **referenced** from asset packs, never bundled. Until the pack format exists (§12 item 7), they come from the repo's greybox test locations.
 
 ## 2. Conventions
 | Rule | Value |
@@ -49,7 +49,7 @@ story_<id>/
 { "id": "harbour", "asset": "loc_harbour",
   "links": { "exit_house_door": { "location": "rosa-house", "spawn": "spawn_door_inside" } } }
 ```
-- `id` is the story's name for this location; `asset` is the library location. The same asset can appear twice with different ids.
+- `id` is the story's name for this location; `asset` is a location from an asset pack (Asset Spec §8). The same asset can appear twice with different ids.
 - `links` connects the asset's named exits to a spawn point of another story location (GDD §4). Exits without a link are blocked.
 
 ## 5. NPCs
@@ -119,8 +119,8 @@ A scene is an array of commands. Each runs to completion before the next, unless
 | `wait` | `ms` |
 | `fade` | `to` (`out` / `in`), optional `ms` (default 400) |
 | `camera` | `to`: a tile, an actor, or `player`; optional `ms` |
-| `music` | `track` (library id) or `null` to stop |
-| `sound` | `sfx` (library id) |
+| `music` | `track` (pack audio id) or `null` to stop |
+| `sound` | `sfx` (pack audio id) |
 | `show` | `npc`, `location`, `tile`, `facing` (lasts until the player leaves the location) |
 | `hide` | `npc` |
 | `warp` | `location`, `spawn`, optional `facing` |
@@ -179,12 +179,13 @@ Scene `move` and `camera` tiles are not checked against collision at import, and
 Messages are in Italian (Brief §2); file names, JSON paths, ids and field names stay as written. Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · PNG sconosciuto "rossa"`.
 
 ## 12. Open items
-1. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M8.
+1. **Sound effects:** naming (`sfx_<name>`) and packaging are added to the Asset Spec with the asset pack format (M6).
 2. **Localisation:** one language per story in v0.1. Translations *later*.
-3. **Episodes:** a story is told one episode at a time, a calendar month by default or a week if the author chooses (GDD §13.3). Format decided before M6.
-4. **Date and time conditions:** `when` forms for the device's date and time of day (GDD §8, §13.3). Format decided before M6.
-5. **AGENDA challenges:** each episode's monthly challenges, including place tasks with a focus time and a to-do list (GDD §13.1). Format decided before M6.
+3. **Episodes:** a story is told one episode at a time, a calendar month by default or a week if the author chooses (GDD §13.3). Format decided before M7.
+4. **Date and time conditions:** `when` forms for the device's date and time of day (GDD §8, §13.3). Format decided before M7.
+5. **AGENDA challenges:** each episode's monthly challenges, including place tasks with a focus time and a to-do list (GDD §13.1). Format decided before M7.
 6. **Public slots:** how a story marks its story beats and the default order that the dev can override live, and how it offers dynamic scenes (GDD §14.3). Format decided before M9.
+7. **Asset packs:** a `packs` field listing the asset packs a story needs, by id and version, and how `asset`, `track` and `sfx` ids resolve inside them (GDD §4, Asset Spec §8.3). Format decided in M6.
 
 ## 13. Decision log
 | Date | Decision |
@@ -197,3 +198,4 @@ Messages are in Italian (Brief §2); file names, JSON paths, ids and field names
 | 2026-09-29 | v0.6: validation messages in Italian (§11); accented letters count as 1 character (§5.1); any story language allowed (§3). Format unchanged |
 | 2026-09-29 | v0.7: a line is a message shown on one or more 2-line pages; speaker names are added inline by the runtime (§5.1). Format unchanged |
 | 2026-09-29 | v0.8: open items for episodes, date and time conditions, AGENDA challenges and public-slot story beats (GDD v0.8); milestone references follow the renumbered roadmap (Brief v0.13). Format unchanged |
+| 2026-09-29 | v0.9: no official library: locations, music and sounds come from asset packs the story declares (§1, §4, §12 item 7); milestone references follow Brief v0.14. Format unchanged |
