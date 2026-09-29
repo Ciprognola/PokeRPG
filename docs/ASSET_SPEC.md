@@ -1,5 +1,5 @@
 # PokeRPG — Asset Spec
-*Version 0.5 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
 Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
@@ -116,7 +116,7 @@ File: `assets/registry/animsets.json` (Claude Code maintains the file; this spec
 2. A set declares its own rows, frame count, loop, `mirrorable` and `groundLock` (false for jumps and similar).
 3. A set's `version` only increases. Runs pin set versions through the Run Manifest.
 4. Validation: a character can use a set only if it has a `body` sheet for that set. Each optional layer it wears must also have a sheet for that set, or the validator returns a warning (it can be raised to an error per set).
-5. A skeletal or cutout rig remains an option to evaluate before M6. If adopted, it will become a new registry type; it does not replace this spec.
+5. A skeletal or cutout rig remains an option to evaluate before M7. If adopted, it will become a new registry type; it does not replace this spec.
 
 ---
 
@@ -237,16 +237,17 @@ Every library location has a gameplay data file, **`loc_<name>.json`**, separate
 
 - Coordinates are `[x, y]` tiles from the top-left, as in the Story Schema.
 - The art reference is added to this file when §9 item 1 (map construction) is decided.
-- Until M7, the library contains only greybox test locations in this format.
+- Until M8, the library contains only greybox test locations in this format.
 
 ---
 
 ## 9. Open items (non-blocking)
 1. **Map construction:** tilesets vs painted location backgrounds with a collision grid. Decide before the M3 style lock.
 2. Portrait spec (§5), to be decided in the GDD.
-3. HiDPI: keep @2× masters (256 px frames) from Firefly/AI output and ship 1× for now? Decide before M7.
-4. Recolour/tint masks for the character creator, to be decided before M6.
+3. HiDPI: keep @2× masters (256 px frames) from Firefly/AI output and ship 1× for now? Decide before M8.
+4. Recolour/tint masks for the character creator, to be decided before M7.
 5. Cross-layer registration check (a repainted layer offset from its body). Decide after the M2 spike shows how real AI layers drift.
+6. **Dynamic scenes** (GDD §14.3): location tags (e.g. `camp`) in `loc_*.json`, the scene template format (a looping animation and the characters it seats), and the anchor points a template needs in a location (e.g. where the fire goes and where characters sit). Decide before M9.
 
 ## 10. Decision log
 | Date | Decision |
@@ -258,3 +259,4 @@ Every library location has a gameplay data file, **`loc_<name>.json`**, separate
 | 2026-09-28 | v0.3: §6 input forms fixed (equal-cell grid, frame-key file names) and key colour magenta `#FF00FF`; §9 adds cross-layer registration |
 | 2026-09-28 | v0.4: enclosed key-colour pockets removed; `key-colour` warning and "near the key colour" defined (PKR-008); §8.1 library location data format adopted from Spec issue #17 |
 | 2026-09-29 | v0.5: validation messages in Italian (§7) |
+| 2026-09-29 | v0.6: §9 item 6 adds dynamic scenes (location tags, scene templates, anchor points; GDD v0.8); milestone references follow the renumbered roadmap (Brief v0.13) |

@@ -1,8 +1,8 @@
 # PokeRPG — Game Design Document (GDD)
-*Version 0.7 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.8 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 How the player runtime behaves. The Story Schema turns these systems into story files; the Asset Spec covers asset formats.
-The platform systems outside stories (UI shell, life tracker, account) are in §12–§14.
+The platform systems outside stories (save slots, UI shell, AGENDA, dev mode, account) are in §10 and §12–§14.
 Scope is **launch (v1)**. Anything marked *later* is planned but not built for launch.
 
 ---
@@ -11,7 +11,8 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 - **The player brings the hero.** Every story is played with the player's own character. Stories never define the hero's name, looks or gender, and dialogue refers to the player only through placeholders (§5).
 - **Linear stories at launch.** A story is an ordered chain of quests. There are no items, inventory or branching choices in v1 (*later*).
 - **Classic top-down RPG feel.** Grid movement, talk to people, walk to places, watch scripted scenes.
-- **Platform systems sit outside stories.** The UI shell, life tracker and account belong to the platform. Stories fill the UI with text but can't restyle it, and can't read or change tracker data in v1.
+- **Stories run on the calendar.** A story is told in episodes: a calendar month by default, or a week if the author chooses. It follows the device's date and time of day (§13.3).
+- **Platform systems frame the stories.** Save slots, the UI shell, AGENDA and dev mode belong to the platform. Stories fill the UI with text but can't restyle it. A story can supply monthly challenges to AGENDA (§13.1), but can't read or change coins, the shop or personal goals.
 - **Stories are data.** Everything a story does is expressible in the Story Schema. Stories contain no code.
 
 ## 2. Controls
@@ -62,7 +63,7 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 - **Reveal:** typewriter effect, speed set in the settings. **A** finishes the page or advances to the next. **B** shows the whole page instantly.
 - **Placeholders:** `{player.name}` in dialogue text. A player name is at most **12 characters**, the budget the Story Schema counts per placeholder, and may use accented letters. More placeholders (*later*) are added to the Story Schema, never invented by stories.
 - **Speakers:** an NPC, the player (`player`), or a narrator (no name).
-- **Portraits:** none at launch. Expressions and portraits come before M6 (§15 Q1).
+- **Portraits:** none at launch. Expressions and portraits come before M7 (§15 Q1).
 - **Choices:** none at launch (*later*, with branching).
 
 ## 7. Quests, tasks and scenes
@@ -77,6 +78,7 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 | `scene` | A scene (§7.2) finishes. It starts automatically when the task becomes active |
 
 Each task has **objective text** shown in the menu's quest log, e.g. "Find the baker in the plaza". Each task can run a scene **on complete**, and can set flags (§8).
+These are story tasks. Real-life goals live in AGENDA (§13).
 
 ### 7.2 Scenes (scripts)
 A scene is an ordered list of commands that runs to the end while player input is locked. Commands run one after another unless marked `parallel`.
@@ -96,62 +98,111 @@ A scene is an ordered list of commands that runs to the end while player input i
 | `flag` | Sets a flag (§8) |
 
 A story opens on a black screen; scenes may fade in themselves, otherwise the runtime fades in when the player gets control (Story Schema §7.1).
+Public slots add dynamic scenes and live scene changes by the dev (§14.3).
 
 ### 7.3 Triggers
 Scenes and task progress are started by: **story start**, **task becomes active**, **talk to NPC**, **enter area**, **task complete**. A trigger can have a condition and can be `once`. At story start, story-start triggers run before the first task becomes active.
 
 ## 8. World state
 - **Flags:** named true/false values owned by the story, all false at the start. Only scenes and task completion set them.
-- **Conditions:** used by NPC visibility, placements, dialogue variants and triggers. A condition tests flags, the active quest/task, or whether a quest is complete, combined with `all` / `any` / `not`.
+- **Conditions:** used by NPC visibility, placements, dialogue variants and triggers. A condition tests flags, the active quest/task, or whether a quest is complete, combined with `all` / `any` / `not`. Date and time-of-day conditions are planned (§13.3).
 - NPC positions changed by a scene last until the location is left. Lasting changes use flags and conditional placements.
 
 ## 9. Menu and UI
 - **Look:** every screen, menu and box uses the UI shell (§12).
-- **Menu:** quest log (current objective and completed quests), life tracker (§13), save, settings, account (§14), return to title.
-- **Settings:** text speed, music and sound volume, touch control size (UI Spec §7).
+- **Start menu:** MISSIONI (quest log: current objective and completed quests) · AGENDA (§13) · SALVA · OPZIONI · ACCOUNT (§14.2) · TITOLO · ANNULLA (UI Spec §5.1).
+- **Settings (OPZIONI):** text speed, music and sound volume, touch control size, and, for the slot's dev only, dev mode and the editor (§14.1, UI Spec §7).
 - **HUD:** none while walking. The current objective appears briefly when a task starts.
 
-## 10. Saving
-- **Local only** (browser storage), with file export/import of a save (Brief §2).
-- **Autosave** when a task completes and on every location change, plus a manual save in the menu. **3 slots per story.**
-- A save holds the story id and version, the Run Manifest id, the player character, location, tile, facing, flags and quest/task progress.
+## 10. Save slots and saving
+- **4 save slots** on the title screen, shared by all stories. Each slot holds one story run with its player character, its AGENDA and, in private slots, its shop.
+- **Mode**, chosen when the slot is created:
+  - **Private:** one person is both dev and player. Everything stays on the device and needs no account. Mainly a productivity tracker (§13).
+  - **Public:** one dev and several players, each on their own device with an account (§14). Mainly a live campaign, e.g. to accompany a tabletop D&D campaign.
+- **Autosave** when a task completes and on every location change, plus a manual save in the menu.
+- A save holds the story id and version, the Run Manifest id, the player character, location, tile, facing, flags, quest/task progress and the AGENDA state.
 - Saving is blocked during scenes, and a load always restores a non-scene moment.
-- Life tracker and account data are platform data, stored separately from story saves (§13, §14).
+- **Export/import:** a private slot can be exported to a file and imported into a free slot. In a public slot the story content comes from the dev (§14.3); each player's own save stays on their device.
+- How a slot is created and picks its story and character is §15 Q3.
 
 ## 11. Run Manifest
 Starting a story creates a Run Manifest that **locks** the story package version, the player's character package, every library asset version the story uses (locations, NPC characters, music, sounds) and the animation-set versions. Saves point to their manifest, so later library or story updates never break a run in progress.
+Dev edits are the exception, by design: a dev-mode edit or a dev push (§14) creates a new story version for that slot, and the run moves to it at the next non-scene moment.
 
 ## 12. UI shell
 - **Look and feel:** an exact match to Pokémon Emerald: dialogue box, menus, font style, cursor, text reveal, menu sounds and screen transitions. A UI spec, written from the PO's reference captures, fixes layout, proportions, colours and timings.
 - **Language:** Italian only (Brief §2). The font covers the Italian alphabet, including accented letters (à è é ì ò ù and their capitals) and the apostrophe.
 - **Fixed:** stories and players cannot restyle it. Stories only supply content (text, names, objectives).
+- **Platform screens:** AGENDA, the shop and the dev tools use the same shell, so they read as part of the Emerald-style menu (UI Spec §6–§8).
 - **Assets:** public builds use original, recreated art, font and sounds. A private build may swap them for the builder's own files from the git-ignored overrides folder (Brief §2). Override files use the same names and sizes as the originals.
 - **Screen fit:** the UI uses 4× pixels on a 240 × 135 layout that covers the 960 × 540 screen (UI Spec §1).
 - **Details:** layout, colours, font and timings are in the UI Spec.
 
-## 13. Life tracker
-- **What:** the player's own real-life tasks and progress, kept outside any story.
-- **Coins:** completing a real-life task earns in-game coins.
-- **Rewards:** coins unlock rewards, in-game or real-life. A real-life reward is something the player gives themselves once it is unlocked.
-- **Storage:** works without an account. Data is local and is included in file export. With an account, time checks use the trusted clock (§14).
-- Details are open (§15 Q6, Q8).
+## 13. AGENDA (life tracker)
+Each slot has its own AGENDA, opened from the start menu. Its pages are laid out in UI Spec §6.2.
 
-## 14. Account and real-time clock
-- **Optional per player:** Firebase login. A player can set it up or skip it at any time; nothing in stories requires it.
-- **With an account:** a trusted server clock drives time and date events and coin rewards, so changing the device clock has no effect.
-- **Without an account:** everything runs locally on the device clock.
+### 13.1 Tasks
+| Kind | Set by | Covers |
+|---|---|---|
+| Daily goals | In-game: the player in a private slot, the dev in a public slot | One day |
+| Weekly goals | In-game, as above | One week |
+| Monthly challenges | The story files, written by the author. Dev mode can edit them in-game only as a backdoor for urgent fixes | One episode |
+
+- **Private slots:** tasks are productivity goals.
+- **Public slots:** tasks are set by the dev and belong to the storyline or campaign.
+- **Place tasks:** a task can ask the player to stay in an in-game place for a set time. Entering the place starts a focus timer, and the place shows its own to-do list. The task completes when the time is up. No real-world location is used.
+
+### 13.2 Coins and shop (private slots only)
+- Completing a task earns coins. The platform fixes coins per task through difficulty tiers (§15 Q9); the tier is chosen when the task is set.
+- **Shop:** the dev fills it and sets every price. Each entry is either an in-game asset from the library or a real-life reward. A real-life reward ("buy X", "do X") is something the player gives themselves once it is bought.
+- Which in-game assets the shop can sell, and what they do, is §15 Q10.
+- Public slots have no coins and no shop.
+
+### 13.3 Episodes and time
+- A story is told one episode at a time: a calendar month by default, or a week if the author chooses. Each episode brings new story content and new monthly challenges.
+- Stories can react to the device's date and time of day. The Story Schema format for episodes, time conditions and monthly challenges is open (Story Schema §12).
+- Every slot uses the device clock (§14.4).
+
+## 14. Dev mode, account and public slots
+
+### 14.1 Dev mode
+- The slot's dev turns it on in OPZIONI (UI Spec §7). In a private slot the dev is the player; in a public slot only the dev sees the option.
+- **Quick edit forms** for small changes: with dev mode on, the lists in MISSIONI, AGENDA and the shop offer edit actions on their items.
+- **Edit panel** for bigger changes (monthly quests, scenario changes), opened from EDITOR in OPZIONI.
+- Every edit is checked with the same rules as `story:check` before it is saved or pushed.
+- **Private slot:** edits are saved on the device. **Public slot:** the dev pushes them (§14.3).
+- No AI prompting in the dev tools at launch (*later*).
+
+### 14.2 Account
+- **Firebase login.** Required for everyone in a public slot, dev and players. Private slots never need it.
+- ACCOUNT in the start menu signs in and out and shows the privacy notice.
 - **Privacy:** minimal data; a privacy notice ships with the account.
-- Which time and date events exist, and what syncs, is open (§15 Q7).
+
+### 14.3 Public slots
+- **One timeline, set by the dev.** Every player follows the same story; there is no per-player branching.
+- **Scene order:** the story sets the default order of scenes and story beats. The dev can override it live: switch to another scene or beat, or pick another location among the legal ones. In a private slot the dev has full control at all times.
+- **Dynamic scenes:** a scene template (a looping animation, e.g. the party around a campfire) placed in a library location whose tags allow it. For example, 7 of a campaign's 15 locations may be tagged for camping. A dynamic scene plays until the next scene or story beat. Templates, tags and anchor points are open in Asset Spec §9.
+- **Push and sync:** the dev pushes updates to the running campaign, e.g. next week's content with a preview message. Players receive them when they sync. Pushes are data, never code.
+- Each player's device keeps its own date and time of day.
+
+### 14.4 Clock
+- Every slot runs on the device clock. There is no trusted server clock.
+- The server only timestamps and orders the dev's pushes.
+- Changing the device clock affects only that device. Coins exist only in private slots, where the player is also the dev.
 
 ## 15. Open questions
-1. **Portraits and expressions:** canvas, expression list and whether the player's character needs a portrait. Decide before M6. Asset Spec §5 points here.
+1. **Portraits and expressions:** canvas, expression list and whether the player's character needs a portrait. Decide before M7. Asset Spec §5 points here.
 2. **Items and branching choices:** scope and timing after launch.
-3. **Title and story selection flow:** how the player picks a story and a character. Decide before M5.
+3. **Title, slots and story selection:** how a slot is created, picks its story and character, and what its title panel shows (UI Spec §5.3). Decide before M5.
 4. *Decided (v0.7):* the Emerald UI adapts to 16:9 with 4× pixels on a 240 × 135 layout (UI Spec §1).
 5. *Decided (v0.7):* 2 lines per page; the runtime splits longer lines across pages, and the 120-character story limit stays (§6, Story Schema §5.1).
-6. **Life tracker rules:** who sets rewards and their prices, task kinds (one-off, recurring, streaks), coins per task, and what coins buy in-game.
-7. **Time and date events:** which exist (day/night, calendar dates, holidays), whether stories can use time conditions (a Story Schema change), and what an account syncs (tracker, saves, settings).
-8. **Where the tracker lives:** title screen, in-game menu, or both.
+6. *Decided (v0.8):* daily and weekly goals are set in-game, monthly challenges come from the story, coins use platform-fixed tiers, and the dev fills and prices the shop (§13).
+7. *Decided (v0.8):* device clock everywhere; stories follow the date and time of day; public slots sync the dev's pushes (§13.3, §14). Still open: date events beyond this (e.g. holidays).
+8. *Decided (v0.8):* the tracker is AGENDA, in each slot's start menu (§13).
+9. **Coin tiers:** how many difficulty tiers, and coins per tier. Decide before M6.
+10. **Shop assets:** which in-game assets the shop sells and how they're used, given there are no items or inventory at launch (§1). Decide before M6.
+11. **Public slot membership:** how the dev invites players, how players leave, and what a player sees offline. Decide before M9.
+12. **Dynamic scene cast:** which characters appear in a dynamic scene (the players' own characters, NPCs, or both). Decide before M9.
 
 ## 16. Decision log
 | Date | Decision |
@@ -164,3 +215,4 @@ Starting a story creates a Run Manifest that **locks** the story package version
 | 2026-09-29 | v0.5: runtime defaults: player name max 12 characters (§6); end card after the story (§7.1); `patrol` returns to its path after a scene (§5); story-start triggers before the first task (§7.3). §15 Q5 cross-referenced from Story Schema §5.1 |
 | 2026-09-29 | v0.6: UI is Italian only; the font covers accented letters; player names may use them; the end card reads "Fine" (§6, §7.1, §12, §15 Q5) |
 | 2026-09-29 | v0.7: UI Spec v0.1 adopted. UI at 4× pixels on a 240 × 135 layout; dialogue box 2 lines per page with pagination; inline speaker names instead of a name plate (§6, §12, §15 Q4–Q5 decided) |
+| 2026-09-29 | v0.8: tracker design. 4 save slots, private (local productivity tracker) or public (live campaign, account required) (§10); stories told in monthly or weekly episodes on the device's date and time (§13.3); AGENDA with daily, weekly and monthly tasks, place tasks with a focus timer, platform coin tiers and a dev-filled shop (§13); dev mode in OPZIONI with quick edit forms and an Edit panel (§14.1); public slots: one dev-set timeline, story order with live dev override, dynamic scenes, push and sync (§14.3); trusted server clock dropped (§14.4). Q6–Q8 decided; Q9–Q12 added. Answers Claude Code spec issues #1, #2 and #6 |

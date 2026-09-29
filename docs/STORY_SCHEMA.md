@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.7 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.8 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and the story author's own Claude Code builds stories from it (Project Brief §3). Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -179,8 +179,12 @@ Scene `move` and `camera` tiles are not checked against collision at import, and
 Messages are in Italian (Brief §2); file names, JSON paths, ids and field names stay as written. Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · PNG sconosciuto "rossa"`.
 
 ## 12. Open items
-1. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M7.
+1. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M8.
 2. **Localisation:** one language per story in v0.1. Translations *later*.
+3. **Episodes:** a story is told one episode at a time, a calendar month by default or a week if the author chooses (GDD §13.3). Format decided before M6.
+4. **Date and time conditions:** `when` forms for the device's date and time of day (GDD §8, §13.3). Format decided before M6.
+5. **AGENDA challenges:** each episode's monthly challenges, including place tasks with a focus time and a to-do list (GDD §13.1). Format decided before M6.
+6. **Public slots:** how a story marks its story beats and the default order that the dev can override live, and how it offers dynamic scenes (GDD §14.3). Format decided before M9.
 
 ## 13. Decision log
 | Date | Decision |
@@ -192,3 +196,4 @@ Messages are in Italian (Brief §2); file names, JSON paths, ids and field names
 | 2026-09-29 | v0.5: open runtime questions decided: wrong `move` start tile → warning, walk from the actual tile; `patrol` returns to the nearest path point after a scene; `storyStart` triggers run before the first task; player name max 12 characters; end card after the story (§5.1, §6.1, §7.1, §8). §11 notes the `move` start tile is checked at run time; §5.1 points to GDD §15 Q5. Format unchanged |
 | 2026-09-29 | v0.6: validation messages in Italian (§11); accented letters count as 1 character (§5.1); any story language allowed (§3). Format unchanged |
 | 2026-09-29 | v0.7: a line is a message shown on one or more 2-line pages; speaker names are added inline by the runtime (§5.1). Format unchanged |
+| 2026-09-29 | v0.8: open items for episodes, date and time conditions, AGENDA challenges and public-slot story beats (GDD v0.8); milestone references follow the renumbered roadmap (Brief v0.13). Format unchanged |
