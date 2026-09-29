@@ -35,7 +35,7 @@ export async function readSheetFile(file: File): Promise<SheetFileRead> {
           sheets: [],
           ignored: [],
           errors: [
-            `${file.name}: ${img.width}×${img.height} is far larger than a 768 × 512 sheet.`,
+            `${file.name}: ${img.width}×${img.height} è molto più grande di un foglio 768 × 512.`,
           ],
         };
       }
@@ -46,7 +46,11 @@ export async function readSheetFile(file: File): Promise<SheetFileRead> {
     }
   } catch (e) {
     if (e instanceof ImageDecodeError) {
-      return { sheets: [], ignored: [], errors: [`${file.name}: this is not an image or a zip.`] };
+      return {
+        sheets: [],
+        ignored: [],
+        errors: [`${file.name}: non è un'immagine né uno zip.`],
+      };
     }
     throw e;
   }

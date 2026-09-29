@@ -197,20 +197,21 @@ describe('what cannot be imported', () => {
     const notPng = { ...body, bytes: Uint8Array.of(1, 2, 3) };
     const r = importSheets([notPng]);
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.prepared.notes[0]).toContain('re-saved as a clean PNG-32 on export');
+    if (r.ok)
+      expect(r.prepared.notes[0]).toContain("risalvato come PNG-32 pulito all'esportazione");
   });
 });
 
 describe('reading zips', () => {
   it('rejects a corrupt zip and more than one character', () => {
     expect(readPackageZip(Uint8Array.of(1, 2, 3)).errors).toEqual([
-      'This is not a valid zip file.',
+      'Questo non è un file zip valido.',
     ]);
     const two = zipFiles([
       { path: 'chr_a/x.txt', data: Uint8Array.of(1) },
       { path: 'chr_b/x.txt', data: Uint8Array.of(1) },
     ]);
-    expect(readPackageZip(two).errors[0]).toContain('more than one character');
+    expect(readPackageZip(two).errors[0]).toContain('più di un personaggio');
   });
 
   it('names a sheet it cannot decode', () => {

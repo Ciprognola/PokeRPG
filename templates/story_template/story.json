@@ -2,10 +2,10 @@
   "schemaVersion": "0.1",
   "id": "story_template",
   "version": 1,
-  "title": "The Missing Baker",
-  "author": "PokeRPG team",
-  "description": "A tiny playable story that uses every Story Schema field and scene command. Copy it and change it.",
-  "language": "en",
+  "title": "Il fornaio scomparso",
+  "author": "Team PokeRPG",
+  "description": "Una piccola storia giocabile che usa ogni campo dello Story Schema e ogni comando di scena. Copiala e modificala.",
+  "language": "it",
   "start": { "location": "harbour", "spawn": "spawn_start", "facing": "down" },
   "locations": [
     {
@@ -42,14 +42,14 @@
       "dialogues": [
         {
           "when": { "all": [{ "flag": "met-rosa" }, { "quest": "find-baker", "is": "complete" }] },
-          "lines": ["Thank you again, {player.name}!"]
+          "lines": ["Grazie ancora, {player.name}!"]
         },
         {
           "when": { "quest": "find-baker", "is": "active" },
-          "lines": ["Oh, a visitor. Just a moment."]
+          "lines": ["Oh, un visitatore. Un momento."]
         },
-        { "when": { "flag": "met-rosa" }, "lines": ["Back again, {player.name}?"] },
-        { "lines": ["Welcome to my bakery!", "Fresh bread every morning."] }
+        { "when": { "flag": "met-rosa" }, "lines": ["Di nuovo qui, {player.name}?"] },
+        { "lines": ["Che piacere vederti nel mio forno!", "Pane fresco ogni mattina."] }
       ]
     },
     {
@@ -85,20 +85,20 @@
       "dialogues": [
         {
           "when": { "task": "deliver-note.talk-tomas", "is": "complete" },
-          "lines": ["Fair winds, {player.name}."]
+          "lines": ["Buon vento, {player.name}."]
         },
         {
           "when": { "quest": "deliver-note", "is": "notStarted" },
-          "lines": ["Busy day at the docks."]
+          "lines": ["Giornata intensa al porto."]
         },
         {
           "when": { "not": { "flag": "met-tomas" } },
           "lines": [
-            "Ahoy! I haven't seen you around.",
-            { "speaker": "player", "text": "I'm {player.name}. I'm looking for the baker." }
+            "Ehilà! Non capiti spesso da queste parti.",
+            { "speaker": "player", "text": "Sono {player.name}. Sto cercando il fornaio." }
           ]
         },
-        { "lines": ["The tide is coming in."] }
+        { "lines": ["La marea sta salendo."] }
       ]
     }
   ],
@@ -106,30 +106,30 @@
   "quests": [
     {
       "id": "find-baker",
-      "title": "The missing baker",
+      "title": "Il fornaio scomparso",
       "tasks": [
         {
           "id": "intro",
           "type": "scene",
           "scene": "harbour-intro",
-          "objective": "Look around the harbour"
+          "objective": "Guarda intorno al porto"
         },
         {
           "id": "reach-plaza",
           "type": "reach",
           "location": "harbour",
           "area": "area_plaza",
-          "objective": "Go to the plaza"
+          "objective": "Vai alla piazza"
         },
         {
           "id": "talk-rosa",
           "type": "talk",
           "npc": "rosa",
-          "objective": "Find the baker",
+          "objective": "Trova il fornaio",
           "lines": [
-            "Oh! You found me.",
-            { "speaker": "player", "text": "Everyone is looking for you." },
-            { "speaker": "narrator", "text": "Rosa smiles." }
+            "Oh! Mi hai trovata.",
+            { "speaker": "player", "text": "Tutti ti stanno cercando." },
+            { "speaker": "narrator", "text": "Rosa sorride." }
           ],
           "onComplete": { "flags": { "met-rosa": true }, "scene": "rosa-returns" }
         }
@@ -137,23 +137,23 @@
     },
     {
       "id": "deliver-note",
-      "title": "A note for Tomas",
+      "title": "Un biglietto per Tomas",
       "tasks": [
         {
           "id": "reach-dock",
           "type": "reach",
           "location": "harbour",
           "spawn": "spawn_dock",
-          "objective": "Walk to the docks"
+          "objective": "Vai al molo"
         },
         {
           "id": "talk-tomas",
           "type": "talk",
           "npc": "tomas",
-          "objective": "Give Tomas the note",
+          "objective": "Dai il biglietto a Tomas",
           "lines": [
-            { "speaker": "narrator", "text": "You hand over the note." },
-            "Ah, the note! Thanks, {player.name}."
+            { "speaker": "narrator", "text": "Consegni il biglietto." },
+            "Ah, il biglietto! Grazie, {player.name}."
           ],
           "onComplete": { "flags": { "delivered": true }, "scene": "tour" }
         }
@@ -166,7 +166,7 @@
       { "cmd": "music", "track": "mus_town_greybox" },
       {
         "cmd": "say",
-        "lines": [{ "speaker": "narrator", "text": "A quiet morning at the harbour." }]
+        "lines": [{ "speaker": "narrator", "text": "Una tranquilla mattina al porto." }]
       }
     ],
     "harbour-intro": [
@@ -177,7 +177,7 @@
       { "cmd": "sound", "sfx": "sfx_greybox-step" },
       {
         "cmd": "say",
-        "lines": [{ "speaker": "player", "text": "Where is everyone? Hello, I'm {player.name}." }]
+        "lines": [{ "speaker": "player", "text": "Dove sono tutti? Ciao, sono {player.name}." }]
       }
     ],
     "rosa-returns": [
@@ -198,7 +198,7 @@
       { "cmd": "face", "actor": "player", "toward": "rosa" },
       {
         "cmd": "say",
-        "lines": [{ "speaker": "rosa", "text": "I'm back! Thank you, {player.name}." }]
+        "lines": [{ "speaker": "rosa", "text": "Sono tornata! Grazie, {player.name}." }]
       },
       { "cmd": "face", "actor": "rosa", "dir": "left" }
     ],
@@ -214,7 +214,7 @@
       { "cmd": "face", "actor": "tomas", "toward": "player" },
       {
         "cmd": "say",
-        "lines": [{ "speaker": "tomas", "text": "Nice to meet you, {player.name}." }]
+        "lines": [{ "speaker": "tomas", "text": "Piacere di conoscerti, {player.name}." }]
       },
       { "cmd": "flag", "set": { "met-tomas": true } }
     ],
@@ -226,7 +226,7 @@
       {
         "cmd": "say",
         "lines": [
-          { "speaker": "narrator", "text": "That was the whole template. Now make it yours." }
+          { "speaker": "narrator", "text": "Questo era l'intero modello. Ora rendilo tuo." }
         ]
       }
     ]

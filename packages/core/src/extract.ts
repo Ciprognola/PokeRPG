@@ -95,7 +95,7 @@ export function checkGridSize(width: number, height: number): void {
   if (cell.width < 16 || cell.height < 16) {
     throw new ExtractionError(
       'bad-grid',
-      `grid image ${width}×${height} is too small for ${GRID_COLUMNS} × ${GRID_ROWS} frames`,
+      `immagine griglia ${width}×${height} troppo piccola per ${GRID_COLUMNS} × ${GRID_ROWS} fotogrammi`,
     );
   }
 }
@@ -126,7 +126,7 @@ export function orderFrameFiles(names: readonly string[]): number[] {
   if (names.length !== FRAME_COUNT) {
     throw new ExtractionError(
       'wrong-count',
-      `expected ${FRAME_COUNT} frame images, got ${names.length}`,
+      `attese ${FRAME_COUNT} immagini fotogramma, arrivate ${names.length}`,
     );
   }
   const walk = getAnimSet('walk', REGISTRY);
@@ -139,7 +139,9 @@ export function orderFrameFiles(names: readonly string[]): number[] {
       if (hits.length !== 1) {
         throw new ExtractionError(
           hits.length === 0 ? 'wrong-count' : 'duplicate-frame',
-          hits.length === 0 ? 'no image for this frame' : `${hits.length} images claim this frame`,
+          hits.length === 0
+            ? 'nessuna immagine per questo fotogramma'
+            : `${hits.length} immagini rivendicano questo fotogramma`,
           key,
         );
       }
@@ -204,7 +206,7 @@ export function detectBackground(cell: PixelBuffer, tolerance = DEFAULTS.bgToler
   if (inliers < ring.length * 0.6) {
     throw new ExtractionError(
       'no-background',
-      'the background is neither transparent nor one flat colour (check the image edges)',
+      "lo sfondo non è né trasparente né di un unico colore uniforme (controlla i bordi dell'immagine)",
     );
   }
   return { kind: 'flat', color };
@@ -361,7 +363,11 @@ export function extractFrame(
   const box = maskBounds(keep, w, h);
   if (!box) {
     if (o.allowEmpty) return emptyFrame();
-    throw new ExtractionError('empty-cell', 'no character found (the cell is empty)', frameKey);
+    throw new ExtractionError(
+      'empty-cell',
+      'nessun personaggio trovato (la cella è vuota)',
+      frameKey,
+    );
   }
 
   // 3. Enclosed holes that show the background (gap between an arm and the body, ...).
@@ -510,7 +516,11 @@ export function extractFrame(
   const bounds = maskBounds(finalMask, w, h);
   if (!bounds) {
     if (o.allowEmpty) return emptyFrame();
-    throw new ExtractionError('empty-cell', 'no character found (the cell is empty)', frameKey);
+    throw new ExtractionError(
+      'empty-cell',
+      'nessun personaggio trovato (la cella è vuota)',
+      frameKey,
+    );
   }
   return {
     pixels: cropPixels(out, bounds),
@@ -548,7 +558,7 @@ export function extractFrames(
   if (images.length !== FRAME_COUNT) {
     throw new ExtractionError(
       'wrong-count',
-      `expected ${FRAME_COUNT} frame images, got ${images.length}`,
+      `attese ${FRAME_COUNT} immagini fotogramma, arrivate ${images.length}`,
     );
   }
   return images.map((img, i) => extractFrame(img, options, keyAt(i)));

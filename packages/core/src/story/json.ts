@@ -75,20 +75,20 @@ export function parseJsonWithLines(text: string): JsonParse {
       else break;
     }
   };
-  const describe = (): string => (i >= src.length ? 'the end of the file' : `"${src[i]}"`);
+  const describe = (): string => (i >= src.length ? 'la fine del file' : `"${src[i]}"`);
 
   function parseString(): string {
-    if (src[i] !== '"') fail(`expected a string, found ${describe()}`);
+    if (src[i] !== '"') fail(`attesa una stringa, trovato ${describe()}`);
     i++;
     let out = '';
     for (;;) {
-      if (i >= src.length) fail('unterminated string');
+      if (i >= src.length) fail('stringa non terminata');
       const c = src[i]!;
       if (c === '"') {
         i++;
         return out;
       }
-      if (c === '\n') fail('a string cannot contain a line break');
+      if (c === '\n') fail('una stringa non può contenere un a capo');
       if (c === '\\') {
         const n = src[i + 1];
         const simple: Record<string, string> = {
@@ -103,13 +103,13 @@ export function parseJsonWithLines(text: string): JsonParse {
         };
         if (n === 'u') {
           const hex = src.slice(i + 2, i + 6);
-          if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail('bad \\u escape');
+          if (!/^[0-9a-fA-F]{4}$/.test(hex)) fail('sequenza \\u non valida');
           out += String.fromCharCode(parseInt(hex, 16));
           i += 6;
         } else if (n !== undefined && n in simple) {
           out += simple[n];
           i += 2;
-        } else fail('bad escape in string');
+        } else fail('sequenza di escape non valida nella stringa');
       } else {
         out += c;
         i++;
@@ -141,7 +141,7 @@ export function parseJsonWithLines(text: string): JsonParse {
       i += m[0].length;
       return Number(m[0]);
     }
-    return fail(`unexpected ${describe()}`);
+    return fail(`imprevisto ${describe()}`);
   }
 
   function parseObject(path: string): Record<string, unknown> {
@@ -157,7 +157,7 @@ export function parseJsonWithLines(text: string): JsonParse {
       const keyPos = pos();
       const key = parseString();
       skip();
-      if (src[i] !== ':') fail(`expected ":" after "${key}", found ${describe()}`);
+      if (src[i] !== ':') fail(`atteso ":" dopo "${key}", trovato ${describe()}`);
       i++;
       const childPath = joinPath(path, key);
       if (Object.prototype.hasOwnProperty.call(obj, key))
@@ -173,7 +173,7 @@ export function parseJsonWithLines(text: string): JsonParse {
         i++;
         return obj;
       }
-      fail(`expected "," or "}", found ${describe()}`);
+      fail(`atteso "," o "}", trovato ${describe()}`);
     }
   }
 
@@ -197,7 +197,7 @@ export function parseJsonWithLines(text: string): JsonParse {
         i++;
         return arr;
       }
-      fail(`expected "," or "]", found ${describe()}`);
+      fail(`atteso "," o "]", trovato ${describe()}`);
     }
   }
 
@@ -205,7 +205,7 @@ export function parseJsonWithLines(text: string): JsonParse {
     skip();
     const value = parseValue('', pos());
     skip();
-    if (i < src.length) fail(`unexpected ${describe()} after the end of the JSON`);
+    if (i < src.length) fail(`imprevisto ${describe()} dopo la fine del JSON`);
     return { ok: true, value, lines, duplicates };
   } catch (e) {
     if (e instanceof Fail)

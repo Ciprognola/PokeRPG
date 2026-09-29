@@ -23,9 +23,9 @@ function walk(dir: string): string[] {
 /** The files of a `story_<id>/` folder (paths start with the folder name) or of a zip. */
 export function readStoryFiles(target: string): PackageFile[] {
   const path = resolve(target);
-  if (!existsSync(path)) throw new Error(`${target} does not exist`);
+  if (!existsSync(path)) throw new Error(`${target} non esiste`);
   if (statSync(path).isFile()) {
-    if (!/\.zip$/i.test(path)) throw new Error(`${target} is a file but not a .zip`);
+    if (!/\.zip$/i.test(path)) throw new Error(`${target} è un file ma non uno .zip`);
     return unzipFiles(new Uint8Array(readFileSync(path)));
   }
   const root = basename(path);
@@ -70,7 +70,7 @@ export function checkStory(target: string, libValue?: string, json = false): num
     if (!read.input) {
       for (const e of read.errors) console.error(e);
       console.error(
-        'Not a readable story package. Expected a story_<id>/ folder with story.json in it (or a .zip of one).',
+        'Non è un pacchetto storia leggibile. Serve una cartella story_<id>/ con story.json dentro (o uno zip di questa).',
       );
       return 2;
     }
@@ -83,12 +83,12 @@ export function checkStory(target: string, libValue?: string, json = false): num
       for (const f of report.findings) console.log(`${f.severity} · ${formatStoryFinding(f)}`);
       const { errors, warnings } = report.summary;
       console.log(
-        `${report.storyId ?? target}: ${errors} error${errors === 1 ? '' : 's'}, ${warnings} warning${warnings === 1 ? '' : 's'}`,
+        `${report.storyId ?? target}: ${errors} ${errors === 1 ? 'errore' : 'errori'}, ${warnings} ${warnings === 1 ? 'avviso' : 'avvisi'}`,
       );
       console.log(
         report.ok
-          ? 'OK: no errors. The story is ready to import.'
-          : 'Fix the errors above and run the check again until it reports 0 errors.',
+          ? 'OK: nessun errore. La storia è pronta per essere importata.'
+          : 'Correggi gli errori sopra ed esegui di nuovo il controllo finché non riporta 0 errori.',
       );
     }
     return report.ok ? 0 : 1;
@@ -109,11 +109,11 @@ const JUNK = new Set(['.DS_Store', 'Thumbs.db', 'desktop.ini']);
  */
 export function packStoryFolder(folder: string): { zipPath: string; files: number } {
   const path = resolve(folder);
-  if (!existsSync(path)) throw new Error(`${folder} does not exist`);
+  if (!existsSync(path)) throw new Error(`${folder} non esiste`);
   if (!statSync(path).isDirectory())
-    throw new Error(`${folder} is not a folder: give the story_<id>/ folder, not a file`);
+    throw new Error(`${folder} non è una cartella: indica la cartella story_<id>/, non un file`);
   if (!existsSync(join(path, 'story.json')))
-    throw new Error(`${folder} has no story.json: give the story_<id>/ folder itself`);
+    throw new Error(`${folder} non ha story.json: indica direttamente la cartella story_<id>/`);
   const files = readStoryFiles(path).filter((f) => !JUNK.has(basename(f.path)));
   const zipPath = join(dirname(path), `${basename(path)}.zip`);
   writeFileSync(zipPath, zipFiles(files));

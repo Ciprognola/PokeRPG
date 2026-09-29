@@ -94,7 +94,7 @@ function checkName(kind: string, value: string): void {
   if (!NAME_RE.test(value)) {
     throw new AssembleError(
       'bad-name',
-      `${kind} "${value}" must be lowercase letters, digits and "-" only (no spaces or "_")`,
+      `${kind} "${value}" deve avere solo lettere minuscole, cifre e "-" (niente spazi o "_")`,
     );
   }
 }
@@ -236,7 +236,7 @@ function fitScale(reference: ExtractedFrame): number {
   if (!m0.hasOpaque) {
     throw new AssembleError(
       'no-reference',
-      'walk_down_00 · the body has no solid pixels to measure',
+      'walk_down_00 · il corpo non ha pixel solidi da misurare',
     );
   }
   const heightAt = (scale: number): number => {
@@ -275,25 +275,25 @@ function fitScale(reference: ExtractedFrame): number {
 export function prepareCharacter(input: CharacterInput): Prepared {
   const setId = input.setId ?? 'walk';
   const set = getAnimSet(setId);
-  if (!set) throw new AssembleError('bad-layer', `unknown animation set "${setId}"`);
-  checkName('character name', input.name);
+  if (!set) throw new AssembleError('bad-layer', `set di animazione sconosciuto "${setId}"`);
+  checkName('nome del personaggio', input.name);
 
   const seen = new Set<LayerId>();
   for (const l of input.layers) {
-    checkName(`${l.layer} name`, l.name);
-    if (l.variant !== undefined) checkName(`${l.layer} variant`, l.variant);
+    checkName(`nome ${l.layer}`, l.name);
+    if (l.variant !== undefined) checkName(`variante ${l.layer}`, l.variant);
     if (seen.has(l.layer))
-      throw new AssembleError('bad-layer', `two ${l.layer} layers (one per layer id)`);
+      throw new AssembleError('bad-layer', `due livelli ${l.layer} (uno per id di livello)`);
     seen.add(l.layer);
     if (l.frames.length !== FRAME_COUNT) {
       throw new AssembleError(
         'bad-layer',
-        `${l.layer}: expected ${FRAME_COUNT} frames, got ${l.frames.length}`,
+        `${l.layer}: attesi ${FRAME_COUNT} fotogrammi, arrivati ${l.frames.length}`,
       );
     }
   }
   const body = input.layers.find((l) => l.layer === 'body');
-  if (!body) throw new AssembleError('no-body', 'a character needs a body layer');
+  if (!body) throw new AssembleError('no-body', 'un personaggio ha bisogno di un livello body');
 
   const cell = body.frames[0]!.cell;
   for (const l of input.layers) {
@@ -301,7 +301,7 @@ export function prepareCharacter(input: CharacterInput): Prepared {
       if (f.cell.width !== cell.width || f.cell.height !== cell.height) {
         throw new AssembleError(
           'cell-mismatch',
-          `${l.layer} frame ${i} comes from a ${f.cell.width}×${f.cell.height} cell but the body uses ${cell.width}×${cell.height}; every layer must use the same frame layout`,
+          `il fotogramma ${i} di ${l.layer} viene da una cella ${f.cell.width}×${f.cell.height} ma il body usa ${cell.width}×${cell.height}; ogni livello deve usare lo stesso layout di fotogramma`,
         );
       }
     }
@@ -321,7 +321,7 @@ export function prepareCharacter(input: CharacterInput): Prepared {
     const key = rect.key;
     const bodyFrame = body.frames[i]!;
     if (bodyFrame.pixels.width === 0) {
-      throw new AssembleError('no-reference', `${key} · the body frame is empty`);
+      throw new AssembleError('no-reference', `${key} · il fotogramma del corpo è vuoto`);
     }
     const win = windowFor(
       input.layers.map((l) => l.frames[i]!),
@@ -336,7 +336,7 @@ export function prepareCharacter(input: CharacterInput): Prepared {
     if (!m.hasOpaque) {
       throw new AssembleError(
         'no-reference',
-        `${key} · the body has no solid pixels after scaling`,
+        `${key} · il corpo non ha pixel solidi dopo il ridimensionamento`,
       );
     }
     shift[key] = {
@@ -348,7 +348,7 @@ export function prepareCharacter(input: CharacterInput): Prepared {
   const notes: string[] = [];
   if (scale > 1) {
     notes.push(
-      `the source frames are smaller than the target size (scale ×${scale.toFixed(2)}); the sheet is upscaled and will look soft`,
+      `i fotogrammi originali sono più piccoli della dimensione finale (scala ×${scale.toFixed(2)}); il foglio viene ingrandito e risulterà sfocato`,
     );
   }
   return { characterName: input.name, setId, scale, layers, shift, notes };
@@ -505,7 +505,9 @@ export function composeCharacter(
   }
   const notes = [...prepared.notes];
   if (clipped > 0)
-    notes.push(`${clipped} content pixels were pushed outside their 128 × 128 frame and cut off`);
+    notes.push(
+      `${clipped} pixel di contenuto sono stati spinti fuori dal fotogramma 128 × 128 e tagliati`,
+    );
 
   return {
     name: prepared.characterName,

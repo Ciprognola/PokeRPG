@@ -68,7 +68,7 @@ export function mountCheck(
     autocomplete: 'off',
     autocapitalize: 'none',
     spellcheck: false,
-    placeholder: 'from the zip or the body sheet',
+    placeholder: 'dallo zip o dal foglio body',
     value: model.characterName,
     oninput: () => {
       nameInput.value = toFieldName(nameInput.value);
@@ -82,7 +82,7 @@ export function mountCheck(
   const reviewBtn = h(
     'button',
     { id: 'review', class: 'btn primary', type: 'button', disabled: true },
-    'Review',
+    'Rivedi',
   );
   reviewBtn.addEventListener('click', () => {
     const r = importSheets(model.sheets, characterOptions());
@@ -117,12 +117,12 @@ export function mountCheck(
         if (read.name) model.zipName = read.name;
         else delete model.zipName;
         infos.push(
-          `Loaded ${read.name ? `chr_${read.name}` : file.name}: ${read.sheets.length} sheet${read.sheets.length === 1 ? '' : 's'}.`,
+          `Caricato ${read.name ? `chr_${read.name}` : file.name}: ${read.sheets.length} ${read.sheets.length === 1 ? 'foglio' : 'fogli'}.`,
         );
       } else {
         const merged = mergeSheets(model.sheets, read.sheets);
         model.sheets = merged.sheets;
-        if (merged.replaced.length) infos.push(`Replaced ${merged.replaced.join(', ')}.`);
+        if (merged.replaced.length) infos.push(`Sostituiti: ${merged.replaced.join(', ')}.`);
       }
     }
     setNotice(errors.join(' '));
@@ -146,7 +146,7 @@ export function mountCheck(
       'select',
       {
         class: 'layer-select',
-        'aria-label': `Layer for ${sheet.filename}`,
+        'aria-label': `Livello per ${sheet.filename}`,
         onchange: () => (layer = select.value as LayerId),
       },
       ...LAYER_IDS.map((l) => {
@@ -160,7 +160,7 @@ export function mountCheck(
       type: 'text',
       autocapitalize: 'none',
       spellcheck: false,
-      'aria-label': `Asset name for ${sheet.filename}`,
+      'aria-label': `Nome asset per ${sheet.filename}`,
       value: asset,
       oninput: () => {
         name.value = toFieldName(name.value);
@@ -172,11 +172,11 @@ export function mountCheck(
       { class: 'rename' },
       h('span', {
         class: 'hint',
-        text: 'This name is not spr_<set>_<layer>_<name>.png. Say what it is:',
+        text: "Questo nome non è spr_<set>_<layer>_<nome>.png. Dimmi cos'è:",
       }),
-      h('label', { class: 'field' }, h('span', { text: 'Layer' }), select),
-      h('label', { class: 'field' }, h('span', { text: 'Asset name' }), name),
-      h('button', { class: 'btn', type: 'button', onclick: apply }, 'Rename'),
+      h('label', { class: 'field' }, h('span', { text: 'Livello' }), select),
+      h('label', { class: 'field' }, h('span', { text: 'Nome asset' }), name),
+      h('button', { class: 'btn', type: 'button', onclick: apply }, 'Rinomina'),
     );
   }
 
@@ -201,7 +201,7 @@ export function mountCheck(
             {
               class: 'btn icon',
               type: 'button',
-              'aria-label': `Remove ${sheet.filename}`,
+              'aria-label': `Rimuovi ${sheet.filename}`,
               onclick: () => {
                 model.sheets.splice(model.sheets.indexOf(sheet), 1);
                 refresh();
@@ -214,7 +214,7 @@ export function mountCheck(
     );
     if (model.sheets.length === 0) {
       problems.replaceChildren(
-        h('li', { text: 'Add a chr_<name> zip, or sheets that are already 768 × 512.' }),
+        h('li', { text: 'Aggiungi uno zip chr_<nome>, o fogli già a 768 × 512.' }),
       );
       reviewBtn.disabled = true;
       return;
@@ -233,15 +233,15 @@ export function mountCheck(
   const drop = h(
     'div',
     { class: 'drop', id: 'drop' },
-    h('p', { text: 'Drop a chr_<name> zip or sheets here, or' }),
+    h('p', { text: 'Rilascia qui uno zip chr_<nome> o dei fogli, oppure' }),
     h(
       'button',
       { class: 'btn', id: 'add-sheets', type: 'button', onclick: () => fileInput.click() },
-      'Add files',
+      'Aggiungi file',
     ),
     h('p', {
       class: 'hint',
-      text: 'Sheets must already be 768 × 512 (they are never rescaled). Adding a sheet for a layer you already have replaces it.',
+      text: 'I fogli devono già essere 768 × 512 (non vengono mai ridimensionati). Aggiungere un foglio per un livello che hai già lo sostituisce.',
     }),
   );
   drop.addEventListener('dragover', (e) => {
@@ -256,14 +256,14 @@ export function mountCheck(
   });
 
   root.replaceChildren(
-    h('h2', { text: 'Check existing sheets' }),
+    h('h2', { text: 'Controlla fogli esistenti' }),
     h('p', {
       class: 'hint',
-      text: 'Everything stays on your device. Nothing is rescaled or re-aligned unless you nudge it.',
+      text: 'Tutto resta sul tuo dispositivo. Niente viene ridimensionato o riallineato a meno che tu non lo sposti.',
     }),
     noticeBox,
     infoBox,
-    h('label', { class: 'field wide' }, h('span', { text: 'Character name' }), nameInput),
+    h('label', { class: 'field wide' }, h('span', { text: 'Nome del personaggio' }), nameInput),
     drop,
     fileInput,
     list,

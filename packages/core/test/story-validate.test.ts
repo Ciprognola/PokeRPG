@@ -30,100 +30,100 @@ describe('§11 row 1 — JSON is valid and matches the schema (Error)', () => {
     const [f] = only(r, 'json');
     expect(f).toMatchObject({ severity: 'error', file: 'story.json' });
     expect(f!.line).toBe(storyText.split('\n').findIndex((l) => l.includes('"title"')) + 1);
-    expect(f!.message).toContain('not valid JSON');
+    expect(f!.message).toContain('JSON non valido');
   });
 
   it.each<[string, (s: any) => void, string]>([
-    ['missing required field', (s) => delete s.title, ' · missing required field "title"'],
-    ['unknown field', (s) => (s.colour = 'red'), 'colour · unknown field "colour"'],
-    ['wrong type', (s) => (s.version = '1'), 'version · expected integer'],
-    ['bad schemaVersion', (s) => (s.schemaVersion = '0.2'), 'schemaVersion · must be "0.1"'],
-    ['bad story id', (s) => (s.id = 'Template'), 'id · must look like story_<id>'],
+    ['missing required field', (s) => delete s.title, ' · campo obbligatorio assente "title"'],
+    ['unknown field', (s) => (s.colour = 'red'), 'colour · campo sconosciuto "colour"'],
+    ['wrong type', (s) => (s.version = '1'), 'version · atteso integer'],
+    ['bad schemaVersion', (s) => (s.schemaVersion = '0.2'), 'schemaVersion · deve essere "0.1"'],
+    ['bad story id', (s) => (s.id = 'Template'), 'id · deve avere la forma story_<id>'],
     [
       'bad id pattern',
       (s) => (s.flags[0] = 'Met_Rosa'),
-      'flags[0] · must be lowercase letters, digits and "-"',
+      'flags[0] · deve avere solo lettere minuscole, cifre e "-"',
     ],
-    ['bad language', (s) => (s.language = 'english!'), 'language · must be a BCP 47 code'],
+    ['bad language', (s) => (s.language = 'english!'), 'language · deve essere un codice BCP 47'],
     [
       'unknown task type',
       (s) => (s.quests[0].tasks[0].type = 'fetch'),
-      'quests[0].tasks[0].type · must be one of: scene, reach, talk',
+      'quests[0].tasks[0].type · deve essere uno tra: scene, reach, talk',
     ],
     [
       'field of another task type',
       (s) => (s.quests[0].tasks[0].npc = 'rosa'),
-      'quests[0].tasks[0].npc · field "npc" is not allowed here',
+      'quests[0].tasks[0].npc · il campo "npc" non è permesso qui',
     ],
     [
       'reach without area or spawn',
       (s) => delete s.quests[0].tasks[1].area,
-      'quests[0].tasks[1] · a reach task needs exactly one of "area" or "spawn"',
+      'quests[0].tasks[1] · un compito reach richiede esattamente uno tra "area" e "spawn"',
     ],
     [
       'reach with both',
       (s) => (s.quests[0].tasks[1].spawn = 'spawn_dock'),
-      'quests[0].tasks[1] · a reach task needs exactly one of "area" or "spawn"',
+      'quests[0].tasks[1] · un compito reach richiede esattamente uno tra "area" e "spawn"',
     ],
     [
       'talk without lines',
       (s) => delete s.quests[0].tasks[2].lines,
-      'quests[0].tasks[2] · missing required field "lines"',
+      'quests[0].tasks[2] · campo obbligatorio assente "lines"',
     ],
     [
       'unknown command',
       (s) => (s.scenes.opening[0].cmd = 'dance'),
-      'scenes.opening[0].cmd · must be one of: say, move',
+      'scenes.opening[0].cmd · deve essere uno tra: say, move',
     ],
     [
       'field of another command',
       (s) => (s.scenes.opening[0].path = [[1, 1]]),
-      'scenes.opening[0].path · field "path" is not allowed here',
+      'scenes.opening[0].path · il campo "path" non è permesso qui',
     ],
     [
       'command missing a field',
       (s) => delete s.scenes['harbour-intro'][1].ms,
-      'scenes.harbour-intro[1] · missing required field "ms"',
+      'scenes.harbour-intro[1] · campo obbligatorio assente "ms"',
     ],
     [
       'face without dir or toward',
       (s) => delete s.scenes['rosa-returns'][5].toward,
-      'scenes.rosa-returns[5] · a face command needs exactly one of "dir" or "toward"',
+      'scenes.rosa-returns[5] · un comando face richiede esattamente uno tra "dir" e "toward"',
     ],
-    ['bad tile', (s) => (s.start.spawn = 5), 'start.spawn · expected string'],
+    ['bad tile', (s) => (s.start.spawn = 5), 'start.spawn · atteso string'],
     [
       'bad tile shape',
       (s) => (s.npcs[0].placements[0].tile = [1]),
-      'npcs[0].placements[0].tile · needs at least 2 items',
+      'npcs[0].placements[0].tile · servono almeno 2 elementi',
     ],
     [
       'bad direction',
       (s) => (s.start.facing = 'north'),
-      'start.facing · must be one of: down, left, right, up',
+      'start.facing · deve essere uno tra: down, left, right, up',
     ],
     [
       'bad condition',
       (s) => (s.npcs[0].placements[0].when = { flag: 'a', quest: 'b' }),
-      'npcs[0].placements[0].when · must be one of',
+      'npcs[0].placements[0].when · deve essere una tra',
     ],
-    ['no quests', (s) => (s.quests = []), 'quests · needs at least 1 item'],
-    ['no locations', (s) => (s.locations = []), 'locations · needs at least 1 item'],
+    ['no quests', (s) => (s.quests = []), 'quests · serve almeno 1 elemento'],
+    ['no locations', (s) => (s.locations = []), 'locations · serve almeno 1 elemento'],
     [
       'bad behaviour',
       (s) => (s.npcs[0].placements[1].behaviour = { type: 'wander' }),
-      'npcs[0].placements[1].behaviour · missing required field "radius"',
+      'npcs[0].placements[1].behaviour · campo obbligatorio assente "radius"',
     ],
     [
       'bad trigger',
       (s) => delete s.triggers[1].area,
-      'triggers[1] · missing required field "area"',
+      'triggers[1] · campo obbligatorio assente "area"',
     ],
     [
       'bad line',
       (s) => (s.npcs[0].dialogues[3].lines[0] = 7),
-      'npcs[0].dialogues[3].lines[0] · must be a string or',
+      'npcs[0].dialogues[3].lines[0] · deve essere una stringa o',
     ],
-    ['empty title', (s) => (s.title = ''), 'title · must not be empty'],
+    ['empty title', (s) => (s.title = ''), 'title · non può essere vuoto'],
   ])('%s', (_name, change, expected) => {
     const r = withStory(change);
     expect(r.ok).toBe(false);
@@ -141,7 +141,7 @@ describe('§11 row 1 — JSON is valid and matches the schema (Error)', () => {
       s.quests[0].tasks[2].npc = 'rossa';
     });
     expect(only(r, 'schema')).toHaveLength(1);
-    expect(errorsOf(r, 'reference')).toEqual(['quests[0].tasks[2].npc · unknown NPC "rossa"']);
+    expect(errorsOf(r, 'reference')).toEqual(['quests[0].tasks[2].npc · PNG sconosciuto "rossa"']);
   });
 });
 
@@ -150,20 +150,20 @@ describe('§11 row 2 — ids are unique (Error)', () => {
     [
       'location',
       (s) => (s.locations[1].id = 'harbour'),
-      'locations[1].id · duplicate location id "harbour"',
+      'locations[1].id · id del luogo duplicato "harbour"',
     ],
-    ['NPC', (s) => (s.npcs[1].id = 'rosa'), 'npcs[1].id · duplicate NPC id "rosa"'],
+    ['NPC', (s) => (s.npcs[1].id = 'rosa'), 'npcs[1].id · id PNG duplicato "rosa"'],
     [
       'quest',
       (s) => (s.quests[1].id = 'find-baker'),
-      'quests[1].id · duplicate quest id "find-baker"',
+      'quests[1].id · id della missione duplicato "find-baker"',
     ],
     [
       'task in a quest',
       (s) => (s.quests[0].tasks[1].id = 'intro'),
-      'quests[0].tasks[1].id · duplicate task id "intro" in quest "find-baker"',
+      'quests[0].tasks[1].id · id del compito duplicato "intro" nella missione "find-baker"',
     ],
-    ['flag', (s) => (s.flags[1] = 'met-rosa'), 'flags[1] · duplicate flag "met-rosa"'],
+    ['flag', (s) => (s.flags[1] = 'met-rosa'), 'flags[1] · flag duplicato "met-rosa"'],
   ])('duplicate %s', (_n, change, expected) => {
     expect(errorsOf(withStory(change), 'duplicate-id')).toContain(expected);
   });
@@ -185,7 +185,7 @@ describe('§11 row 2 — ids are unique (Error)', () => {
       ),
     );
     const [f] = only(r, 'duplicate-id');
-    expect(f).toMatchObject({ path: 'scenes.tour', message: 'duplicate key "tour"' });
+    expect(f).toMatchObject({ path: 'scenes.tour', message: 'chiave duplicata "tour"' });
   });
 });
 
@@ -195,182 +195,182 @@ describe('§11 row 2 — every reference resolves (Error)', () => {
     [
       'location (start)',
       (s) => (s.start.location = 'habour'),
-      'start.location · unknown location "habour"',
+      'start.location · luogo sconosciuto "habour"',
     ],
     [
       'location (placement)',
       (s) => (s.npcs[0].placements[0].location = 'nowhere'),
-      'npcs[0].placements[0].location · unknown location "nowhere"',
+      'npcs[0].placements[0].location · luogo sconosciuto "nowhere"',
     ],
     [
       'location (link target)',
       (s) => (s.locations[0].links.exit_house_door.location = 'shop'),
-      'locations[0].links.exit_house_door.location · unknown location "shop"',
+      'locations[0].links.exit_house_door.location · luogo sconosciuto "shop"',
     ],
     [
       'location (task)',
       (s) => (s.quests[0].tasks[1].location = 'nowhere'),
-      'quests[0].tasks[1].location · unknown location "nowhere"',
+      'quests[0].tasks[1].location · luogo sconosciuto "nowhere"',
     ],
     [
       'location (trigger)',
       (s) => (s.triggers[1].location = 'nowhere'),
-      'triggers[1].location · unknown location "nowhere"',
+      'triggers[1].location · luogo sconosciuto "nowhere"',
     ],
     [
       'location (show)',
       (s) => (s.scenes['rosa-returns'][2].location = 'nowhere'),
-      'scenes.rosa-returns[2].location · unknown location "nowhere"',
+      'scenes.rosa-returns[2].location · luogo sconosciuto "nowhere"',
     ],
     [
       'location (warp)',
       (s) => (s.scenes.tour[1].location = 'nowhere'),
-      'scenes.tour[1].location · unknown location "nowhere"',
+      'scenes.tour[1].location · luogo sconosciuto "nowhere"',
     ],
     [
       'library location',
       (s) => (s.locations[0].asset = 'loc_missing'),
-      'locations[0].asset · unknown library location "loc_missing"',
+      'locations[0].asset · luogo della libreria sconosciuto "loc_missing"',
     ],
     [
       'spawn (start)',
       (s) => (s.start.spawn = 'spawn_nope'),
-      'start.spawn · unknown spawn "spawn_nope" in loc_greybox-harbour',
+      'start.spawn · punto di comparsa sconosciuto "spawn_nope" in loc_greybox-harbour',
     ],
     [
       'spawn (link)',
       (s) => (s.locations[0].links.exit_house_door.spawn = 'spawn_nope'),
-      'locations[0].links.exit_house_door.spawn · unknown spawn "spawn_nope" in loc_greybox-bakery',
+      'locations[0].links.exit_house_door.spawn · punto di comparsa sconosciuto "spawn_nope" in loc_greybox-bakery',
     ],
     [
       'spawn (reach task)',
       (s) => (s.quests[1].tasks[0].spawn = 'spawn_nope'),
-      'quests[1].tasks[0].spawn · unknown spawn "spawn_nope" in loc_greybox-harbour',
+      'quests[1].tasks[0].spawn · punto di comparsa sconosciuto "spawn_nope" in loc_greybox-harbour',
     ],
     [
       'spawn (warp)',
       (s) => (s.scenes.tour[1].spawn = 'spawn_nope'),
-      'scenes.tour[1].spawn · unknown spawn "spawn_nope" in loc_greybox-bakery',
+      'scenes.tour[1].spawn · punto di comparsa sconosciuto "spawn_nope" in loc_greybox-bakery',
     ],
     [
       'exit',
       (s) => (s.locations[0].links.exit_moon = { location: 'bakery', spawn: 'spawn_door_inside' }),
-      'locations[0].links.exit_moon · unknown exit "exit_moon" in loc_greybox-harbour',
+      'locations[0].links.exit_moon · uscita sconosciuta "exit_moon" in loc_greybox-harbour',
     ],
     [
       'area (reach task)',
       (s) => (s.quests[0].tasks[1].area = 'area_moon'),
-      'quests[0].tasks[1].area · unknown area "area_moon" in loc_greybox-harbour',
+      'quests[0].tasks[1].area · area sconosciuta "area_moon" in loc_greybox-harbour',
     ],
     [
       'area (trigger)',
       (s) => (s.triggers[1].area = 'area_moon'),
-      'triggers[1].area · unknown area "area_moon" in loc_greybox-harbour',
+      'triggers[1].area · area sconosciuta "area_moon" in loc_greybox-harbour',
     ],
     [
       'NPC (talk task)',
       (s) => (s.quests[0].tasks[2].npc = 'rossa'),
-      'quests[0].tasks[2].npc · unknown NPC "rossa"',
+      'quests[0].tasks[2].npc · PNG sconosciuto "rossa"',
     ],
     [
       'NPC (trigger)',
       (s) => (s.triggers[2].npc = 'rossa'),
-      'triggers[2].npc · unknown NPC "rossa"',
+      'triggers[2].npc · PNG sconosciuto "rossa"',
     ],
     [
       'NPC (show)',
       (s) => (s.scenes['rosa-returns'][2].npc = 'rossa'),
-      'scenes.rosa-returns[2].npc · unknown NPC "rossa"',
+      'scenes.rosa-returns[2].npc · PNG sconosciuto "rossa"',
     ],
     [
       'NPC (hide)',
       (s) => (s.scenes['boat-leaves'][2].npc = 'rossa'),
-      'scenes.boat-leaves[2].npc · unknown NPC "rossa"',
+      'scenes.boat-leaves[2].npc · PNG sconosciuto "rossa"',
     ],
     [
       'actor (move)',
       (s) => (s.scenes['rosa-returns'][4].actor = 'rossa'),
-      'scenes.rosa-returns[4].actor · unknown actor "rossa" (an NPC id or "player")',
+      'scenes.rosa-returns[4].actor · attore sconosciuto "rossa" (un id PNG o "player")',
     ],
     [
       'actor (face toward)',
       (s) => (s.scenes['rosa-returns'][5].toward = 'rossa'),
-      'scenes.rosa-returns[5].toward · unknown actor "rossa" (an NPC id or "player")',
+      'scenes.rosa-returns[5].toward · attore sconosciuto "rossa" (un id PNG o "player")',
     ],
     [
       'actor (camera)',
       (s) => (s.scenes['harbour-intro'][2].to = 'rossa'),
-      'scenes.harbour-intro[2].to · unknown actor "rossa" (an NPC id or "player")',
+      'scenes.harbour-intro[2].to · attore sconosciuto "rossa" (un id PNG o "player")',
     ],
     [
       'character',
       (s) => (s.npcs[0].character = 'chr_ghost'),
-      'npcs[0].character · unknown character "chr_ghost" (no folder characters/chr_ghost)',
+      'npcs[0].character · personaggio sconosciuto "chr_ghost" (nessuna cartella characters/chr_ghost)',
     ],
     [
       'flag (condition)',
       (s) => (s.npcs[0].dialogues[1].when = { flag: 'met-nobody' }),
-      'npcs[0].dialogues[1].when.flag · flag "met-nobody" is not declared in "flags"',
+      'npcs[0].dialogues[1].when.flag · il flag "met-nobody" non è dichiarato in "flags"',
     ],
     [
       'flag (onComplete)',
       (s) => (s.quests[1].tasks[1].onComplete.flags = { nope: true }),
-      'quests[1].tasks[1].onComplete.flags.nope · flag "nope" is not declared in "flags"',
+      'quests[1].tasks[1].onComplete.flags.nope · il flag "nope" non è dichiarato in "flags"',
     ],
     [
       'flag (flag command)',
       (s) => (s.scenes['boat-leaves'][5].set = { nope: true }),
-      'scenes.boat-leaves[5].set.nope · flag "nope" is not declared in "flags"',
+      'scenes.boat-leaves[5].set.nope · il flag "nope" non è dichiarato in "flags"',
     ],
     [
       'quest',
       (s) => (s.npcs[0].dialogues[1].when = { quest: 'nope', is: 'active' }),
-      'npcs[0].dialogues[1].when.quest · unknown quest "nope"',
+      'npcs[0].dialogues[1].when.quest · missione sconosciuta "nope"',
     ],
     [
       'task (unknown quest)',
       (s) => (s.npcs[1].dialogues[0].when = { task: 'nope.talk-tomas', is: 'complete' }),
-      'npcs[1].dialogues[0].when.task · unknown quest "nope" in task reference "nope.talk-tomas"',
+      'npcs[1].dialogues[0].when.task · missione sconosciuta "nope" nel riferimento al compito "nope.talk-tomas"',
     ],
     [
       'task (unknown task)',
       (s) => (s.npcs[1].dialogues[0].when = { task: 'deliver-note.nope', is: 'complete' }),
-      'npcs[1].dialogues[0].when.task · unknown task "deliver-note.nope"',
+      'npcs[1].dialogues[0].when.task · compito sconosciuto "deliver-note.nope"',
     ],
     [
       'scene (task)',
       (s) => (s.quests[0].tasks[0].scene = 'nope'),
-      'quests[0].tasks[0].scene · unknown scene "nope"',
+      'quests[0].tasks[0].scene · scena sconosciuta "nope"',
     ],
     [
       'scene (onComplete)',
       (s) => (s.quests[0].tasks[2].onComplete.scene = 'nope'),
-      'quests[0].tasks[2].onComplete.scene · unknown scene "nope"',
+      'quests[0].tasks[2].onComplete.scene · scena sconosciuta "nope"',
     ],
     [
       'scene (trigger)',
       (s) => (s.triggers[0].scene = 'nope'),
-      'triggers[0].scene · unknown scene "nope"',
+      'triggers[0].scene · scena sconosciuta "nope"',
     ],
     [
       'track',
       (s) => (s.scenes.opening[1].track = 'mus_town_nope'),
-      'scenes.opening[1].track · unknown track "mus_town_nope"',
+      'scenes.opening[1].track · traccia sconosciuta "mus_town_nope"',
     ],
     [
       'sfx',
       (s) => (s.scenes['harbour-intro'][4].sfx = 'sfx_nope'),
-      'scenes.harbour-intro[4].sfx · unknown sound effect "sfx_nope"',
+      'scenes.harbour-intro[4].sfx · effetto sonoro sconosciuto "sfx_nope"',
     ],
     [
       'speaker (dialogue line)',
       (s) => (s.npcs[1].dialogues[2].lines[1].speaker = 'rossa'),
-      'npcs[1].dialogues[2].lines[1].speaker · unknown speaker "rossa" (an NPC id, "player" or "narrator")',
+      'npcs[1].dialogues[2].lines[1].speaker · speaker sconosciuto "rossa" (un id PNG, "player" o "narrator")',
     ],
     [
       'speaker (scene line)',
       (s) => (s.scenes.opening[2].lines[0].speaker = 'rossa'),
-      'scenes.opening[2].lines[0].speaker · unknown speaker "rossa" (an NPC id, "player" or "narrator")',
+      'scenes.opening[2].lines[0].speaker · speaker sconosciuto "rossa" (un id PNG, "player" o "narrator")',
     ],
   ];
 
@@ -384,25 +384,25 @@ describe('§11 row 2 — every reference resolves (Error)', () => {
     const lines = storyText.split('\n');
     const talkNpc = lines.findIndex(
       (l, i) =>
-        l.includes('"npc": "rosa"') && lines[i + 1]!.includes('"objective": "Find the baker"'),
+        l.includes('"npc": "rosa"') && lines[i + 1]!.includes('"objective": "Trova il fornaio"'),
     );
     const r = withText((t) =>
       t.replace(
-        '"npc": "rosa",' + '\n' + '          "objective": "Find the baker"',
-        '"npc": "rossa",' + '\n' + '          "objective": "Find the baker"',
+        '"npc": "rosa",' + '\n' + '          "objective": "Trova il fornaio"',
+        '"npc": "rossa",' + '\n' + '          "objective": "Trova il fornaio"',
       ),
     );
     const [f] = only(r, 'reference');
     expect(f!.line).toBe(talkNpc + 1);
     expect(formatStoryFinding(f!)).toBe(
-      `story.json:${talkNpc + 1} · quests[0].tasks[2].npc · unknown NPC "rossa"`,
+      `story.json:${talkNpc + 1} · quests[0].tasks[2].npc · PNG sconosciuto "rossa"`,
     );
   });
 
   it('a plain line in a scene needs a speaker', () => {
     const r = withStory((s) => (s.scenes.opening[2].lines = ['no speaker']));
     expect(errorsOf(r, 'reference')).toContain(
-      'scenes.opening[2].lines[0] · a line in a scene needs a "speaker": use { "speaker", "text" }',
+      'scenes.opening[2].lines[0] · una battuta in una scena richiede uno "speaker": usa { "speaker", "text" }',
     );
   });
 
@@ -411,7 +411,9 @@ describe('§11 row 2 — every reference resolves (Error)', () => {
       only(validateStory({ ...baseInput, folder: 'story_template' }, library), 'story-id'),
     ).toEqual([]);
     const [f] = only(validateStory({ ...baseInput, folder: 'story_other' }, library), 'story-id');
-    expect(f!.message).toBe('story id "story_template" does not match its folder "story_other"');
+    expect(f!.message).toBe(
+      'l\'id della storia "story_template" non corrisponde alla cartella "story_other"',
+    );
   });
 });
 
@@ -428,7 +430,7 @@ describe('§11 row 3 — NPC characters pass the Asset Spec §7 validator (Error
       sheets: rosa.sheets.filter((s) => !s.filename.includes('_body_')),
     });
     const errs = r.findings.filter((f) => f.check === 'character' && f.severity === 'error');
-    expect(errs.map((f) => f.message)).toContain('set walk has no body sheet');
+    expect(errs.map((f) => f.message)).toContain('il set walk non ha il foglio body');
     expect(r.ok).toBe(false);
   });
 
@@ -441,7 +443,7 @@ describe('§11 row 3 — NPC characters pass the Asset Spec §7 validator (Error
       (x) => x.check === 'character' && x.severity === 'error' && x.frameKey === 'walk_up_04',
     )!;
     expect(formatStoryFinding(f)).toBe(
-      'characters/chr_rosa/spr_walk_body_rosa.png · walk_up_04 · lowest opaque row 116 (expected 119)',
+      'characters/chr_rosa/spr_walk_body_rosa.png · walk_up_04 · riga opaca più bassa 116 (attesa 119)',
     );
   });
 
@@ -449,7 +451,8 @@ describe('§11 row 3 — NPC characters pass the Asset Spec §7 validator (Error
     const r = swap('chr_rosa', { sheets: [] });
     expect(
       r.findings.some(
-        (f) => f.check === 'character' && f.severity === 'error' && f.message.includes('no sheets'),
+        (f) =>
+          f.check === 'character' && f.severity === 'error' && f.message.includes('non ha fogli'),
       ),
     ).toBe(true);
   });
@@ -495,17 +498,17 @@ describe('§11 row 4 — tiles are inside the location and not blocked; move pat
     [
       'outside (placement)',
       (s) => (s.npcs[0].placements[0].tile = [40, 2]),
-      'npcs[0].placements[0].tile · tile [40, 2] is outside loc_greybox-harbour (20 × 12)',
+      'npcs[0].placements[0].tile · la casella [40, 2] è fuori da loc_greybox-harbour (20 × 12)',
     ],
     [
       'blocked (placement)',
       (s) => (s.npcs[0].placements[0].tile = [4, 2]),
-      'npcs[0].placements[0].tile · tile [4, 2] is a blocked tile in loc_greybox-harbour',
+      'npcs[0].placements[0].tile · la casella [4, 2] è una casella bloccata in loc_greybox-harbour',
     ],
     [
       'blocked (bakery wall)',
       (s) => (s.npcs[0].placements[1].tile = [0, 0]),
-      'npcs[0].placements[1].tile · tile [0, 0] is a blocked tile in loc_greybox-bakery',
+      'npcs[0].placements[1].tile · la casella [0, 0] è una casella bloccata in loc_greybox-bakery',
     ],
     [
       'blocked (patrol)',
@@ -514,12 +517,12 @@ describe('§11 row 4 — tiles are inside the location and not blocked; move pat
           [17, 7],
           [17, 10],
         ]),
-      'npcs[1].placements[0].behaviour.path[1] · patrol tile [17, 10] is a blocked tile in loc_greybox-harbour',
+      'npcs[1].placements[0].behaviour.path[1] · la casella del patrol [17, 10] è una casella bloccata in loc_greybox-harbour',
     ],
     [
       'outside (show)',
       (s) => (s.scenes['boat-leaves'][4].tile = [13, 99]),
-      'scenes.boat-leaves[4].tile · tile [13, 99] is outside loc_greybox-harbour (20 × 12)',
+      'scenes.boat-leaves[4].tile · la casella [13, 99] è fuori da loc_greybox-harbour (20 × 12)',
     ],
   ])('%s', (_n, change, expected) => {
     expect(errorsOf(withStory(change), 'tile')).toContain(expected);
@@ -541,7 +544,7 @@ describe('§11 row 4 — tiles are inside the location and not blocked; move pat
         ]),
     );
     expect(errorsOf(r, 'path')).toEqual([
-      'scenes.rosa-returns[4].path[1] · path is not straight: [9, 5] → [10, 7] changes both x and y',
+      'scenes.rosa-returns[4].path[1] · il percorso non è rettilineo: [9, 5] → [10, 7] cambia sia x che y',
     ]);
   });
 
@@ -574,8 +577,21 @@ describe('§11 row 5 — text limits and placeholders (Error)', () => {
   it('120 characters pass, 121 fail', () => {
     expect(only(withStory(say('x'.repeat(120))), 'text')).toEqual([]);
     expect(errorsOf(withStory(say('x'.repeat(121))), 'text')).toEqual([
-      'npcs[0].dialogues[3].lines[0] · line is 121 characters (max 120; {player.name} counts as 12). Split it into more lines',
+      'npcs[0].dialogues[3].lines[0] · la battuta è di 121 caratteri (massimo 120; {player.name} conta 12). Dividila in più battute',
     ]);
+  });
+
+  it('an accented letter counts as 1 character (Unicode NFC), precomposed or not', () => {
+    // Precomposed form: "è" is already a single code point (1 UTF-16 unit).
+    expect(only(withStory(say('è'.repeat(120))), 'text')).toEqual([]);
+    expect(errorsOf(withStory(say('è'.repeat(121))), 'text')).toHaveLength(1);
+    // Decomposed form: base letter "e" + a combining acute accent (U+0301) is 2 UTF-16 units
+    // that *look* like one "é" to the reader. Without NFC normalisation this would measure as
+    // 240 characters, not 120, and wrongly reject a line the author sees as exactly the limit.
+    const decomposed = 'é'.repeat(120);
+    expect(decomposed.length).toBe(240); // sanity check: raw JS length before normalising
+    expect(only(withStory(say(decomposed)), 'text')).toEqual([]);
+    expect(errorsOf(withStory(say(`${decomposed}x`)), 'text')).toHaveLength(1);
   });
 
   it('{player.name} counts as 12 characters, wherever it appears', () => {
@@ -608,7 +624,7 @@ describe('§11 row 5 — text limits and placeholders (Error)', () => {
 
   it('an unknown placeholder is an error', () => {
     expect(errorsOf(withStory(say('Hello {name}')), 'text')).toEqual([
-      'npcs[0].dialogues[3].lines[0] · unknown placeholder "{name}" (only {player.name} exists in v0.1)',
+      'npcs[0].dialogues[3].lines[0] · segnaposto sconosciuto "{name}" (in v0.1 esiste solo {player.name})',
     ]);
     expect(only(withStory(say('Hello {player.name}')), 'text')).toEqual([]);
   });
@@ -625,7 +641,7 @@ describe('§11 row 5 — text limits and placeholders (Error)', () => {
         withStory((s) => (s.quests[0].tasks[0].objective = 'o'.repeat(61))),
         'text',
       ),
-    ).toEqual(['quests[0].tasks[0].objective · objective is 61 characters (max 60)']);
+    ).toEqual(["quests[0].tasks[0].objective · l'obiettivo è di 61 caratteri (massimo 60)"]);
   });
 });
 
@@ -642,7 +658,7 @@ describe('§11 row 6 — the last dialogue of an NPC has no `when` (Error)', () 
   it('fails when the last one has a condition', () => {
     const r = withStory((s) => (s.npcs[0].dialogues[3].when = { flag: 'met-rosa' }));
     expect(errorsOf(r, 'dialogue-default')).toEqual([
-      'npcs[0].dialogues[3].when · the last dialogue must have no "when" (it is the default)',
+      'npcs[0].dialogues[3].when · l\'ultimo dialogo non deve avere "when" (è quello predefinito)',
     ]);
   });
 
@@ -675,27 +691,29 @@ describe('§11 row 7 — a quest has no tasks (Error)', () => {
         withStory((s) => (s.quests[1].tasks = [])),
         'quest-empty',
       ),
-    ).toEqual(['quests[1].tasks · quest "deliver-note" has no tasks']);
+    ).toEqual(['quests[1].tasks · la missione "deliver-note" non ha compiti']);
     expect(
       errorsOf(
         withStory((s) => delete s.quests[1].tasks),
         'quest-empty',
       ),
-    ).toEqual(['quests[1] · quest "deliver-note" has no tasks']);
+    ).toEqual(['quests[1] · la missione "deliver-note" non ha compiti']);
   });
 });
 
 describe('§11 row 8 — unused things are warnings (Warning)', () => {
   it('a flag declared but never used', () => {
     const r = withStory((s) => s.flags.push('spare'));
-    expect(msgs(r, 'unused-flag')).toEqual(['flags[4] · flag "spare" is declared but never used']);
+    expect(msgs(r, 'unused-flag')).toEqual([
+      'flags[4] · il flag "spare" è dichiarato ma non è mai usato',
+    ]);
     expect(r.ok).toBe(true);
     expect(r.findings[0]!.severity).toBe('warning');
   });
 
   it('a scene never used', () => {
     const r = withStory((s) => (s.scenes.spare = [{ cmd: 'wait', ms: 1 }]));
-    expect(msgs(r, 'unused-scene')).toEqual(['scenes.spare · scene "spare" is never used']);
+    expect(msgs(r, 'unused-scene')).toEqual(['scenes.spare · la scena "spare" non è mai usata']);
     expect(r.ok).toBe(true);
   });
 
@@ -704,7 +722,7 @@ describe('§11 row 8 — unused things are warnings (Warning)', () => {
       s.npcs.push({ id: 'ghost', name: 'Ghost', character: 'chr_rosa' });
     });
     expect(msgs(r, 'unplaced-npc')).toEqual([
-      'npcs[2] · NPC "ghost" is never placed (no placements and no "show" command)',
+      'npcs[2] · il PNG "ghost" non è mai posizionato (nessun placement e nessun comando "show")',
     ]);
     expect(r.ok).toBe(true);
   });

@@ -87,7 +87,7 @@ test.describe('frame extraction in a real browser', () => {
         return (e as Error).message;
       }
     });
-    expect(message).toBe('notes.txt · could not read this file as an image');
+    expect(message).toBe('notes.txt · non è stato possibile leggere questo file come immagine');
   });
 
   test('the wrong number of frame files is rejected', async ({ page }) => {
@@ -102,6 +102,6 @@ test.describe('frame extraction in a real browser', () => {
         return (e as Error).message;
       }
     });
-    expect(message).toBe('expected 24 frame images, got 23');
+    expect(message).toBe('attese 24 immagini fotogramma, arrivate 23');
   });
 });

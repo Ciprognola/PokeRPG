@@ -128,9 +128,9 @@ test.describe('desktop flow', () => {
     await page.goto('/');
     await page.locator('#mode-slice').click();
     await page.locator('#file-input').setInputFiles(fx.hairFrames.slice(0, 23));
-    await expect(page.locator('#notice')).toContainText('You picked 23 images');
+    await expect(page.locator('#notice')).toContainText('Hai scelto 23 immagini');
     await page.locator('#file-input').setInputFiles(fx.notes);
-    await expect(page.locator('#notice')).toContainText('not images');
+    await expect(page.locator('#notice')).toContainText('non sono immagini');
   });
 
   test('a file that cannot be decoded fails with a named error', async ({ page }) => {
@@ -143,7 +143,7 @@ test.describe('desktop flow', () => {
       .setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('nope') });
     await page.locator('#process').click();
     await expect(page.locator('#notice')).toContainText(
-      'broken.png · could not read this file as an image',
+      'broken.png · non è stato possibile leggere questo file come immagine',
     );
     await expect(page.locator('main[data-screen="setup"]')).toBeVisible();
   });

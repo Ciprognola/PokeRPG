@@ -247,7 +247,7 @@ describe('grid and 24-file input', () => {
 describe('clear errors', () => {
   it('names a wrong frame count', () => {
     expect(() => orderFrameFiles(Array.from({ length: 23 }, (_, i) => `f${i}.png`))).toThrow(
-      'expected 24 frame images, got 23',
+      'attese 24 immagini fotogramma, arrivate 23',
     );
     expect(() => extractFrames(makeRawFrames(SMALL).slice(0, 23))).toThrow(ExtractionError);
   });
@@ -257,7 +257,7 @@ describe('clear errors', () => {
     for (const dir of ['down', 'left', 'right', 'up'])
       for (let c = 0; c < 6; c++) keys.push(`walk_${dir}_0${c}.png`);
     keys[5] = keys[4]!;
-    expect(() => orderFrameFiles(keys)).toThrow(/2 images claim this frame/);
+    expect(() => orderFrameFiles(keys)).toThrow(/2 immagini rivendicano questo fotogramma/);
   });
 
   it('names the frame with an empty cell', () => {
@@ -271,12 +271,14 @@ describe('clear errors', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(ExtractionError);
       expect((e as ExtractionError).code).toBe('empty-cell');
-      expect((e as Error).message).toBe('walk_left_03 · no character found (the cell is empty)');
+      expect((e as Error).message).toBe(
+        'walk_left_03 · nessun personaggio trovato (la cella è vuota)',
+      );
     }
   });
 
   it('rejects a grid image that is too small', () => {
-    expect(() => extractGrid(createPixelBuffer(60, 40))).toThrow(/too small/);
+    expect(() => extractGrid(createPixelBuffer(60, 40))).toThrow(/troppo piccola/);
   });
 
   it('rejects a background that is neither transparent nor flat', () => {
@@ -285,7 +287,7 @@ describe('clear errors', () => {
     for (let i = 0; i < noisy.data.length; i += 4)
       noisy.data.set([rng() * 256, rng() * 256, rng() * 256, 255], i);
     expect(() => extractFrame(noisy, {}, 'walk_up_05')).toThrow(
-      /walk_up_05 · the background is neither transparent nor one flat colour/,
+      /walk_up_05 · lo sfondo non è né trasparente né di un unico colore uniforme/,
     );
   });
 });

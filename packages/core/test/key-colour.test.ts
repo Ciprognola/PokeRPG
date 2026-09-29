@@ -132,7 +132,7 @@ describe('enclosed key-colour pockets are removed', () => {
     expect(flagged[0]!.frameKey).toMatch(/^walk_/);
     expect(flagged[0]!.pixel).toBeDefined();
     expect(formatFinding(flagged[0]!)).toMatch(
-      /key-colour pixels remain: \d+ px near #FF00FF, first at \(\d+, \d+\)$/,
+      /restano pixel del colore chiave: \d+ px vicino a #FF00FF, il primo in \(\d+, \d+\)$/,
     );
   });
 });
@@ -245,7 +245,7 @@ describe('validator: "key-colour pixels remain" (warning)', () => {
       pixel: { x: 64, y: 80 },
     });
     expect(formatFinding(f!)).toBe(
-      'spr_walk_body_mira.png · walk_right_02 · key-colour pixels remain: 1 px near #FF00FF, first at (64, 80)',
+      'spr_walk_body_mira.png · walk_right_02 · restano pixel del colore chiave: 1 px vicino a #FF00FF, il primo in (64, 80)',
     );
   });
 
@@ -253,7 +253,9 @@ describe('validator: "key-colour pixels remain" (warning)', () => {
     let s = paint(body(), 64, 80, [255, 0, 255, 255]);
     s = paint(s, 60, 90, [250, 10, 250, 255]);
     const [f] = keyFindings([s]);
-    expect(f!.message).toBe('key-colour pixels remain: 2 px near #FF00FF, first at (64, 80)');
+    expect(f!.message).toBe(
+      'restano pixel del colore chiave: 2 px vicino a #FF00FF, il primo in (64, 80)',
+    );
   });
 
   it('uses §7.1: 24 per channel counts, 25 and pink do not; alpha > 0 counts, alpha 0 does not', () => {

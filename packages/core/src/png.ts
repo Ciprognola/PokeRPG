@@ -81,20 +81,20 @@ export function pngChunk(type: string, data: Uint8Array): Uint8Array {
 
 function readChunks(bytes: Uint8Array): Chunk[] {
   if (bytes.length < 8 || PNG_SIGNATURE.some((b, i) => bytes[i] !== b)) {
-    throw new PngError('missing PNG signature', 'not-png');
+    throw new PngError('firma PNG assente', 'not-png');
   }
   const chunks: Chunk[] = [];
   let at = 8;
   while (at + 12 <= bytes.length) {
     const len = u32(bytes, at);
     const type = ascii(bytes, at + 4, at + 8);
-    if (at + 12 + len > bytes.length) throw new PngError(`truncated ${type} chunk`, 'corrupt');
+    if (at + 12 + len > bytes.length) throw new PngError(`chunk ${type} troncato`, 'corrupt');
     chunks.push({ type, data: bytes.subarray(at + 8, at + 8 + len) });
     at += 12 + len;
     if (type === 'IEND') break;
   }
   if (chunks.length === 0 || chunks[0].type !== 'IHDR' || chunks[0].data.length < 13) {
-    throw new PngError('missing IHDR chunk', 'corrupt');
+    throw new PngError('chunk IHDR assente', 'corrupt');
   }
   return chunks;
 }
@@ -141,10 +141,10 @@ export function decodePng(bytes: Uint8Array): PixelBuffer {
   const info = infoFromChunks(chunks);
   const { width, height, bitDepth, colorType } = info;
   const channels = CHANNELS[colorType];
-  if (channels === undefined) throw new PngError(`invalid colour type ${colorType}`, 'corrupt');
-  if (info.interlaced) throw new PngError('interlaced PNG is not supported', 'unsupported');
+  if (channels === undefined) throw new PngError(`tipo colore non valido ${colorType}`, 'corrupt');
+  if (info.interlaced) throw new PngError('PNG interlacciato non supportato', 'unsupported');
   if (bitDepth !== 8 && bitDepth !== 16) {
-    throw new PngError(`${bitDepth}-bit PNG is not supported`, 'unsupported');
+    throw new PngError(`PNG a ${bitDepth} bit non supportato`, 'unsupported');
   }
   const bpp = (channels * bitDepth) / 8;
   const stride = width * bpp;
@@ -160,9 +160,10 @@ export function decodePng(bytes: Uint8Array): PixelBuffer {
   try {
     raw = unzlibSync(joined);
   } catch {
-    throw new PngError('corrupt image data', 'corrupt');
+    throw new PngError('dati immagine corrotti', 'corrupt');
   }
-  if (raw.length < (stride + 1) * height) throw new PngError('image data too short', 'corrupt');
+  if (raw.length < (stride + 1) * height)
+    throw new PngError('dati immagine troppo corti', 'corrupt');
 
   // Undo the per-row filters in place.
   const px = new Uint8Array(stride * height);
@@ -193,7 +194,7 @@ export function decodePng(bytes: Uint8Array): PixelBuffer {
           add = paeth(left, up, upLeft);
           break;
         default:
-          throw new PngError(`invalid filter type ${ft}`, 'corrupt');
+          throw new PngError(`tipo di filtro non valido ${ft}`, 'corrupt');
       }
       px[row + i] = (v + add) & 0xff;
     }
@@ -201,7 +202,7 @@ export function decodePng(bytes: Uint8Array): PixelBuffer {
 
   const palette = chunks.find((c) => c.type === 'PLTE')?.data;
   const trns = chunks.find((c) => c.type === 'tRNS')?.data;
-  if (colorType === 3 && !palette) throw new PngError('missing PLTE chunk', 'corrupt');
+  if (colorType === 3 && !palette) throw new PngError('chunk PLTE assente', 'corrupt');
   const step = bitDepth / 8; // bytes per sample
   const sample = (row: number, index: number): number =>
     step === 1 ? px[row + index] : (px[row + index * 2] << 8) | px[row + index * 2 + 1];

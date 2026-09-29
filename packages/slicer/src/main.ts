@@ -19,7 +19,7 @@ let review: ReviewHandle | undefined;
 
 const status = h('span', { class: 'status', id: 'net-status' });
 const updateStatus = (): void => {
-  status.textContent = navigator.onLine ? 'Online' : 'Offline — everything still works';
+  status.textContent = navigator.onLine ? 'Online' : 'Offline — funziona comunque tutto';
 };
 updateStatus();
 window.addEventListener('online', updateStatus);
@@ -37,7 +37,7 @@ app?.replaceChildren(
   main,
   h('footer', {
     class: 'app-foot',
-    text: `Asset format ${SPEC_VERSION} · images never leave this device`,
+    text: `Formato asset ${SPEC_VERSION} · le immagini non lasciano mai questo dispositivo`,
   }),
 );
 
@@ -51,24 +51,24 @@ function showHome(): void {
   main.dataset['screen'] = 'home';
   homeBtn.hidden = true;
   main.replaceChildren(
-    h('h2', { text: 'What do you want to do?' }),
+    h('h2', { text: 'Cosa vuoi fare?' }),
     h(
       'div',
       { class: 'modes' },
       h(
         'button',
         { class: 'mode', id: 'mode-slice', type: 'button', onclick: () => showSetup() },
-        h('strong', { text: 'Slice raw images' }),
+        h('strong', { text: 'Ritaglia le immagini' }),
         h('span', {
-          text: 'Turn AI-generated frames (a grid or 24 separate images) into a spec-compliant character package.',
+          text: "Trasforma i fotogrammi generati dall'IA (una griglia o 24 immagini separate) in un pacchetto personaggio conforme alle specifiche.",
         }),
       ),
       h(
         'button',
         { class: 'mode', id: 'mode-check', type: 'button', onclick: () => showCheck() },
-        h('strong', { text: 'Check existing sheets' }),
+        h('strong', { text: 'Controlla fogli esistenti' }),
         h('span', {
-          text: 'Load a chr_<name> zip or 768 × 512 sheets (for example layers repainted by an AI), check them, fix them, add a layer.',
+          text: "Carica uno zip chr_<nome> o fogli 768 × 512 (per esempio livelli ridipinti da un'IA), controllali, correggili, aggiungi un livello.",
         }),
       ),
       h(
@@ -79,9 +79,9 @@ function showHome(): void {
           href: `${import.meta.env.BASE_URL}downloads/pokerpg-pose-templates.zip`,
           download: 'pokerpg-pose-templates.zip',
         },
-        h('strong', { text: 'Download pose templates' }),
+        h('strong', { text: 'Scarica i modelli di posa' }),
         h('span', {
-          text: 'Grey-mannequin references for your image AI: one grid image and the 24 single poses. Works offline.',
+          text: "Riferimenti a manichino grigio per la tua IA di immagini: un'immagine griglia e le 24 pose singole. Funziona offline.",
         }),
       ),
     ),
@@ -106,7 +106,7 @@ function showCheck(notice?: string): void {
       main.dataset['screen'] = 'review';
       homeBtn.hidden = true;
       review = mountReview(main, prepared, {
-        backLabel: 'Back to files',
+        backLabel: 'Torna ai file',
         onBack: (edited) => {
           // keep the edits (nudges) as the new sheets, so more layers can be added on top
           checkModel.sheets = edited.sheets.map((s) => ({ filename: s.filename, image: s.image }));
@@ -121,31 +121,31 @@ function showCheck(notice?: string): void {
 function showReview(prepared: Prepared): void {
   main.dataset['screen'] = 'review';
   homeBtn.hidden = true;
-  review = mountReview(main, prepared, { backLabel: 'Start over', onBack: () => showSetup() });
+  review = mountReview(main, prepared, { backLabel: 'Ricomincia', onBack: () => showSetup() });
 }
 
 async function process(): Promise<void> {
   const controller = new AbortController();
   const bar = h('progress', { max: 100, value: 0, id: 'progress' });
-  const label = h('p', { id: 'busy-label', text: 'Starting…' });
+  const label = h('p', { id: 'busy-label', text: 'Avvio…' });
   main.dataset['screen'] = 'busy';
   homeBtn.hidden = true;
   main.replaceChildren(
-    h('h2', { text: 'Processing' }),
+    h('h2', { text: 'Elaborazione' }),
     label,
     bar,
     h('p', {
       class: 'hint',
-      text: 'Cutting out the characters, scaling and aligning. This can take a few seconds.',
+      text: 'Ritaglio dei personaggi, ridimensionamento e allineamento in corso. Può richiedere qualche secondo.',
     }),
     h(
       'button',
       { class: 'btn', id: 'cancel', type: 'button', onclick: () => controller.abort() },
-      'Cancel',
+      'Annulla',
     ),
   );
   const onProgress = (p: BuildProgress): void => {
-    label.textContent = `${p.layer} layer (${p.layerIndex + 1} of ${p.layerCount}) · frame ${p.done} of ${p.total}`;
+    label.textContent = `livello ${p.layer} (${p.layerIndex + 1} di ${p.layerCount}) · fotogramma ${p.done} di ${p.total}`;
     bar.value = ((p.layerIndex + p.done / p.total) / p.layerCount) * 100;
   };
   try {

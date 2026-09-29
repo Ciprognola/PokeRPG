@@ -23,12 +23,14 @@ export function resolvedEntries(model: SetupModel): LayerEntry[] {
 /** What still blocks processing, in plain words. Empty when ready. */
 export function setupProblems(model: SetupModel): string[] {
   const problems: string[] = [];
-  if (!finalName(model.characterName)) problems.push('Give the character a name.');
-  if (!model.entries.some((e) => e.layer === 'body')) problems.push('Add the body layer.');
+  if (!finalName(model.characterName)) problems.push('Dai un nome al personaggio.');
+  if (!model.entries.some((e) => e.layer === 'body')) problems.push('Aggiungi il livello body.');
   const seen = new Set<LayerId>();
   for (const e of model.entries) {
     if (seen.has(e.layer))
-      problems.push(`Two images use the ${e.layer} layer. Pick a different layer for one.`);
+      problems.push(
+        `Due immagini usano il livello ${e.layer}. Scegli un livello diverso per una delle due.`,
+      );
     seen.add(e.layer);
   }
   return problems;
@@ -74,7 +76,7 @@ export function mountSetup(
     autocomplete: 'off',
     autocapitalize: 'none',
     spellcheck: false,
-    placeholder: 'e.g. mira',
+    placeholder: 'es. mira',
     value: model.characterName,
     'aria-describedby': 'name-hint',
     oninput: () => {
@@ -102,7 +104,7 @@ export function mountSetup(
   const processBtn = h(
     'button',
     { id: 'process', class: 'btn primary', type: 'button', onclick: onProcess },
-    'Process',
+    'Elabora',
   );
 
   function updateProcess(): void {
@@ -118,24 +120,24 @@ export function mountSetup(
     let summary: string;
     if (files.length === 1) {
       source = { kind: 'grid', file: files[0]! };
-      summary = `grid image: ${files[0]!.name}`;
+      summary = `immagine griglia: ${files[0]!.name}`;
     } else if (files.length === 24) {
       source = { kind: 'frames', files };
-      summary = '24 separate frames';
+      summary = '24 fotogrammi separati';
     } else {
       showNotice(
-        `You picked ${files.length} images. For each layer pick one grid image (6 columns × 4 rows) or exactly 24 separate frame images.`,
+        `Hai scelto ${files.length} immagini. Per ogni livello scegli un'immagine griglia (6 colonne × 4 righe) oppure esattamente 24 immagini fotogramma separate.`,
       );
       return;
     }
     if (!files.every(isImage)) {
-      showNotice('Some of those files are not images.');
+      showNotice('Alcuni di quei file non sono immagini.');
       return;
     }
     const used = new Set(model.entries.map((e) => e.layer));
     const free = LAYER_IDS.find((l) => !used.has(l));
     if (!free) {
-      showNotice('All seven layers are already in use. Remove one first.');
+      showNotice('Tutti e sette i livelli sono già in uso. Rimuovine uno prima.');
       return;
     }
     const entry: LayerEntry = { id: model.nextId++, layer: free, name: '', source, summary };
@@ -160,7 +162,7 @@ export function mountSetup(
           'select',
           {
             class: 'layer-select',
-            'aria-label': `Layer for ${entry.summary}`,
+            'aria-label': `Livello per ${entry.summary}`,
             onchange: () => {
               entry.layer = select.value as LayerId;
               renderList();
@@ -179,8 +181,8 @@ export function mountSetup(
           autocomplete: 'off',
           autocapitalize: 'none',
           spellcheck: false,
-          'aria-label': `Asset name for the ${entry.layer} layer`,
-          placeholder: finalName(model.characterName) || 'asset name',
+          'aria-label': `Nome asset per il livello ${entry.layer}`,
+          placeholder: finalName(model.characterName) || 'nome asset',
           value: entry.name,
           oninput: () => {
             nameField.value = toFieldName(nameField.value);
@@ -197,15 +199,15 @@ export function mountSetup(
             'div',
             { class: 'entry-body' },
             h('div', { class: 'entry-summary', text: entry.summary }),
-            h('label', { class: 'field' }, h('span', { text: 'Layer' }), select),
-            h('label', { class: 'field' }, h('span', { text: 'Asset name' }), nameField),
+            h('label', { class: 'field' }, h('span', { text: 'Livello' }), select),
+            h('label', { class: 'field' }, h('span', { text: 'Nome asset' }), nameField),
           ),
           h(
             'button',
             {
               class: 'btn icon',
               type: 'button',
-              'aria-label': `Remove ${entry.layer} layer`,
+              'aria-label': `Rimuovi il livello ${entry.layer}`,
               onclick: () => {
                 model.entries.splice(model.entries.indexOf(entry), 1);
                 renderList();
@@ -222,15 +224,15 @@ export function mountSetup(
   const drop = h(
     'div',
     { class: 'drop', id: 'drop' },
-    h('p', { text: 'Drop images here, or' }),
+    h('p', { text: 'Rilascia qui le immagini, oppure' }),
     h(
       'button',
       { class: 'btn', id: 'add', type: 'button', onclick: () => fileInput.click() },
-      'Add images',
+      'Aggiungi immagini',
     ),
     h('p', {
       class: 'hint',
-      text: 'One layer at a time: a grid image (6 columns × 4 rows) or exactly 24 separate frames. Start with the body.',
+      text: "Un livello alla volta: un'immagine griglia (6 colonne × 4 righe) oppure esattamente 24 fotogrammi separati. Inizia dal body.",
     }),
   );
   drop.addEventListener('dragover', (e) => {
@@ -245,11 +247,15 @@ export function mountSetup(
   });
 
   root.replaceChildren(
-    h('h2', { text: 'New character' }),
-    h('p', { class: 'hint' }, 'Everything stays on your device. Images are never uploaded.'),
+    h('h2', { text: 'Nuovo personaggio' }),
+    h(
+      'p',
+      { class: 'hint' },
+      'Tutto resta sul tuo dispositivo. Le immagini non vengono mai caricate online.',
+    ),
     noticeBox,
-    h('label', { class: 'field wide' }, h('span', { text: 'Character name' }), nameInput),
-    h('p', { id: 'name-hint', class: 'hint', text: 'Lowercase letters, digits and "-" only.' }),
+    h('label', { class: 'field wide' }, h('span', { text: 'Nome del personaggio' }), nameInput),
+    h('p', { id: 'name-hint', class: 'hint', text: 'Solo lettere minuscole, cifre e "-".' }),
     drop,
     fileInput,
     list,

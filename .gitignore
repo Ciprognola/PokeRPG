@@ -12,7 +12,7 @@ Thumbs.db
 test-results/
 playwright-report/
 
-# Author stories (README "Writing a story"): never committed
+# Author stories (README "Scrivere una storia"): never committed
 /stories/*
 !/stories/.gitkeep
 

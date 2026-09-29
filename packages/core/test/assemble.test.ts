@@ -310,32 +310,32 @@ describe('errors', () => {
       AssembleError,
     );
     expect(() => prepareCharacter({ name: 'mira', layers: layers(o, ['hair']) })).toThrow(
-      'a character needs a body layer',
+      'un personaggio ha bisogno di un livello body',
     );
   });
 
   it('rejects names outside the §4 alphabet', () => {
     expect(() => prepareCharacter({ name: 'Mira Rose', layers: [body] })).toThrow(
-      /character name "Mira Rose"/,
+      /nome del personaggio "Mira Rose"/,
     );
     expect(() => prepareCharacter({ name: 'mira', layers: [{ ...body, name: 'a_b' }] })).toThrow(
-      /body name "a_b"/,
+      /nome body "a_b"/,
     );
   });
 
   it('rejects two layers with the same id and a wrong frame count', () => {
     expect(() => prepareCharacter({ name: 'mira', layers: [body, body] })).toThrow(
-      /two body layers/,
+      /due livelli body/,
     );
     expect(() =>
       prepareCharacter({ name: 'mira', layers: [{ ...body, frames: body.frames.slice(0, 23) }] }),
-    ).toThrow(/expected 24 frames, got 23/);
+    ).toThrow(/attesi 24 fotogrammi, arrivati 23/);
   });
 
   it('rejects layers cut from a different frame layout than the body', () => {
     const other = layers({ ...o, cellWidth: 200 }, ['hair'])[0]!;
     expect(() => prepareCharacter({ name: 'mira', layers: [body, other] })).toThrow(
-      /every layer must use the same frame layout/,
+      /ogni livello deve usare lo stesso layout di fotogramma/,
     );
   });
 
@@ -345,7 +345,7 @@ describe('errors', () => {
       frames: body.frames.map((f, i) => (i === 3 ? { ...f, pixels: createPixelBuffer(0, 0) } : f)),
     };
     expect(() => prepareCharacter({ name: 'mira', layers: [broken] })).toThrow(
-      'walk_down_03 · the body frame is empty',
+      'walk_down_03 · il fotogramma del corpo è vuoto',
     );
   });
 });

@@ -41,7 +41,7 @@ export async function openImage(blob: Blob, fileName = 'image'): Promise<Decoded
   try {
     bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
   } catch {
-    throw new ImageDecodeError(fileName, 'could not read this file as an image');
+    throw new ImageDecodeError(fileName, 'non è stato possibile leggere questo file come immagine');
   }
   let closed = false;
   return {
@@ -52,7 +52,11 @@ export async function openImage(blob: Blob, fileName = 'image'): Promise<Decoded
       const canvas = makeCanvas(rect.width, rect.height);
       const ctx = canvas.getContext('2d', { willReadFrequently: true }) as
         OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-      if (!ctx) throw new ImageDecodeError(fileName, 'this browser cannot read image pixels');
+      if (!ctx)
+        throw new ImageDecodeError(
+          fileName,
+          'questo browser non può leggere i pixel delle immagini',
+        );
       ctx.drawImage(bitmap, rect.x, rect.y, rect.width, rect.height, 0, 0, rect.width, rect.height);
       const data = ctx.getImageData(0, 0, rect.width, rect.height);
       // Shrink the scratch canvas now instead of waiting for garbage collection (matters on phones).
