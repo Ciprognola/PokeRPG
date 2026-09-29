@@ -36,6 +36,15 @@ jobs:
           mkdir -p site
           cp -r packages/slicer/dist site/slicer
           echo '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=slicer/"><a href="slicer/">Slicer</a>' > site/index.html
+      - name: Verify the deployed site carries no overrides/ content
+        # overrides/ is git-ignored (PKR-014) so a clean checkout never has one; this also
+        # catches a future build step that reads from it by name and leaks the result in.
+        run: |
+          if find site -iname '*overrides*' | grep -q .; then
+            echo "::error::overrides/ content found in the deployed site:"
+            find site -iname '*overrides*'
+            exit 1
+          fi
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
