@@ -28,10 +28,10 @@ Fixed the two stale references this caused in `docs-dev/`: `story-validator.md` 
 
 ## Spec issues #1, #2, #6 — now answered (GDD v0.8, §10, §13-§14)
 
-The three tracker/account/clock questions this file used to carry as open (tracker location, saves-with-an-account sync scope, what makes the clock "trusted" and on which plan) are answered by the GDD v0.8 tracker design, per Brief §8 item 7 (_Decided (v0.13)_):
+The three tracker/account/clock questions this file used to carry as open (tracker location, what an account syncs, what makes the clock "trusted" and on which plan) are answered by the GDD v0.8 tracker design, per Brief §8 item 7 (_Decided (v0.13)_):
 
 - **Tracker** is AGENDA, opened from each save slot's own start menu (GDD §13, §15 Q8 — decided).
-- **Saves**: 4 slots, each **private** (one device, no account, local only) or **public** (one dev + several players, each with a Firebase account, GDD §10, §14.2).
+- **Saves**: 4 slots, each **private** or **public** (GDD §10). A private slot is fully local — one device, no account — and portable only by exporting/importing the slot as a file. A public slot has one dev and several players, each on their own device with a Firebase account (§14.2), but **the account doesn't sync player saves**: only the **story content** syncs, via the dev's pushes (next week's content, a preview message, GDD §10, §14.3); each player's own save (progress, flags, position) stays on their own device and is never synced or pushed.
 - **Clock**: there is no trusted server clock after all — every slot runs on the **device clock**; the server only timestamps/orders a public-slot dev's pushes (GDD §14.4). The old "which Firebase plan makes it trusted" question is moot, not answered — the trusted-clock design itself was dropped.
 
 New open questions this design raised (GDD §15 Q9-Q12, Story Schema §12, Asset Spec §9): coin tiers and coins-per-tier (before M6), which in-game assets the shop can sell (before M6), public-slot membership/invites (before M9), dynamic-scene cast (before M9), plus the Story Schema/Asset Spec format for episodes, time conditions, monthly challenges and dynamic-scene templates (also before M6/M9 respectively). See "Waiting on the PM" below.
