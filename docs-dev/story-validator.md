@@ -88,7 +88,7 @@ committed files drift). `story.json` is hand-written.
 
 ## Library data
 
-Stories refer to library locations and audio ids. The real library arrives in M8; until then:
+Stories refer to library locations and audio ids. There's no official library any more (Brief v0.14 §2): locations, props, poses and audio will come from user-made **asset packs** instead, whose format is finalised in M6 (Asset Spec §8.3). Until packs exist:
 
 - `assets/locations/loc_greybox-harbour.json` and `loc_greybox-bakery.json`: size, collision grid, spawns, exits (tiles or a
   map edge) and areas, in the format of Asset Spec §8.1 (`validateLocationAsset` checks every rule of its field table;
