@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.7 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and the story author's own Claude Code builds stories from it (Project Brief §3). Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -72,13 +72,14 @@ story_<id>/
 - **Dialogues:** the first one whose `when` is true plays. The last one must have no `when`.
 
 ### 5.1 Lines
-A line is one dialogue page: a string, or an object `{ "speaker", "text" }`.
+A line is one dialogue message: a string, or an object `{ "speaker", "text" }`.
 - `speaker` is an NPC id, `player`, or `narrator`. A plain string in NPC dialogue is spoken by that NPC; in a scene, `speaker` is required.
 - **Max 120 characters per line**, after placeholders are counted at 12 characters. Longer text is split into more lines.
 - `{player.name}` counts as 12 because a player name is at most 12 characters (GDD §6).
 - Characters are counted as the reader sees them (Unicode NFC): an accented letter such as `è` counts as 1.
-- A line of 120 characters or fewer always fits one dialogue page (3 rendered lines, GDD §6). The runtime guarantees this; authors only count characters.
-- The 120-character limit depends on the dialogue box, which is still open (GDD §15 Q5). Changing it is a format change: this file, the JSON Schema, the Story Template and the Story Prompt Kit change together.
+- The dialogue box shows 2 rendered lines per page (GDD §6). The runtime wraps each line and splits it across pages as needed, usually 1–2 pages; authors only count characters.
+- The runtime adds the speaker's name inline (GDD §6). It doesn't count towards the 120 characters.
+- The 120-character limit was kept when the box was fixed at 2 lines (GDD §15 Q5). Changing it is a format change: this file, the JSON Schema, the Story Template and the Story Prompt Kit change together.
 
 ## 6. Quests and tasks
 ```json
@@ -190,3 +191,4 @@ Messages are in Italian (Brief §2); file names, JSON paths, ids and field names
 | 2026-09-28 | v0.4: runtime rules from the M2 story spike: `reach` completion, completion order and story end (§6.1); `move` start tile, NPC behaviour in scenes, screen at story start (§7.1); 120 characters always fit one page (§5.1). Format unchanged |
 | 2026-09-29 | v0.5: open runtime questions decided: wrong `move` start tile → warning, walk from the actual tile; `patrol` returns to the nearest path point after a scene; `storyStart` triggers run before the first task; player name max 12 characters; end card after the story (§5.1, §6.1, §7.1, §8). §11 notes the `move` start tile is checked at run time; §5.1 points to GDD §15 Q5. Format unchanged |
 | 2026-09-29 | v0.6: validation messages in Italian (§11); accented letters count as 1 character (§5.1); any story language allowed (§3). Format unchanged |
+| 2026-09-29 | v0.7: a line is a message shown on one or more 2-line pages; speaker names are added inline by the runtime (§5.1). Format unchanged |

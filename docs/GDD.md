@@ -1,5 +1,5 @@
 # PokeRPG — Game Design Document (GDD)
-*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.7 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 How the player runtime behaves. The Story Schema turns these systems into story files; the Asset Spec covers asset formats.
 The platform systems outside stories (UI shell, life tracker, account) are in §12–§14.
@@ -57,10 +57,11 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 | Dialogue variants | An NPC has an ordered list of dialogues with conditions. The **first one whose condition is true** plays; the last one has no condition and is the default |
 
 ## 6. Dialogue
-- **Box:** the Emerald-style dialogue box of the UI shell (§12), at the bottom of the screen, speaker name plate, up to **3 lines per page**. Text wraps automatically. The box and font are sized so that any line within the Story Schema's 120-character limit fits one page; stories never overflow it.
+- **Box:** the Emerald-style dialogue box of the UI shell (§12, UI Spec §4), at the bottom of the screen, **2 lines per page**. Text wraps automatically, and a story line longer than one page continues on the next page after ▼. A line within the Story Schema's 120-character limit usually takes 1–2 pages; stories never overflow the box.
+- **Speaker names:** no name plate. The speaker's name appears inline, in capitals ("ROSA: …"), on the first line of a dialogue and whenever the speaker changes. The narrator has no name.
 - **Reveal:** typewriter effect, speed set in the settings. **A** finishes the page or advances to the next. **B** shows the whole page instantly.
 - **Placeholders:** `{player.name}` in dialogue text. A player name is at most **12 characters**, the budget the Story Schema counts per placeholder, and may use accented letters. More placeholders (*later*) are added to the Story Schema, never invented by stories.
-- **Speakers:** an NPC, the player (`player`), or a narrator (no name plate).
+- **Speakers:** an NPC, the player (`player`), or a narrator (no name).
 - **Portraits:** none at launch. Expressions and portraits come before M6 (§15 Q1).
 - **Choices:** none at launch (*later*, with branching).
 
@@ -107,7 +108,7 @@ Scenes and task progress are started by: **story start**, **task becomes active*
 ## 9. Menu and UI
 - **Look:** every screen, menu and box uses the UI shell (§12).
 - **Menu:** quest log (current objective and completed quests), life tracker (§13), save, settings, account (§14), return to title.
-- **Settings:** text speed, music and sound volume, touch control size.
+- **Settings:** text speed, music and sound volume, touch control size (UI Spec §7).
 - **HUD:** none while walking. The current objective appears briefly when a task starts.
 
 ## 10. Saving
@@ -125,7 +126,8 @@ Starting a story creates a Run Manifest that **locks** the story package version
 - **Language:** Italian only (Brief §2). The font covers the Italian alphabet, including accented letters (à è é ì ò ù and their capitals) and the apostrophe.
 - **Fixed:** stories and players cannot restyle it. Stories only supply content (text, names, objectives).
 - **Assets:** public builds use original, recreated art, font and sounds. A private build may swap them for the builder's own files from the git-ignored overrides folder (Brief §2). Override files use the same names and sizes as the originals.
-- **Screen fit** and **lines per page** are open (§15 Q4, Q5).
+- **Screen fit:** the UI uses 4× pixels on a 240 × 135 layout that covers the 960 × 540 screen (UI Spec §1).
+- **Details:** layout, colours, font and timings are in the UI Spec.
 
 ## 13. Life tracker
 - **What:** the player's own real-life tasks and progress, kept outside any story.
@@ -145,8 +147,8 @@ Starting a story creates a Run Manifest that **locks** the story package version
 1. **Portraits and expressions:** canvas, expression list and whether the player's character needs a portrait. Decide before M6. Asset Spec §5 points here.
 2. **Items and branching choices:** scope and timing after launch.
 3. **Title and story selection flow:** how the player picks a story and a character. Decide before M5.
-4. **Emerald UI on 16:9:** Emerald was built for 240 × 160 (3:2). Letterbox (for example 240 × 160 at 3× = 720 × 480 inside 960 × 540) or adapt the layout. Decide in the UI spec, before M4.
-5. **Lines per page:** Emerald's box shows 2 lines; §6 promises 3 lines and any 120-character line (Story Schema §5.1). Matching Emerald may lower the line limit, which is a story format change (Story Schema §5.1 carries the matching pointer). Italian text runs longer than English, which weighs against fewer lines. Decide in the UI spec, before M4.
+4. *Decided (v0.7):* the Emerald UI adapts to 16:9 with 4× pixels on a 240 × 135 layout (UI Spec §1).
+5. *Decided (v0.7):* 2 lines per page; the runtime splits longer lines across pages, and the 120-character story limit stays (§6, Story Schema §5.1).
 6. **Life tracker rules:** who sets rewards and their prices, task kinds (one-off, recurring, streaks), coins per task, and what coins buy in-game.
 7. **Time and date events:** which exist (day/night, calendar dates, holidays), whether stories can use time conditions (a Story Schema change), and what an account syncs (tracker, saves, settings).
 8. **Where the tracker lives:** title screen, in-game menu, or both.
@@ -161,3 +163,4 @@ Starting a story creates a Run Manifest that **locks** the story package version
 | 2026-09-28 | v0.4: platform systems outside stories: Emerald-style UI shell (fixed, recreated assets, private overrides), life tracker with coins and rewards, optional Firebase account with a trusted real-time clock. Open questions added for screen fit, lines per page, tracker rules and time events |
 | 2026-09-29 | v0.5: runtime defaults: player name max 12 characters (§6); end card after the story (§7.1); `patrol` returns to its path after a scene (§5); story-start triggers before the first task (§7.3). §15 Q5 cross-referenced from Story Schema §5.1 |
 | 2026-09-29 | v0.6: UI is Italian only; the font covers accented letters; player names may use them; the end card reads "Fine" (§6, §7.1, §12, §15 Q5) |
+| 2026-09-29 | v0.7: UI Spec v0.1 adopted. UI at 4× pixels on a 240 × 135 layout; dialogue box 2 lines per page with pagination; inline speaker names instead of a name plate (§6, §12, §15 Q4–Q5 decided) |

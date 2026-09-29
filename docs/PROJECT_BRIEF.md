@@ -1,5 +1,5 @@
 # PokeRPG — Project Brief
-*Version 0.11 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.12 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 ## 1. Vision
 A functional **sandbox story platform**, not a single game. We build the engine, the tools, the specs and the asset library once; users create the stories. The app is a player and validator, not a heavy editor.
@@ -16,7 +16,7 @@ A functional **sandbox story platform**, not a single game. We build the engine,
 | Language | **Italian only** for everything users see: the game and its UI, the Slicer, the importer, `story:check` and `story:pack` output, the Story Prompt Kit, the Sprite Reference Document and the README's user sections. Internal specs, code, technical docs, JSON field names, ids and file names stay in English. Each story declares its own `language` (Story Schema §3) |
 | Engine | Phaser + TypeScript + Vite. The major version (3 or 4) is chosen by the PO after Claude Code's evaluation (PKR-015), before M4 build work starts (§8 Q3) |
 | Art style | 2D hand-painted world (see §8 Q4). The UI follows the UI look row |
-| UI look | Exact Pokémon Emerald look and feel: dialogue box, menus, font style, cursor, text reveal, menu sounds, transitions. Fixed by the platform: stories and players cannot change it. Public builds use original, recreated assets only |
+| UI look | Exact Pokémon Emerald look and feel: dialogue box, menus, font style, cursor, text reveal, menu sounds, transitions. Fixed by the platform: stories and players cannot change it. Shown at 4× pixels on a 240 × 135 layout (UI Spec). Public builds use original, recreated assets only |
 | Gameplay | NPCs, linear quests (talk, reach a place, scripted scenes), dialogue, world-state flags. Items and branching choices come after launch. No battles, no creatures |
 | Player character | Always the player's own character: character creator (layered parts) or sprite import that meets the Asset Spec. Stories never define the hero |
 | Sprites v1 | Walking only: 24 frames = 4 directions × 6 walk frames |
@@ -66,7 +66,7 @@ Build it first as a **local browser tool (installable PWA)** in the same TypeScr
 ## 6. Roadmap
 | # | Milestone | Owner(s) |
 |---|---|---|
-| M0 | Foundations: this brief, AI Team Guide, GDD, Story Schema, Asset Spec, Art Style Guide, prompt kits | PM |
+| M0 | Foundations: this brief, AI Team Guide, GDD, Story Schema, Asset Spec, UI Spec, Art Style Guide, prompt kits | PM |
 | M1 | Slicer tool (PWA) | Claude Code |
 | M2 | Pipeline spike: PO tests story + sprite pipelines with real AIs | PO, PM |
 | M3 | Style lock: reference style approved and frozen | Firefly, PO |
@@ -96,7 +96,7 @@ The UI shell, life tracker and account are not placed in the roadmap yet (§8 Q6
 2. Final product name. Before any public release.
 3. Phaser 3 or Phaser 4 (stable since April 2026). Claude Code evaluates both against our needs (PKR-015); the PO decides before M4 build work.
 4. Art direction: keep a hand-painted world, or move the world to pixel art to match the UI (M2 Firefly output already reads as crisp pixel art). Decide in the Art Style Guide, before M3.
-5. Emerald UI on a 16:9 screen: letterbox to 3:2 or adapt the layout; Emerald's 2-line dialogue box vs our 3-line, 120-character page. Decide in the UI spec, before M4.
+5. *Decided (v0.12):* the Emerald UI adapts to 16:9 with 4× pixels on a 240 × 135 layout; the dialogue box shows 2 lines per page and paginates, keeping the 120-character story limit (UI Spec).
 6. Roadmap placement of the UI shell, life tracker and account. Decide before M4.
 7. Life tracker and clock details: GDD §15.
 
@@ -121,3 +121,4 @@ The UI shell, life tracker and account are not placed in the roadmap yet (§8 Q6
 | 2026-09-28 | v0.9: Project description reconciled. Native life tracker (real-life tasks → coins → in-game or real-life rewards); optional Firebase account with real-time clock; exact Emerald-style UI, fixed by the platform, recreated with original assets in public builds; private builds may override UI and music from a git-ignored folder, never committed or deployed |
 | 2026-09-29 | v0.10: Phaser major version reopened; Claude Code evaluates 3 vs 4 (PKR-015), PO decides before M4 build. Overrides folder named `overrides/` with a CI guard (spec issue #5). UI reference captures go to the PM chat only, never the repo (spec issue #4) |
 | 2026-09-29 | v0.11: everything users see is Italian only, including the Slicer, `story:check`, the Story Prompt Kit and the Sprite Reference Document. Internal specs, code and ids stay in English |
+| 2026-09-29 | v0.12: UI Spec v0.1: 4× pixels on a 240 × 135 layout, 2-line dialogue box with pagination, inline speaker names |

@@ -1,5 +1,5 @@
 # PokeRPG — Kit di prompt per le storie
-*Versione 0.4 · 2026-09-29 · Responsabile: PM · Stato: bozza in attesa di approvazione del PO*
+*Versione 0.5 · 2026-09-29 · Responsabile: PM · Stato: bozza in attesa di approvazione del PO*
 
 Come scrivere una storia per PokeRPG con **il tuo Claude Code**. La Parte A è per te, l'autore. La Parte B è il regolamento che il tuo Claude Code segue. Il contratto è lo Story Schema; questo kit spiega solo come usarlo bene.
 
@@ -94,7 +94,7 @@ Oggetti, inventario, scelte o bivi · lotte o creature · nuove mappe, musiche o
 
 ## B4. Qualità della scrittura
 - **Gli obiettivi dicono dove e chi:** "Trova Rosa al forno", non "Continua".
-- **Un'idea per battuta.** Ogni pagina di dialogo si legge in 1–3 frasi brevi.
+- **Un'idea per battuta.** Una battuta si legge in 1–3 frasi brevi. Il gioco la divide da solo in pagine da 2 righe e aggiunge il nome di chi parla: non scriverlo nel testo.
 - **Ogni PNG ha un dialogo predefinito** valido per tutta la storia, più varianti per i momenti chiave (usa i flag).
 - **Scene brevi:** meno di ~15 comandi. Metti una dissolvenza in uscita e una in entrata attorno a un `warp`.
 - **Chiudi dopo l'ultimo compito** con una breve scena finale: l'`onComplete.scene` dell'ultimo compito (Story Schema §6.1).
@@ -120,3 +120,4 @@ Oggetti, inventario, scelte o bivi · lotte o creature · nuove mappe, musiche o
 | 2026-09-28 | v0.2: correzioni dallo spike M2 sulle storie: missioni con compiti in A2, percorsi di libreria e template, abbinamento dei PNG da parte dell'autore, `story.json` scritto da zero, `story:pack`, regole di esecuzione |
 | 2026-09-29 | v0.3: B3 "Caselle" cita Story Schema §11 per ciò che il validatore non controlla e §7.1 per la casella di partenza di `move` |
 | 2026-09-29 | v0.4: kit in italiano (Brief §2); regola dell'italiano neutro rispetto al genere (B3); le lettere accentate contano 1 carattere; `language` impostato in B2 |
+| 2026-09-29 | v0.5: B4 spiega le pagine da 2 righe e il nome di chi parla aggiunto dal gioco (UI Spec v0.1) |
