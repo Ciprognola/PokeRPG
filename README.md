@@ -2,14 +2,19 @@
 
 A sandbox story platform for the web: NPCs, quests and dialogue, with stories that authors build with their own Claude Code. Players who only play need no AI. The platform ships the engine, the tools, the specs and the asset library.
 
-**Status:** M1 in progress — the Slicer tool. PokeRPG is a codename; the final name is undecided.
+**Status:** M1 done, M2 passed. PokeRPG is a codename; the final name is undecided.
 
 ## Docs
 
 The product documents live in [`docs/`](docs/) and are the source of truth:
 
 - [Project brief](docs/PROJECT_BRIEF.md) — vision, decisions, roadmap
+- [GDD](docs/GDD.md) — how the player runtime behaves
+- [UI Spec](docs/UI_SPEC.md) — the fixed UI shell: layout, proportions, colours, timings
 - [Asset spec](docs/ASSET_SPEC.md) — the technical contract for sprites and assets
+- [Story Schema](docs/STORY_SCHEMA.md) — the story package contract
+- [Story Prompt Kit](docs/STORY_PROMPT_KIT.md) — the rulebook for authors' Claude Code
+- [Sprite Reference](docs/SPRITE_REFERENCE.md) — the author-facing guide to generating character sprites with an image AI
 - [AI team guide](docs/AI_TEAM_GUIDE.md) — how work is routed and tickets are written
 
 Engineering notes are in [`docs-dev/`](docs-dev/).

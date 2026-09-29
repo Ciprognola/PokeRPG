@@ -14,7 +14,7 @@ A sandbox story platform (Phaser 3 + TypeScript + Vite, web/HTML5), not a single
 
 ## Source of truth: `docs/`
 
-- `PROJECT_BRIEF.md` (vision, roadmap) · `ASSET_SPEC.md` (the technical contract for sprites and library data) · `GDD.md` (how the player runtime behaves) · `STORY_SCHEMA.md` (the story package contract) · `STORY_PROMPT_KIT.md` (rulebook for authors' Claude Code) · `AI_TEAM_GUIDE.md` (workflow, ticket template).
+- `PROJECT_BRIEF.md` (vision, roadmap) · `ASSET_SPEC.md` (the technical contract for sprites and library data) · `GDD.md` (how the player runtime behaves) · `UI_SPEC.md` (the fixed UI shell: layout, proportions, colours, timings) · `STORY_SCHEMA.md` (the story package contract) · `STORY_PROMPT_KIT.md` (rulebook for authors' Claude Code) · `SPRITE_REFERENCE.md` (the author-facing guide to generating character sprites with an image AI) · `AI_TEAM_GUIDE.md` (workflow, ticket template).
 - The runtime rules of Story Schema §6.1/§7.1 are recorded for M4/M5 in `docs-dev/story-runtime-rules.md` (build-to list, open questions).
 - **Read the relevant doc fresh at the start of every task. Never edit `docs/`** (denied in `.claude/settings.json`, enforced by the `docs-guard` CI check). The PM writes it, the owner uploads it.
 - If a spec is unclear, wrong, or blocks good engineering: **stop** and report
