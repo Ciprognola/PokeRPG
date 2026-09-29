@@ -46,7 +46,7 @@
         },
         {
           "when": { "quest": "find-baker", "is": "active" },
-          "lines": ["Oh, un visitatore. Un momento."]
+          "lines": ["Oh, c'è qualcuno. Un momento."]
         },
         { "when": { "flag": "met-rosa" }, "lines": ["Di nuovo qui, {player.name}?"] },
         { "lines": ["Che piacere vederti nel mio forno!", "Pane fresco ogni mattina."] }
