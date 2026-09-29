@@ -1,113 +1,116 @@
-# PokeRPG — Sprite Reference Document
-*Version 0.2 · 2026-09-28 · Owner: PM · Status: draft for the M2 spike · Public*
+# PokeRPG — Guida agli sprite
+*Versione 0.3 · 2026-09-29 · Responsabile: PM · Stato: bozza per lo spike M2 · Pubblica*
 
-How to make your own walking character with an image AI and bring it into PokeRPG.
-You don't need to hit exact pixel sizes: the **Slicer** (https://ciprognola.github.io/PokeRPG/slicer/) cuts, resizes, aligns and checks everything. Your job is to give the AI clear instructions and pick good results.
-The technical rules behind this guide are in the Asset Spec.
+Come creare con un'IA per immagini il tuo personaggio che cammina e portarlo in PokeRPG.
+Non devi azzeccare dimensioni esatte in pixel: lo **Slicer** (https://ciprognola.github.io/PokeRPG/slicer/) ritaglia, ridimensiona, allinea e controlla tutto. Il tuo compito è dare istruzioni chiare all'IA e scegliere i risultati migliori.
+Le regole tecniche dietro questa guida sono nell'Asset Spec.
+
+**I prompt restano in inglese.** Le IA per immagini seguono l'inglese in modo più affidabile, quindi i modelli di prompt qui sotto sono in inglese. Sostituisci solo la parte tra `{ }`, descrivendo il personaggio in inglese.
 
 ---
 
-## 1. What you're making
-- **24 frames:** your character walking in 4 directions, 6 frames each.
-- **Row order:** 1 toward the viewer · 2 walking left · 3 walking right · 4 walking away.
-- **Frame order in every row:** contact · down · passing · contact · down · passing. It's one walk cycle: step with one foot, then the other.
-- **View:** classic top-down RPG, with the camera slightly above the character. Light comes from the top-left.
+## 1. Cosa stai creando
+- **24 fotogrammi:** il tuo personaggio che cammina in 4 direzioni, 6 fotogrammi ciascuna.
+- **Ordine delle righe:** 1 verso chi guarda · 2 cammina a sinistra · 3 cammina a destra · 4 si allontana.
+- **Ordine dei fotogrammi in ogni riga:** contatto · abbassamento · passaggio · contatto · abbassamento · passaggio. È un unico ciclo di camminata: un passo con un piede, poi con l'altro.
+- **Visuale:** classico RPG dall'alto, con la telecamera leggermente sopra il personaggio. La luce viene dall'alto a sinistra.
 
-*View and lighting are provisional until the official art style is locked.*
+*Visuale e illuminazione sono provvisorie finché lo stile artistico ufficiale non è fissato.*
 
-## 2. Rules the AI must follow
-| Do | Don't |
+## 2. Regole che l'IA deve seguire
+| Sì | No |
 |---|---|
-| Full body in every frame, head to feet | Crop the feet or the head |
-| Same character, outfit and size in every frame | Change clothes, colours or proportions between frames |
-| Solid flat **magenta background `#FF00FF`** | Gradients, floors, scenery, textures in the background |
-| Soft painted edges are fine | Shadows on the ground (the game draws them) |
-| Neutral face | Expressions (they live in dialogue portraits) |
-| Keep magenta and hot pink out of the character | Text, numbers, grid lines, labels, watermarks |
+| Corpo intero in ogni fotogramma, dalla testa ai piedi | Piedi o testa tagliati |
+| Stesso personaggio, vestiti e dimensioni in ogni fotogramma | Vestiti, colori o proporzioni che cambiano tra un fotogramma e l'altro |
+| Sfondo **magenta pieno e uniforme `#FF00FF`** | Sfumature, pavimenti, scenari o texture sullo sfondo |
+| Bordi morbidi dipinti vanno bene | Ombre a terra (le disegna il gioco) |
+| Viso neutro | Espressioni (stanno nei ritratti dei dialoghi) |
+| Niente magenta né rosa acceso sul personaggio | Testo, numeri, griglie, etichette, filigrane |
 
-**Why magenta?** The Slicer removes the background by its colour. Anything in the character that's close to magenta is removed with it.
+**Perché il magenta?** Lo Slicer rimuove lo sfondo in base al suo colore. Tutto ciò che nel personaggio è vicino al magenta viene rimosso insieme allo sfondo.
 
 ---
 
-## 3. Step 1 — Design your character
-Make one clear image of your character first. Everything after this copies it.
+## 3. Passo 1 — Disegna il tuo personaggio
+Crea prima un'immagine chiara del personaggio. Tutto quello che viene dopo la copia.
 
-**Prompt template**
+**Modello di prompt**
 > Full-body character design of {your character: age, build, hair, clothes, colours}, standing still, facing the viewer, neutral expression, arms relaxed. Hand-painted 2D game art, soft painterly brushwork, seen from slightly above like a top-down RPG, light from the top-left. Solid flat magenta background (#FF00FF). No shadow on the ground, no text.
 
-Generate a few, keep the one you like best, and save it. This is your **concept image**.
+Generane alcune, tieni quella che ti piace di più e salvala. È la tua **immagine concept**.
 
-## 4. Step 2 — Make the walk sheet (recommended: one image)
-The AI draws all 24 frames in one image, which keeps the character most consistent.
+## 4. Passo 2 — Crea il foglio della camminata (consigliato: un'unica immagine)
+L'IA disegna tutti i 24 fotogrammi in un'unica immagine: è il modo che mantiene il personaggio più coerente.
 
-1. **Download the pose templates** from the Slicer home screen. They show a grey mannequin in all 24 poses, in the right order.
-2. **Aspect ratio:** 4:3, at the highest resolution available.
-3. **References:** use the **grid pose template** as the composition/structure reference. Use your **concept image** as the style or image reference.
+1. **Scarica i modelli di posa** dalla schermata iniziale dello Slicer. Mostrano un manichino grigio in tutte le 24 pose, nell'ordine giusto.
+2. **Proporzioni:** 4:3, alla risoluzione più alta disponibile.
+3. **Riferimenti:** usa il **modello di posa a griglia** come riferimento di composizione/struttura, e la tua **immagine concept** come riferimento di stile o d'immagine.
 4. Prompt:
 
 > Sprite sheet of the character from the reference image, arranged as an evenly spaced grid of 4 rows and 6 columns, one full-body figure per cell. Row 1 walking toward the viewer, row 2 walking left, row 3 walking right, row 4 walking away. Each row is one walk cycle: contact, down, passing, contact, down, passing. Same character, same outfit, same size and proportions in every cell, feet at the same height across each row. Hand-painted 2D game art, top-down RPG view, light from the top-left. Solid flat magenta background (#FF00FF). No ground, no shadows, no grid lines, no text, no numbers.
 
-5. Generate several and keep the best. Improve it by making variations of a good result rather than writing new prompts.
+5. Generane diversi e tieni il migliore. Miglioralo creando variazioni di un buon risultato invece di scrivere prompt nuovi.
 
-## 5. Fallback — frame by frame
-Use this if the one-image sheet keeps changing your character between frames.
-1. For each of the 24 frames, use the matching **single-pose template** (`walk_down_00.png` … `walk_up_05.png`) as the composition reference. Use your concept image as the reference.
+## 5. Alternativa — fotogramma per fotogramma
+Usala se il foglio in un'unica immagine continua a cambiare il personaggio tra un fotogramma e l'altro.
+1. Per ognuno dei 24 fotogrammi usa come riferimento di composizione il **modello di posa singola** corrispondente (`walk_down_00.png` … `walk_up_05.png`), e l'immagine concept come riferimento.
 2. Prompt:
 
 > The character from the reference image in exactly this pose, full body. Hand-painted 2D game art, top-down RPG view, light from the top-left. Solid flat magenta background (#FF00FF). No shadow, no text.
 
-3. Save each result with the template's file name. The Slicer sorts frames by that name.
+3. Salva ogni risultato con il nome del file del modello. Lo Slicer ordina i fotogrammi in base a quel nome.
 
-It takes longer, but each frame is easier to control.
-
----
-
-## 6. Check before slicing
-- [ ] 24 figures, in the right row and column order
-- [ ] The same character in every frame (outfit, colours, hair, proportions)
-- [ ] Heads and feet fully visible, and nothing touching the image edge
-- [ ] A clean flat magenta background with no shadows
-- [ ] No magenta or pink in the character
-- [ ] The walking-away row keeps back details (ponytails, hair ties, backpacks, tails). AIs often drop them
-
-## 7. Slice it
-1. Open the Slicer. It works on phone and desktop, including offline once installed.
-2. Add your sheet (or 24 frames), name your character, and set the layer to **body**.
-3. Process, then review the walk preview in all 4 directions.
-4. Fix findings. **Errors** block export; **warnings** are advice. Tap a finding to jump to its frame, and nudge a frame if it sits wrong.
-5. Export. You get `chr_<name>.zip`, ready to import into the game.
-
-A fully dressed character is fine as a single **body** layer.
+Richiede più tempo, ma ogni fotogramma è più facile da controllare.
 
 ---
 
-## 8. Extra layers (experimental)
-Separate layers (outfit, hair, hat…) let you swap clothes later. AIs find this hard, and we're testing it in M2.
-1. Slice your character first.
-2. Give the AI the exported body sheet as the composition reference, and ask for **only** the new item, in the same grid, on magenta, with nothing else drawn.
-3. In the Slicer, choose **Check existing sheets**, load your character, add the new layer with the right layer type, then review and nudge.
+## 6. Controlla prima di ritagliare
+- [ ] 24 figure, nell'ordine giusto di righe e colonne
+- [ ] Lo stesso personaggio in ogni fotogramma (vestiti, colori, capelli, proporzioni)
+- [ ] Teste e piedi interamente visibili, e niente che tocchi il bordo dell'immagine
+- [ ] Uno sfondo magenta pulito e uniforme, senza ombre
+- [ ] Niente magenta o rosa sul personaggio
+- [ ] La riga di spalle conserva i dettagli posteriori (code di cavallo, elastici, zaini, code). Spesso le IA li perdono
 
-If the AI keeps drawing the whole character, go back to a single dressed body layer for now.
+## 7. Ritaglia
+1. Apri lo Slicer. Funziona su telefono e computer, anche offline una volta installato.
+2. Aggiungi il foglio (o i 24 fotogrammi), dai un nome al personaggio e imposta il livello **body**.
+3. Tocca **Elabora**, poi guarda l'anteprima della camminata in tutte e 4 le direzioni.
+4. Risolvi le segnalazioni. Gli **errori** bloccano l'esportazione; gli **avvisi** sono consigli. Tocca una segnalazione per andare al suo fotogramma, e sposta di poco un fotogramma se è fuori posto.
+5. Tocca **Esporta**. Ottieni `chr_<nome>.zip`, pronto da importare nel gioco.
 
-## 9. Adobe Firefly tips
-- Use the latest Firefly image model and set the 4:3 aspect ratio before you iterate.
-- **Composition reference = pose template.** Start with the strength slider around the middle to high range. If the poses drift, raise it. If your character starts to look like the grey mannequin, lower it.
-- **Style reference = your concept image.** It carries palette and brushwork, but it doesn't guarantee the same face or outfit.
-- If the character keeps changing, try one of the partner models in Firefly Boards that accept an uploaded image as a reference, and give it your concept image.
-- Firefly tends to add ground shadows, so keep "no shadow" in every prompt.
+Un personaggio completamente vestito va bene come unico livello **body**.
 
-## 10. Troubleshooting
-| Problem | Try |
+---
+
+## 8. Livelli extra (sperimentale)
+I livelli separati (vestiti, capelli, cappello…) ti permettono di cambiare abiti in seguito. Per le IA è difficile, e lo stiamo testando nello spike M2.
+1. Ritaglia prima il personaggio.
+2. Dai all'IA il foglio body esportato come riferimento di composizione, e chiedi **solo** il nuovo elemento, nella stessa griglia, su magenta, senza disegnare nient'altro.
+3. Nello Slicer scegli **Controlla fogli esistenti**, carica il personaggio, aggiungi il nuovo livello con il tipo giusto, poi controlla e sistema.
+
+Se l'IA continua a disegnare il personaggio intero, per ora torna a un unico livello body già vestito.
+
+## 9. Consigli per Adobe Firefly
+- Usa il modello di immagini Firefly più recente e imposta le proporzioni 4:3 prima di iterare.
+- **Riferimento di composizione = modello di posa.** Parti con il cursore dell'intensità tra metà e alto. Se le pose si discostano, alzalo. Se il personaggio inizia a somigliare al manichino grigio, abbassalo.
+- **Riferimento di stile = la tua immagine concept.** Trasmette tavolozza e pennellate, ma non garantisce lo stesso viso o gli stessi vestiti.
+- Se il personaggio continua a cambiare, prova uno dei modelli partner di Firefly Boards che accettano un'immagine caricata come riferimento, e dagli la tua immagine concept.
+- Firefly tende ad aggiungere ombre a terra, quindi tieni "no shadow" in ogni prompt.
+
+## 10. Risoluzione dei problemi
+| Problema | Prova |
 |---|---|
-| The character changes between frames | Use frame by frame (§5), or a reference-image model (§9) |
-| Rows are in the wrong order | Regenerate. The Slicer can't reorder a single grid image |
-| Legs don't look like walking | Raise the composition reference strength |
-| The Slicer removes parts of the character | Something is too close to magenta, so recolour it in the prompt |
-| Many "lowest row" or "height" findings | Usually fine after nudging. If every frame is off, the feet are cropped or hidden |
-| A pink halo around the character | Regenerate with "flat magenta, no gradient". Soft edges are fine; coloured glows aren't |
+| Il personaggio cambia tra i fotogrammi | Usa il metodo fotogramma per fotogramma (§5) o un modello con immagine di riferimento (§9) |
+| Le righe sono nell'ordine sbagliato | Rigenera. Lo Slicer non può riordinare un'unica immagine a griglia |
+| Le gambe non sembrano camminare | Alza l'intensità del riferimento di composizione |
+| Lo Slicer rimuove parti del personaggio | Qualcosa è troppo vicino al magenta: cambiane il colore nel prompt |
+| Molte segnalazioni su "riga più bassa" o "altezza" | Di solito si risolvono spostando di poco i fotogrammi. Se ogni fotogramma è fuori, i piedi sono tagliati o nascosti |
+| Un alone rosa attorno al personaggio | Rigenera con "flat magenta, no gradient". I bordi morbidi vanno bene; gli aloni colorati no |
 
-## 11. Decision log
-| Date | Decision |
+## 11. Registro delle decisioni
+| Data | Decisione |
 |---|---|
-| 2026-09-28 | v0.1 for the M2 spike: magenta key colour, one-image sheet with pose templates as the main method, frame by frame as the fallback, layers experimental, Firefly-tuned tips |
-| 2026-09-28 | v0.2: back-view check added after the first M2 character lost its ponytail in the walking-away row |
+| 2026-09-28 | v0.1 per lo spike M2: colore chiave magenta, foglio in un'unica immagine con i modelli di posa come metodo principale, fotogramma per fotogramma come alternativa, livelli sperimentali, consigli per Firefly |
+| 2026-09-28 | v0.2: aggiunto il controllo della vista di spalle dopo che il primo personaggio M2 ha perso la coda di cavallo nella riga di spalle |
+| 2026-09-29 | v0.3: guida in italiano (Brief §2); i prompt per le IA restano in inglese; nomi dei pulsanti dello Slicer in italiano (Elabora, Esporta, Controlla fogli esistenti) |

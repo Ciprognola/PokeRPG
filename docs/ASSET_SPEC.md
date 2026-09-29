@@ -1,5 +1,5 @@
 # PokeRPG — Asset Spec
-*Version 0.4 · 2026-09-28 · Owner: PM · Status: draft pending PO approval*
+*Version 0.5 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The technical contract for every visual and audio asset: official library, user sprites and Slicer output. The Slicer, importer/validator and engine all enforce this file. **Anything off-spec gets fixed here first, then in the work.**
 Style (palette, lighting, brushwork) belongs to the Art Style Guide (M3), not this file.
@@ -181,7 +181,7 @@ The background is transparent or flat **magenta `#FF00FF`** (the key colour; the
 | Content outside the safe box / overflow zone | Warning |
 | Sheet file > 1 MB / > 2 MB | Warning / Error |
 
-Every message names the file, the frame key and the pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
+Messages are in Italian (Brief §2); file names, frame keys and layer ids stay as written. Every message names the file, the frame key and the pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · riga opaca più bassa 116 (attesa 119)`.
 
 ### 7.1 Measurement definitions
 The Slicer and the validator use these definitions identically.
@@ -257,3 +257,4 @@ Every library location has a gameplay data file, **`loc_<name>.json`**, separate
 | 2026-09-28 | v0.2: §7.1 measurement definitions (opaque, empty, height, torso centreline, layer checks), from Claude Code's M1 plan |
 | 2026-09-28 | v0.3: §6 input forms fixed (equal-cell grid, frame-key file names) and key colour magenta `#FF00FF`; §9 adds cross-layer registration |
 | 2026-09-28 | v0.4: enclosed key-colour pockets removed; `key-colour` warning and "near the key colour" defined (PKR-008); §8.1 library location data format adopted from Spec issue #17 |
+| 2026-09-29 | v0.5: validation messages in Italian (§7) |

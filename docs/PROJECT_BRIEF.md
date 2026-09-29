@@ -1,5 +1,5 @@
 # PokeRPG — Project Brief
-*Version 0.10 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.11 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 ## 1. Vision
 A functional **sandbox story platform**, not a single game. We build the engine, the tools, the specs and the asset library once; users create the stories. The app is a player and validator, not a heavy editor.
@@ -13,6 +13,7 @@ A functional **sandbox story platform**, not a single game. We build the engine,
 | Area | Decision |
 |---|---|
 | Platform | Web browser (HTML5) |
+| Language | **Italian only** for everything users see: the game and its UI, the Slicer, the importer, `story:check` and `story:pack` output, the Story Prompt Kit, the Sprite Reference Document and the README's user sections. Internal specs, code, technical docs, JSON field names, ids and file names stay in English. Each story declares its own `language` (Story Schema §3) |
 | Engine | Phaser + TypeScript + Vite. The major version (3 or 4) is chosen by the PO after Claude Code's evaluation (PKR-015), before M4 build work starts (§8 Q3) |
 | Art style | 2D hand-painted world (see §8 Q4). The UI follows the UI look row |
 | UI look | Exact Pokémon Emerald look and feel: dialogue box, menus, font style, cursor, text reveal, menu sounds, transitions. Fixed by the platform: stories and players cannot change it. Public builds use original, recreated assets only |
@@ -87,6 +88,7 @@ The UI shell, life tracker and account are not placed in the roadmap yet (§8 Q6
 - **Nintendo IP.** The codename and the Emerald-style UI make the project read as a Pokémon fan game, a category that is routinely taken down. Mitigation: only original assets in the public repo and site; no ROMs, extracted assets or reference captures in the repo; the `overrides/` folder is git-ignored and guarded in CI (PKR-014); final name before any public release.
 - **Account data.** A login stores personal data (EU, GDPR). Mitigation: the account stays optional, stores minimal data, and ships with a privacy notice.
 - **Clock cheating without an account.** Changing the device clock can farm coins or trigger date events. Accepted: the account is the fix for players who care.
+- **Italian-only audience.** Everything users see is Italian, which limits the audience outside Italy. Accepted by the PO.
 - **Art direction split.** A pixel-art UI over a hand-painted world may clash. Mitigation: decide in the Art Style Guide (§8 Q4).
 
 ## 8. Open questions
@@ -118,3 +120,4 @@ The UI shell, life tracker and account are not placed in the roadmap yet (§8 Q6
 | 2026-09-28 | Story authors use their own Claude Code in a clone of the public repo; the Story Prompt Kit targets Claude Code, not generic chat AIs (v0.8) |
 | 2026-09-28 | v0.9: Project description reconciled. Native life tracker (real-life tasks → coins → in-game or real-life rewards); optional Firebase account with real-time clock; exact Emerald-style UI, fixed by the platform, recreated with original assets in public builds; private builds may override UI and music from a git-ignored folder, never committed or deployed |
 | 2026-09-29 | v0.10: Phaser major version reopened; Claude Code evaluates 3 vs 4 (PKR-015), PO decides before M4 build. Overrides folder named `overrides/` with a CI guard (spec issue #5). UI reference captures go to the PM chat only, never the repo (spec issue #4) |
+| 2026-09-29 | v0.11: everything users see is Italian only, including the Slicer, `story:check`, the Story Prompt Kit and the Sprite Reference Document. Internal specs, code and ids stay in English |

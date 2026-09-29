@@ -1,5 +1,5 @@
 # PokeRPG — Game Design Document (GDD)
-*Version 0.5 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 How the player runtime behaves. The Story Schema turns these systems into story files; the Asset Spec covers asset formats.
 The platform systems outside stories (UI shell, life tracker, account) are in §12–§14.
@@ -59,7 +59,7 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 ## 6. Dialogue
 - **Box:** the Emerald-style dialogue box of the UI shell (§12), at the bottom of the screen, speaker name plate, up to **3 lines per page**. Text wraps automatically. The box and font are sized so that any line within the Story Schema's 120-character limit fits one page; stories never overflow it.
 - **Reveal:** typewriter effect, speed set in the settings. **A** finishes the page or advances to the next. **B** shows the whole page instantly.
-- **Placeholders:** `{player.name}` in dialogue text. A player name is at most **12 characters**, the budget the Story Schema counts per placeholder. More placeholders (*later*) are added to the Story Schema, never invented by stories.
+- **Placeholders:** `{player.name}` in dialogue text. A player name is at most **12 characters**, the budget the Story Schema counts per placeholder, and may use accented letters. More placeholders (*later*) are added to the Story Schema, never invented by stories.
 - **Speakers:** an NPC, the player (`player`), or a narrator (no name plate).
 - **Portraits:** none at launch. Expressions and portraits come before M6 (§15 Q1).
 - **Choices:** none at launch (*later*, with branching).
@@ -67,7 +67,7 @@ Scope is **launch (v1)**. Anything marked *later* is planned but not built for l
 ## 7. Quests, tasks and scenes
 
 ### 7.1 Structure
-**Story → quests (in order) → tasks (in order).** Exactly one task is active at a time. Completing the last task of the last quest ends the story, after its `onComplete` scene has played (Story Schema §6.1). An **end card** then shows the story's title, author and "The End", and the player returns to story selection (§15 Q3).
+**Story → quests (in order) → tasks (in order).** Exactly one task is active at a time. Completing the last task of the last quest ends the story, after its `onComplete` scene has played (Story Schema §6.1). An **end card** then shows the story's title, author and "Fine", and the player returns to story selection (§15 Q3).
 
 | Task type | Completes when |
 |---|---|
@@ -122,6 +122,7 @@ Starting a story creates a Run Manifest that **locks** the story package version
 
 ## 12. UI shell
 - **Look and feel:** an exact match to Pokémon Emerald: dialogue box, menus, font style, cursor, text reveal, menu sounds and screen transitions. A UI spec, written from the PO's reference captures, fixes layout, proportions, colours and timings.
+- **Language:** Italian only (Brief §2). The font covers the Italian alphabet, including accented letters (à è é ì ò ù and their capitals) and the apostrophe.
 - **Fixed:** stories and players cannot restyle it. Stories only supply content (text, names, objectives).
 - **Assets:** public builds use original, recreated art, font and sounds. A private build may swap them for the builder's own files from the git-ignored overrides folder (Brief §2). Override files use the same names and sizes as the originals.
 - **Screen fit** and **lines per page** are open (§15 Q4, Q5).
@@ -145,7 +146,7 @@ Starting a story creates a Run Manifest that **locks** the story package version
 2. **Items and branching choices:** scope and timing after launch.
 3. **Title and story selection flow:** how the player picks a story and a character. Decide before M5.
 4. **Emerald UI on 16:9:** Emerald was built for 240 × 160 (3:2). Letterbox (for example 240 × 160 at 3× = 720 × 480 inside 960 × 540) or adapt the layout. Decide in the UI spec, before M4.
-5. **Lines per page:** Emerald's box shows 2 lines; §6 promises 3 lines and any 120-character line (Story Schema §5.1). Matching Emerald may lower the line limit, which is a story format change (Story Schema §5.1 carries the matching pointer). Decide in the UI spec, before M4.
+5. **Lines per page:** Emerald's box shows 2 lines; §6 promises 3 lines and any 120-character line (Story Schema §5.1). Matching Emerald may lower the line limit, which is a story format change (Story Schema §5.1 carries the matching pointer). Italian text runs longer than English, which weighs against fewer lines. Decide in the UI spec, before M4.
 6. **Life tracker rules:** who sets rewards and their prices, task kinds (one-off, recurring, streaks), coins per task, and what coins buy in-game.
 7. **Time and date events:** which exist (day/night, calendar dates, holidays), whether stories can use time conditions (a Story Schema change), and what an account syncs (tracker, saves, settings).
 8. **Where the tracker lives:** title screen, in-game menu, or both.
@@ -159,3 +160,4 @@ Starting a story creates a Run Manifest that **locks** the story package version
 | 2026-09-28 | v0.3: M2 story spike rules: dialogue box fits any 120-character line; `reach` completes on arrival while active; story ends after the last `onComplete` scene; NPC behaviour pauses during scenes; story opens on black |
 | 2026-09-28 | v0.4: platform systems outside stories: Emerald-style UI shell (fixed, recreated assets, private overrides), life tracker with coins and rewards, optional Firebase account with a trusted real-time clock. Open questions added for screen fit, lines per page, tracker rules and time events |
 | 2026-09-29 | v0.5: runtime defaults: player name max 12 characters (§6); end card after the story (§7.1); `patrol` returns to its path after a scene (§5); story-start triggers before the first task (§7.3). §15 Q5 cross-referenced from Story Schema §5.1 |
+| 2026-09-29 | v0.6: UI is Italian only; the font covers accented letters; player names may use them; the end card reads "Fine" (§6, §7.1, §12, §15 Q5) |

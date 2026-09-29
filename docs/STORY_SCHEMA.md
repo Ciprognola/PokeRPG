@@ -1,5 +1,5 @@
 # PokeRPG — Story Schema
-*Version 0.5 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
+*Version 0.6 · 2026-09-29 · Owner: PM · Status: draft pending PO approval*
 
 The contract for story packages. The importer/validator enforces it, the Story Template (§10) follows it, and the story author's own Claude Code builds stories from it (Project Brief §3). Game behaviour behind each field is in the GDD; character files follow the Asset Spec.
 Claude Code keeps a machine-readable JSON Schema in the repo that matches this file.
@@ -35,7 +35,7 @@ story_<id>/
 | `id` | Yes | `story_<id>`, matches the folder name |
 | `version` | Yes | Integer, increases with every release of the story |
 | `title`, `author`, `description` | Yes | Shown on the story selection screen |
-| `language` | Yes | BCP 47 code, e.g. `en`, `it` |
+| `language` | Yes | BCP 47 code, e.g. `it`, `en`. The platform is Italian (Brief §2); a story may be written in any language |
 | `start` | Yes | `{ "location", "spawn", "facing" }`: where the player appears |
 | `locations` | Yes | §4 |
 | `npcs` | No | §5 |
@@ -76,6 +76,7 @@ A line is one dialogue page: a string, or an object `{ "speaker", "text" }`.
 - `speaker` is an NPC id, `player`, or `narrator`. A plain string in NPC dialogue is spoken by that NPC; in a scene, `speaker` is required.
 - **Max 120 characters per line**, after placeholders are counted at 12 characters. Longer text is split into more lines.
 - `{player.name}` counts as 12 because a player name is at most 12 characters (GDD §6).
+- Characters are counted as the reader sees them (Unicode NFC): an accented letter such as `è` counts as 1.
 - A line of 120 characters or fewer always fits one dialogue page (3 rendered lines, GDD §6). The runtime guarantees this; authors only count characters.
 - The 120-character limit depends on the dialogue box, which is still open (GDD §15 Q5). Changing it is a format change: this file, the JSON Schema, the Story Template and the Story Prompt Kit change together.
 
@@ -174,7 +175,7 @@ Claude Code maintains `templates/story_template/` in the repo: a small, playable
 
 Scene `move` and `camera` tiles are not checked against collision at import, and neither is the rule that a `move` path starts on the actor's tile (§7.1), because the actor's location and tile are only known at run time. The runtime handles both.
 
-Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · unknown NPC "rossa"`.
+Messages are in Italian (Brief §2); file names, JSON paths, ids and field names stay as written. Every message names the file, the JSON path and the line, e.g. `story.json:84 · quests[0].tasks[2].npc · PNG sconosciuto "rossa"`.
 
 ## 12. Open items
 1. **Sound effects:** the library and naming (`sfx_<name>`) are added to the Asset Spec with M7.
@@ -188,3 +189,4 @@ Every message names the file, the JSON path and the line, e.g. `story.json:84 ·
 | 2026-09-28 | v0.3: stories are built by the author's own Claude Code; `schemaVersion` is the file format version and stays `"0.1"` until the format changes |
 | 2026-09-28 | v0.4: runtime rules from the M2 story spike: `reach` completion, completion order and story end (§6.1); `move` start tile, NPC behaviour in scenes, screen at story start (§7.1); 120 characters always fit one page (§5.1). Format unchanged |
 | 2026-09-29 | v0.5: open runtime questions decided: wrong `move` start tile → warning, walk from the actual tile; `patrol` returns to the nearest path point after a scene; `storyStart` triggers run before the first task; player name max 12 characters; end card after the story (§5.1, §6.1, §7.1, §8). §11 notes the `move` start tile is checked at run time; §5.1 points to GDD §15 Q5. Format unchanged |
+| 2026-09-29 | v0.6: validation messages in Italian (§11); accented letters count as 1 character (§5.1); any story language allowed (§3). Format unchanged |
