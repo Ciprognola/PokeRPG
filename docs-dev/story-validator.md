@@ -88,7 +88,7 @@ committed files drift). `story.json` is hand-written.
 
 ## Library data
 
-Stories refer to library locations and audio ids. The real library arrives in M7; until then:
+Stories refer to library locations and audio ids. The real library arrives in M8; until then:
 
 - `assets/locations/loc_greybox-harbour.json` and `loc_greybox-bakery.json`: size, collision grid, spawns, exits (tiles or a
   map edge) and areas, in the format of Asset Spec §8.1 (`validateLocationAsset` checks every rule of its field table;
