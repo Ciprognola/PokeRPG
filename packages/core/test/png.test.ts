@@ -91,7 +91,7 @@ describe('png codec', () => {
 
   it('reports non-PNG, truncated and unsupported input distinctly', () => {
     expect(() => inspectPng(Uint8Array.of(1, 2, 3))).toThrow(PngError);
-    expect(() => decodePng(craftPng(1, 1, 4, 0, [[0]]))).toThrow(/not supported/);
+    expect(() => decodePng(craftPng(1, 1, 4, 0, [[0]]))).toThrow(/non supportato/);
     const good = encodePng(createPixelBuffer(2, 2));
     expect(() => decodePng(good.subarray(0, 40))).toThrow(PngError);
   });

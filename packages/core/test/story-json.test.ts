@@ -44,16 +44,16 @@ describe('JSON with line numbers', () => {
   it('reports a syntax error with line and column', () => {
     const r = parseJsonWithLines('{\n  "a": 1\n  "b": 2\n}');
     expect(r).toMatchObject({ ok: false, error: { line: 3, col: 3 } });
-    if (!r.ok) expect(r.error.message).toContain('expected "," or "}"');
+    if (!r.ok) expect(r.error.message).toContain('atteso "," o "}"');
   });
 
   it.each([
-    ['{"a":}', 'unexpected "}"'],
-    ['[1,2', 'the end of the file'],
-    ['{"a" 1}', 'expected ":"'],
-    ['"abc', 'unterminated string'],
-    ['{} x', 'after the end of the JSON'],
-    ['', 'the end of the file'],
+    ['{"a":}', 'imprevisto "}"'],
+    ['[1,2', 'la fine del file'],
+    ['{"a" 1}', 'atteso ":"'],
+    ['"abc', 'stringa non terminata'],
+    ['{} x', 'dopo la fine del JSON'],
+    ['', 'la fine del file'],
   ])('rejects %j', (bad, part) => {
     const r = parseJsonWithLines(bad);
     expect(r.ok).toBe(false);

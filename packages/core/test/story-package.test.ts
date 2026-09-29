@@ -30,7 +30,7 @@ describe('readStoryPackage', () => {
   });
 
   it('says what is missing', () => {
-    expect(readStoryPackage([]).errors[0]).toContain('No story.json found');
+    expect(readStoryPackage([]).errors[0]).toContain('Nessun story.json trovato');
     expect(
       readStoryPackage([{ path: 'x/readme.txt', data: Uint8Array.of(1) }]).input,
     ).toBeUndefined();
@@ -54,7 +54,7 @@ describe('readStoryPackage', () => {
       ...files,
       { path: 'story_template/backup/story.json', data: Uint8Array.of(123, 125) },
     ]);
-    expect(r.errors[0]).toContain('Found 2 story.json files');
+    expect(r.errors[0]).toContain('Trovati 2 file story.json');
     expect(validateStory(r.input!, library).ok).toBe(true);
   });
 
@@ -86,7 +86,7 @@ describe('command line: npm run story:check', () => {
   it('validates a story folder: exit 0, no findings', () => {
     const r = run(templateDir);
     expect(r.err).toBe('');
-    expect(r.out).toContain('story_template: 0 errors, 0 warnings');
+    expect(r.out).toContain('story_template: 0 errori, 0 avvisi');
     expect(r.code).toBe(0);
   }, 30_000);
 
@@ -95,7 +95,7 @@ describe('command line: npm run story:check', () => {
     const zip = join(dir, 'story_template.zip');
     writeFileSync(zip, zipFiles(templateFiles()));
     const r = run(zip);
-    expect(r.out).toContain('0 errors, 0 warnings');
+    expect(r.out).toContain('0 errori, 0 avvisi');
     expect(r.code).toBe(0);
   }, 30_000);
 
@@ -112,9 +112,9 @@ describe('command line: npm run story:check', () => {
     );
     const r = run(dir);
     expect(r.out).toMatch(
-      /error · story\.json:\d+ · quests\[0\]\.tasks\[2\]\.npc · unknown NPC "rossa"/,
+      /error · story\.json:\d+ · quests\[0\]\.tasks\[2\]\.npc · PNG sconosciuto "rossa"/,
     );
-    expect(r.out).toContain('1 error, 0 warnings');
+    expect(r.out).toContain('1 errore, 0 avvisi');
     expect(r.code).toBe(1);
     rmSync(dir, { recursive: true, force: true });
   }, 30_000);
@@ -123,7 +123,7 @@ describe('command line: npm run story:check', () => {
     const dir = copy();
     rmSync(join(dir, 'characters', 'chr_rosa', 'spr_walk_body_rosa.png'));
     const r = run(dir);
-    expect(r.out).toContain('error · characters/chr_rosa · set walk has no body sheet');
+    expect(r.out).toContain('error · characters/chr_rosa · il set walk non ha il foglio body');
     expect(r.code).toBe(1);
     rmSync(dir, { recursive: true, force: true });
   }, 30_000);
@@ -137,7 +137,7 @@ describe('command line: npm run story:check', () => {
     );
     const r = run(dir);
     expect(r.out).toContain('warning · story.json:');
-    expect(r.out).toContain('flag "spare" is declared but never used');
+    expect(r.out).toContain('il flag "spare" è dichiarato ma non è mai usato');
     expect(r.code).toBe(0);
     rmSync(dir, { recursive: true, force: true });
   }, 30_000);
@@ -168,33 +168,33 @@ describe('command line: npm run story:check', () => {
       const r = run(flag);
       expect(r.code).toBe(0);
       expect(r.err).toBe('');
-      expect(r.out).toContain('npm run story:check -- <story folder | story .zip>');
+      expect(r.out).toContain('npm run story:check -- <cartella storia | zip storia>');
       expect(r.out).toContain('templates/story_template');
-      expect(r.out).toContain('until it prints "0 errors"');
+      expect(r.out).toContain('finché non stampa "0 errori"');
     }
   }, 30_000);
 
   it('a missing story or an unknown option says what is wrong, then shows the usage (exit 2)', () => {
     const none = run();
     expect(none.code).toBe(2);
-    expect(none.err).toContain('No story given');
-    expect(none.err).toContain('Usage:');
+    expect(none.err).toContain('Nessuna storia indicata');
+    expect(none.err).toContain('Uso:');
     const bad = run(templateDir, '--fix');
     expect(bad.code).toBe(2);
-    expect(bad.err).toContain('Unknown option "--fix"');
+    expect(bad.err).toContain('Opzione sconosciuta "--fix"');
     const lib = run(templateDir, '--library');
     expect(lib.code).toBe(2);
-    expect(lib.err).toContain('--library needs a folder');
+    expect(lib.err).toContain('--library richiede una cartella');
   }, 60_000);
 
   it('tells the author what to do next', () => {
     const ok = run(templateDir);
-    expect(ok.out).toContain('OK: no errors. The story is ready to import.');
+    expect(ok.out).toContain('OK: nessun errore. La storia è pronta per essere importata.');
     const dir = copy();
     rmSync(join(dir, 'characters', 'chr_rosa', 'spr_walk_body_rosa.png'));
     const bad = run(dir);
     expect(bad.out).toContain(
-      'Fix the errors above and run the check again until it reports 0 errors.',
+      'Correggi gli errori sopra ed esegui di nuovo il controllo finché non riporta 0 errori.',
     );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
@@ -202,11 +202,11 @@ describe('command line: npm run story:check', () => {
   it('a folder that is not a story explains what a story package is', () => {
     const r = run(join(repo, 'docs'));
     expect(r.code).toBe(2);
-    expect(r.err).toContain('Not a readable story package');
+    expect(r.err).toContain('Non è un pacchetto storia leggibile');
   }, 30_000);
 });
 
-describe('author stories folder (README "Writing a story")', () => {
+describe('author stories folder (README "Scrivere una storia")', () => {
   const repo = fileURLToPath(new URL('../../../', import.meta.url));
   const git = (...args: string[]): { code: number; out: string } => {
     const r = spawnSync('git', args, { cwd: repo, encoding: 'utf8' });
@@ -232,7 +232,7 @@ describe('author stories folder (README "Writing a story")', () => {
         [tsx, join(repo, 'tools', 'check-story.ts'), 'stories/story_template'],
         { cwd: repo, encoding: 'utf8' },
       );
-      expect(r.stdout).toContain('story_template: 0 errors, 0 warnings');
+      expect(r.stdout).toContain('story_template: 0 errori, 0 avvisi');
       expect(r.status).toBe(0);
     } finally {
       rmSync(dir, { recursive: true, force: true });

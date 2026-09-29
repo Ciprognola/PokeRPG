@@ -75,7 +75,7 @@ export function importSheets(
     blocking.push({
       severity: 'error',
       check: 'mixed-sets',
-      message: `sheets from several animation sets (${[...setIds].sort().join(', ')}); load one set at a time`,
+      message: `fogli di più set di animazione (${[...setIds].sort().join(', ')}); carica un set alla volta`,
     });
   }
   if (blocking.length > 0 || setIds.size === 0) {
@@ -98,7 +98,8 @@ export function importSheets(
   const notes = full.findings
     .filter((f) => FIXED_ON_EXPORT.has(f.check))
     .map(
-      (f) => `${f.file ?? 'a sheet'}: ${f.message} — it is re-saved as a clean PNG-32 on export`,
+      (f) =>
+        `${f.file ?? 'un foglio'}: ${f.message} — viene risalvato come PNG-32 pulito all'esportazione`,
     );
   const shift: Prepared['shift'] = {};
   for (const r of rects) shift[r.key] = { dx: 0, dy: 0 };
@@ -143,7 +144,7 @@ export function readPackageZip(bytes: Uint8Array): PackageRead {
   try {
     files = unzipFiles(bytes);
   } catch {
-    return { sheets: [], ignored: [], errors: ['This is not a valid zip file.'] };
+    return { sheets: [], ignored: [], errors: ['Questo non è un file zip valido.'] };
   }
   const roots = new Set(
     files.flatMap((f) => (f.path.includes('/') ? [f.path.slice(0, f.path.indexOf('/'))] : [])),
@@ -152,7 +153,7 @@ export function readPackageZip(bytes: Uint8Array): PackageRead {
   const errors: string[] = [];
   if (chrRoots.length > 1) {
     errors.push(
-      `The zip holds more than one character (${chrRoots.join(', ')}). Load one at a time.`,
+      `Lo zip contiene più di un personaggio (${chrRoots.join(', ')}). Caricane uno alla volta.`,
     );
   }
   let name = chrRoots.length === 1 ? chrRoots[0]!.slice('chr_'.length) : undefined;
@@ -176,8 +177,8 @@ export function readPackageZip(bytes: Uint8Array): PackageRead {
     try {
       sheets.push(readSheetPng(base, f.data));
     } catch (e) {
-      const why = e instanceof PngError ? e.message : 'unreadable';
-      errors.push(`${base}: ${why}. Extract it and load the file directly.`);
+      const why = e instanceof PngError ? e.message : 'illeggibile';
+      errors.push(`${base}: ${why}. Estrailo e carica il file direttamente.`);
     }
   }
   return { ...(name !== undefined ? { name } : {}), sheets, ignored, errors };

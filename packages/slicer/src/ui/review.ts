@@ -25,6 +25,14 @@ const PREVIEW_FPS = 8;
 const NUDGE_LIMIT = 16;
 const ALL_LAYERS = '*';
 
+/** Display label only; `Direction` values themselves (down/left/right/up) are ids and stay as-is. */
+const DIR_LABEL: Record<(typeof DIRECTIONS)[number], string> = {
+  down: 'giù',
+  left: 'sinistra',
+  right: 'destra',
+  up: 'su',
+};
+
 export interface ReviewOptions {
   backLabel: string;
   /** Called with the character as edited (nudges baked into the sheets) when the user goes back. */
@@ -62,7 +70,7 @@ export function mountReview(
   const exportBtn = h(
     'button',
     { id: 'export', class: 'btn primary', type: 'button', onclick: () => void doExport() },
-    'Download package',
+    'Esporta',
   );
   const exportNote = h('p', { id: 'export-note', class: 'hint' });
   const notes = h('ul', { id: 'notes', class: 'notes' });
@@ -74,14 +82,14 @@ export function mountReview(
       height: 128,
       'data-dir': dir,
       class: 'frame-canvas',
-      'aria-label': `Walk preview, ${dir}`,
+      'aria-label': `Anteprima camminata, ${DIR_LABEL[dir]}`,
     }),
   }));
   const previews = h(
     'div',
     { class: 'previews' },
     ...previewCanvases.map(({ dir, canvas }) =>
-      h('figure', {}, canvas, h('figcaption', { text: dir })),
+      h('figure', {}, canvas, h('figcaption', { text: DIR_LABEL[dir] })),
     ),
   );
 
@@ -103,10 +111,10 @@ export function mountReview(
       type: 'button',
       onclick: () => {
         playing = !playing;
-        playBtn.textContent = playing ? 'Pause' : 'Play';
+        playBtn.textContent = playing ? 'Pausa' : 'Riproduci';
       },
     },
-    'Pause',
+    'Pausa',
   );
 
   const thumbs = rects.map((r, i) => {
@@ -117,7 +125,7 @@ export function mountReview(
         class: 'frame-btn',
         type: 'button',
         'data-key': r.key,
-        'aria-label': `Frame ${r.key}`,
+        'aria-label': `Fotogramma ${r.key}`,
         onclick: () => select(i),
       },
       canvas,
@@ -133,7 +141,7 @@ export function mountReview(
     height: 128,
     class: 'inspector',
     tabindex: 0,
-    'aria-label': 'Selected frame',
+    'aria-label': 'Fotogramma selezionato',
   });
   const inspectorTitle = h('h3', { id: 'inspector-title' });
   const nudgeInfo = h('p', { id: 'nudge-info', class: 'hint' });
@@ -142,14 +150,14 @@ export function mountReview(
     'select',
     {
       id: 'nudge-layer',
-      'aria-label': 'Which layers the nudge moves',
+      'aria-label': 'Su quali livelli agisce lo spostamento',
       onchange: () => {
         scope = scopeSelect.value;
         refreshSelection();
       },
     },
-    h('option', { value: ALL_LAYERS, text: 'All layers' }),
-    ...prepared.layers.map((l) => h('option', { value: l.layer, text: `Only ${l.layer}` })),
+    h('option', { value: ALL_LAYERS, text: 'Tutti i livelli' }),
+    ...prepared.layers.map((l) => h('option', { value: l.layer, text: `Solo ${l.layer}` })),
   );
   const allFramesBox = h('input', {
     type: 'checkbox',
@@ -163,7 +171,7 @@ export function mountReview(
     'div',
     { class: 'row wrap scope' },
     prepared.layers.length > 1 ? scopeSelect : null,
-    h('label', { class: 'check' }, allFramesBox, ' All frames'),
+    h('label', { class: 'check' }, allFramesBox, ' Tutti i fotogrammi'),
   );
 
   const nudgeBtn = (label: string, dx: number, dy: number, aria: string): HTMLButtonElement =>
@@ -182,19 +190,19 @@ export function mountReview(
   const resetBtn = h(
     'button',
     { class: 'btn', id: 'nudge-reset', type: 'button', onclick: () => resetNudge() },
-    'Reset',
+    'Ripristina',
   );
   const pad = h(
     'div',
     { class: 'pad' },
     h('span'),
-    nudgeBtn('↑', 0, -1, 'Move up 1 px'),
+    nudgeBtn('↑', 0, -1, 'Sposta su di 1 px'),
     h('span'),
-    nudgeBtn('←', -1, 0, 'Move left 1 px'),
+    nudgeBtn('←', -1, 0, 'Sposta a sinistra di 1 px'),
     resetBtn,
-    nudgeBtn('→', 1, 0, 'Move right 1 px'),
+    nudgeBtn('→', 1, 0, 'Sposta a destra di 1 px'),
     h('span'),
-    nudgeBtn('↓', 0, 1, 'Move down 1 px'),
+    nudgeBtn('↓', 0, 1, 'Sposta giù di 1 px'),
     h('span'),
   );
   inspector.addEventListener('keydown', (e) => {
@@ -245,21 +253,21 @@ export function mountReview(
     h(
       'section',
       {},
-      h('h3', { text: 'Walk preview' }),
+      h('h3', { text: 'Anteprima camminata' }),
       previews,
       h(
         'div',
         { class: 'row wrap' },
         playBtn,
-        h('label', { class: 'check' }, overlayToggle, ' Ground line & anchor'),
+        h('label', { class: 'check' }, overlayToggle, ' Linea di terra e ancoraggio'),
       ),
       layerToggles,
     ),
-    h('section', {}, h('h3', { text: 'Findings' }), findingsList, notes),
+    h('section', {}, h('h3', { text: 'Segnalazioni' }), findingsList, notes),
     h(
       'section',
       {},
-      h('h3', { text: 'Frames' }),
+      h('h3', { text: 'Fotogrammi' }),
       grid,
       h('div', { class: 'inspect' }, inspectorTitle, inspector, nudgeInfo, scopeRow, pad),
     ),
@@ -341,17 +349,17 @@ export function mountReview(
     const { errors, warnings } = assembled.report.summary;
     summary.textContent =
       errors === 0 && warnings === 0
-        ? 'No problems found.'
-        : `${errors} error${errors === 1 ? '' : 's'}, ${warnings} warning${warnings === 1 ? '' : 's'}`;
+        ? 'Nessun problema trovato.'
+        : `${errors} ${errors === 1 ? 'errore' : 'errori'}, ${warnings} ${warnings === 1 ? 'avviso' : 'avvisi'}`;
     summary.dataset['errors'] = String(errors);
     summary.dataset['warnings'] = String(warnings);
     exportBtn.disabled = errors > 0;
     exportNote.textContent =
       errors > 0
-        ? 'Fix the errors below (nudge frames) before exporting.'
+        ? 'Correggi gli errori sotto (sposta i fotogrammi) prima di esportare.'
         : warnings > 0
-          ? 'Warnings do not block the export.'
-          : 'PNG format and file size are checked when the package is built.';
+          ? "Gli avvisi non bloccano l'esportazione."
+          : 'Il formato PNG e la dimensione del file vengono controllati alla creazione del pacchetto.';
     const items = [...assembled.report.findings]
       .sort((a, b) => Number(b.severity === 'error') - Number(a.severity === 'error'))
       .map((f) => {
@@ -371,12 +379,16 @@ export function mountReview(
         );
       });
     findingsList.replaceChildren(
-      ...(items.length ? items : [h('li', { class: 'finding ok', text: 'Nothing to fix.' })]),
+      ...(items.length ? items : [h('li', { class: 'finding ok', text: 'Niente da correggere.' })]),
     );
     notes.replaceChildren(
       ...assembled.notes.map((n) => h('li', { text: n })),
       ...(assembled.scale
-        ? [h('li', { text: `Scale: ×${assembled.scale.toFixed(3)} (one factor for every frame)` })]
+        ? [
+            h('li', {
+              text: `Scala: ×${assembled.scale.toFixed(3)} (un fattore uguale per ogni fotogramma)`,
+            }),
+          ]
         : []),
     );
   }
@@ -393,12 +405,12 @@ export function mountReview(
     });
     const auto = prepared.shift[key] ?? zero;
     const n = currentNudge(key);
-    const who = scope === ALL_LAYERS ? 'all layers' : `${scope} only`;
-    const where = allFrames ? 'every frame' : 'this frame';
+    const who = scope === ALL_LAYERS ? 'tutti i livelli' : `solo ${scope}`;
+    const where = allFrames ? 'ogni fotogramma' : 'questo fotogramma';
     inspectorTitle.textContent = key;
     nudgeInfo.textContent =
-      (prepared.scale === null ? '' : `Auto shift (${auto.dx}, ${auto.dy}) · `) +
-      `nudge for ${who}, ${where}: (${n.dx}, ${n.dy})`;
+      (prepared.scale === null ? '' : `Spostamento automatico (${auto.dx}, ${auto.dy}) · `) +
+      `spostamento per ${who}, ${where}: (${n.dx}, ${n.dy})`;
     nudgeInfo.dataset['dx'] = String(n.dx);
     nudgeInfo.dataset['dy'] = String(n.dy);
     resetBtn.disabled = allFrames
@@ -457,7 +469,7 @@ export function mountReview(
 
   async function doExport(): Promise<void> {
     exportBtn.disabled = true;
-    exportNote.textContent = 'Building the package…';
+    exportNote.textContent = 'Creazione del pacchetto…';
     await new Promise((r) => setTimeout(r, 30)); // let the message paint
     try {
       const full = composeCharacter(prepared, nudges as Nudges, {
@@ -468,7 +480,7 @@ export function mountReview(
         assembled = full;
         refreshFindings();
         exportNote.textContent =
-          'The finished files have errors (see the list); nothing was exported.';
+          'I file finiti hanno degli errori (guarda la lista); non è stato esportato nulla.';
         return;
       }
       const zip = zipFiles(packageFiles(full));
@@ -480,7 +492,7 @@ export function mountReview(
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
       refreshFindings();
-      exportNote.textContent = `Saved chr_${prepared.characterName}.zip (${(zip.length / 1024).toFixed(0)} KB).`;
+      exportNote.textContent = `Salvato chr_${prepared.characterName}.zip (${(zip.length / 1024).toFixed(0)} KB).`;
       exportNote.dataset['done'] = 'true';
     } catch (e) {
       exportNote.textContent = describeError(e);

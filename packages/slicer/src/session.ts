@@ -47,7 +47,7 @@ export async function buildCharacter(
       signal,
     ).catch((e: unknown) => {
       if (e instanceof Error && !(e instanceof DOMException))
-        e.message = `${entry.layer} layer · ${e.message}`;
+        e.message = `livello ${entry.layer} · ${e.message}`;
       throw e;
     });
     layers.push({ layer: entry.layer, name: entry.name, frames });

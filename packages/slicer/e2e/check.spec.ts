@@ -25,7 +25,7 @@ test('re-importing an export gives no new findings and an identical re-export', 
   await openCheck(page);
   await expect(page.locator('#review')).toBeDisabled();
   await page.locator('#sheet-input').setInputFiles(fx.zip);
-  await expect(page.locator('#info')).toContainText('Loaded chr_mira: 2 sheets');
+  await expect(page.locator('#info')).toContainText('Caricato chr_mira: 2 fogli');
   await expect(page.locator('#review')).toBeEnabled();
   await page.locator('#review').click();
   await expect(page.locator('main[data-screen="review"]')).toBeVisible();
@@ -76,16 +76,16 @@ test('a sheet with the wrong name can be given a layer, and a missing body is ex
 }) => {
   await openCheck(page);
   await page.locator('#sheet-input').setInputFiles(fx.outfitOnly);
-  await expect(page.locator('#problems')).toContainText('set walk has no body sheet');
+  await expect(page.locator('#problems')).toContainText('il set walk non ha il foglio body');
   await expect(page.locator('#review')).toBeDisabled();
-  await page.locator('#sheets [aria-label^="Remove"]').click();
+  await page.locator('#sheets [aria-label^="Rimuovi"]').click();
 
   await page.locator('#sheet-input').setInputFiles(fx.badName);
   await expect(page.locator('#problems')).toContainText('IMG_1234.png');
   await expect(page.locator('#review')).toBeDisabled();
   await page.locator('.rename .layer-select').selectOption('body');
   await page.locator('.rename .asset-name').fill('bob');
-  await page.getByRole('button', { name: 'Rename' }).click();
+  await page.getByRole('button', { name: 'Rinomina' }).click();
   await expect(page.locator('#sheets .entry-summary')).toHaveText('spr_walk_body_bob.png');
   await expect(page.locator('#review')).toBeEnabled();
 });
@@ -108,9 +108,9 @@ test('rejects things that are not sheets, in plain words', async ({ page }) => {
   await page
     .locator('#sheet-input')
     .setInputFiles({ name: 'x.zip', mimeType: 'application/zip', buffer: Buffer.from('nope') });
-  await expect(page.locator('#notice')).toContainText('not a valid zip');
+  await expect(page.locator('#notice')).toContainText('non è un file zip valido');
   await page
     .locator('#sheet-input')
     .setInputFiles({ name: 'notes.png', mimeType: 'image/png', buffer: Buffer.from('nope') });
-  await expect(page.locator('#notice')).toContainText('notes.png: this is not an image or a zip');
+  await expect(page.locator('#notice')).toContainText("notes.png: non è un'immagine né uno zip");
 });

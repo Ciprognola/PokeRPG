@@ -111,7 +111,7 @@ export const storySchema: Json = {
       id: {
         type: 'string',
         pattern: '^story_[a-z0-9]+(-[a-z0-9]+)*$',
-        'x-hint': 'must look like story_<id> (lowercase letters, digits and "-")',
+        'x-hint': 'deve avere la forma story_<id> (lettere minuscole, cifre e "-")',
       },
       version: { type: 'integer', minimum: 1 },
       title: { type: 'string', minLength: 1 },
@@ -120,7 +120,7 @@ export const storySchema: Json = {
       language: {
         type: 'string',
         pattern: '^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$',
-        'x-hint': 'must be a BCP 47 code such as "en" or "it"',
+        'x-hint': 'deve essere un codice BCP 47 come "it" o "en"',
       },
       start: ref('start'),
       locations: { type: 'array', minItems: 1, items: ref('location') },
@@ -144,35 +144,39 @@ export const storySchema: Json = {
     ],
   ),
   $defs: {
-    id: { type: 'string', pattern: ID, 'x-hint': 'must be lowercase letters, digits and "-"' },
+    id: { type: 'string', pattern: ID, 'x-hint': 'deve avere solo lettere minuscole, cifre e "-"' },
     /** A tile `[x, y]` in 64 px tiles, origin top-left of the location. */
     tile: { type: 'array', items: { type: 'integer', minimum: 0 }, minItems: 2, maxItems: 2 },
     direction: { enum: [...DIRECTIONS_LIST] },
     libraryLocation: {
       type: 'string',
       pattern: '^loc_[a-z0-9-]+(_[a-z0-9-]+)*$',
-      'x-hint': 'must look like loc_<name>',
+      'x-hint': 'deve avere la forma loc_<nome>',
     },
     anchor: {
       type: 'string',
       pattern: NAME,
-      'x-hint': 'must be lowercase letters, digits, "-" and "_"',
+      'x-hint': 'deve avere solo lettere minuscole, cifre, "-" e "_"',
     },
     character: {
       type: 'string',
       pattern: '^chr_[a-z0-9-]+$',
-      'x-hint': 'must look like chr_<name>',
+      'x-hint': 'deve avere la forma chr_<nome>',
     },
     track: {
       type: 'string',
       pattern: '^mus_[a-z0-9-]+(_[a-z0-9-]+)*$',
-      'x-hint': 'must look like mus_<use>_<name>',
+      'x-hint': 'deve avere la forma mus_<uso>_<nome>',
     },
-    sfx: { type: 'string', pattern: '^sfx_[a-z0-9-]+$', 'x-hint': 'must look like sfx_<name>' },
+    sfx: {
+      type: 'string',
+      pattern: '^sfx_[a-z0-9-]+$',
+      'x-hint': 'deve avere la forma sfx_<nome>',
+    },
     taskRef: {
       type: 'string',
       pattern: '^[a-z0-9-]+\\.[a-z0-9-]+$',
-      'x-hint': 'must look like <questId>.<taskId>',
+      'x-hint': 'deve avere la forma <questId>.<taskId>',
     },
     flagMap: {
       type: 'object',
@@ -254,7 +258,7 @@ export const storySchema: Json = {
           'text',
         ]),
       ],
-      'x-hint': 'must be a string or { "speaker", "text" }',
+      'x-hint': 'deve essere una stringa o { "speaker", "text" }',
     },
 
     quest: strict(
@@ -284,7 +288,7 @@ export const storySchema: Json = {
           { location: ref('id'), area: ref('anchor'), spawn: ref('anchor') },
           {
             oneOf: [{ required: ['area'] }, { required: ['spawn'] }],
-            'x-hint': 'a reach task needs exactly one of "area" or "spawn"',
+            'x-hint': 'un compito reach richiede esattamente uno tra "area" e "spawn"',
           },
         ),
         taskVariant('talk', ['npc', 'lines'], ['npc', 'lines'], {
@@ -317,7 +321,7 @@ export const storySchema: Json = {
           { actor: ref('id'), dir: ref('direction'), toward: ref('id') },
           {
             oneOf: [{ required: ['dir'] }, { required: ['toward'] }],
-            'x-hint': 'a face command needs exactly one of "dir" or "toward"',
+            'x-hint': 'un comando face richiede esattamente uno tra "dir" e "toward"',
           },
         ),
         cmd('wait', ['ms'], ['ms'], { ms: { type: 'integer', minimum: 0 } }),
@@ -328,14 +332,14 @@ export const storySchema: Json = {
         cmd('camera', ['to', 'ms'], ['to'], {
           to: {
             oneOf: [ref('tile'), ref('id')],
-            'x-hint': 'must be a tile [x, y], an actor id or "player"',
+            'x-hint': 'deve essere una casella [x, y], un id attore o "player"',
           },
           ms: { type: 'integer', minimum: 0 },
         }),
         cmd('music', ['track'], ['track'], {
           track: {
             oneOf: [ref('track'), { type: 'null' }],
-            'x-hint': 'must be a track id (mus_…) or null to stop',
+            'x-hint': 'deve essere un id di traccia (mus_…) o null per fermarla',
           },
         }),
         cmd('sound', ['sfx'], ['sfx'], { sfx: ref('sfx') }),
@@ -385,7 +389,7 @@ export const storySchema: Json = {
         strict({ not: ref('condition') }, ['not']),
       ],
       'x-hint':
-        'must be one of { "flag" }, { "quest", "is" }, { "task", "is" }, { "all" }, { "any" } or { "not" }',
+        'deve essere una tra { "flag" }, { "quest", "is" }, { "task", "is" }, { "all" }, { "any" } o { "not" }',
     },
   },
 };

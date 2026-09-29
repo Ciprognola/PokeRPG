@@ -30,7 +30,7 @@ export function readStoryPackage(files: readonly PackageFile[]): StoryPackageRea
   if (storyFiles.length === 0) {
     return {
       errors: [
-        'No story.json found. A story package is a story_<id>/ folder with story.json and characters/.',
+        'Nessun story.json trovato. Un pacchetto storia è una cartella story_<id>/ con story.json e characters/.',
       ],
       ignored: [],
     };
@@ -41,7 +41,7 @@ export function readStoryPackage(files: readonly PackageFile[]): StoryPackageRea
   const root = main.path.slice(0, main.path.length - 'story.json'.length);
   const errors: string[] = [];
   if (storyFiles.length > 1) {
-    errors.push(`Found ${storyFiles.length} story.json files; checking only ${main.path}.`);
+    errors.push(`Trovati ${storyFiles.length} file story.json; controllo solo ${main.path}.`);
   }
   const folder = root === '' ? undefined : root.replace(/\/$/, '').split('/').pop();
   const characters: Record<string, CharacterFolder> = {};
@@ -62,7 +62,9 @@ export function readStoryPackage(files: readonly PackageFile[]): StoryPackageRea
     try {
       entry.sheets.push(readSheetPng(rest, f.data));
     } catch (e) {
-      errors.push(`characters/${chr}/${rest}: ${e instanceof PngError ? e.message : 'unreadable'}`);
+      errors.push(
+        `characters/${chr}/${rest}: ${e instanceof PngError ? e.message : 'illeggibile'}`,
+      );
     }
   }
   return {

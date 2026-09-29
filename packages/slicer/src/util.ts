@@ -25,7 +25,7 @@ export function describeError(e: unknown): string {
   if (e instanceof ExtractionError || e instanceof AssembleError || e instanceof ImageDecodeError) {
     return e.message;
   }
-  if (e instanceof DOMException && e.name === 'AbortError') return 'Cancelled.';
-  if (e instanceof Error) return `Something went wrong: ${e.message}`;
-  return 'Something went wrong.';
+  if (e instanceof DOMException && e.name === 'AbortError') return 'Annullato.';
+  if (e instanceof Error) return `Qualcosa è andato storto: ${e.message}`;
+  return 'Qualcosa è andato storto.';
 }

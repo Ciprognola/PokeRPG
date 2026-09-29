@@ -3,23 +3,24 @@
 import { relative } from 'node:path';
 import { checkStory, packStoryFolder } from './story-node.js';
 
-const USAGE = `Pack a story folder into story_<id>.zip and check it (Story Schema §1).
+const USAGE = `Impacchetta una cartella storia in story_<id>.zip e la controlla (Story Schema §1).
 
-Usage:
-  npm run story:pack -- <story folder>
+Uso:
+  npm run story:pack -- <cartella storia>
 
-  <story folder>   the story_<id>/ folder (contains story.json), e.g. stories/story_my-tale
+  <cartella storia>  la cartella story_<id>/ (contiene story.json), es. stories/story_my-tale
 
-Writes story_<id>.zip next to the folder (same name, forward-slash paths, same bytes every run),
-then runs the same check as "npm run story:check" on the zip.
+Scrive story_<id>.zip accanto alla cartella (stesso nome, percorsi con "/", stessi byte a ogni
+esecuzione), poi esegue lo stesso controllo di "npm run story:check" sullo zip.
 
-Example:
+Esempio:
   npm run story:pack -- stories/story_my-tale
 
-The "--" after "story:pack" is required: it passes the rest to this tool.
+Il "--" dopo "story:pack" è necessario: passa il resto a questo strumento.
 
-Exit code: 0 = packed, no errors; 1 = packed, but the check found errors (fix them and pack again,
-don't share that zip); 2 = the folder could not be packed.`;
+Codice di uscita: 0 = impacchettata, nessun errore; 1 = impacchettata, ma il controllo ha trovato
+errori (correggili e impacchetta di nuovo, non condividere quello zip); 2 = la cartella non è
+stata impacchettata.`;
 
 const args = process.argv.slice(2);
 
@@ -34,13 +35,14 @@ const usageError = (message: string): never => {
 };
 
 const unknown = args.find((a) => a.startsWith('-'));
-if (unknown) usageError(`Unknown option "${unknown}".`);
-if (args.length === 0) usageError('No story given: say which story_<id>/ folder to pack.');
-if (args.length > 1) usageError('Give one story folder at a time.');
+if (unknown) usageError(`Opzione sconosciuta "${unknown}".`);
+if (args.length === 0)
+  usageError('Nessuna storia indicata: dimmi quale cartella story_<id>/ impacchettare.');
+if (args.length > 1) usageError('Indica una cartella storia alla volta.');
 
 try {
   const { zipPath, files } = packStoryFolder(args[0]!);
-  console.log(`Wrote ${relative(process.cwd(), zipPath) || zipPath} (${files} files)`);
+  console.log(`Scritto ${relative(process.cwd(), zipPath) || zipPath} (${files} file)`);
   process.exit(checkStory(zipPath));
 } catch (e) {
   console.error((e as Error).message);

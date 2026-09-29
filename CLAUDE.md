@@ -58,8 +58,8 @@ Single-package build with the Pages path: `BASE_PATH=/PokeRPG/slicer/ npm run bu
 ## Conventions
 
 - Behaviour that must be reproducible (PNG encoding, zip, report, atlases) stays deterministic: no timestamps, no random, no locale-dependent output.
-- English everywhere (code, UI, docs). Strict TypeScript, ESM, Prettier defaults in `.prettierrc.json`. Text files are LF.
-- Validation messages follow Asset Spec §7: file · frame key · pixel, e.g. `spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)`.
+- **User-facing text is Italian; everything internal is English** (Brief §2, PKR-016): the Slicer UI, its findings, the PWA manifest, `story:check`/`story:pack` output and `--help`, and the Story Template's own content (title, dialogue, objectives) are Italian. Code, comments, docs, `docs-dev/`, CLAUDE.md, ids, JSON field names, frame keys, layer ids, file names, npm script names and CLI flags stay English/unchanged regardless. Strict TypeScript, ESM, Prettier defaults in `.prettierrc.json`. Text files are LF.
+- Validation messages follow Asset Spec §7: file · frame key · dettaglio, e.g. `spr_walk_body_mira.png · walk_up_04 · riga opaca più bassa 116 (attesa 119)`.
 - Images never leave the user's device (no upload, no analytics, no remote fonts/CDNs in the Slicer).
 - Repo is public: no secrets, tokens or personal data in commits.
 - **Never commit ROMs, or art, fonts, sounds or screenshots taken from other games** (Brief §2, §7). Only original assets, ever; that includes the PO's reference captures of a target UI, which go to the PM chat only and stay out of the repo, PRs, CI artifacts and `docs/` (Brief v0.10). The private-build overrides folder is `overrides/` at the repo root, git-ignored and CI-guarded (PKR-014, docs-dev/overrides.md); nothing loads from it yet — that's M4's job.

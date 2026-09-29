@@ -150,51 +150,57 @@ function explainStructure(errors: readonly ErrorObject[]): Issue[] {
     const hint = (e.parentSchema as Record<string, unknown> | undefined)?.['x-hint'];
     switch (e.keyword) {
       case 'required':
-        push(here, `missing required field "${String(p['missingProperty'])}"`);
+        push(here, `campo obbligatorio assente "${String(p['missingProperty'])}"`);
         break;
       case 'additionalProperties':
         push(
           joinPath(here, String(p['additionalProperty'])),
-          `unknown field "${String(p['additionalProperty'])}"`,
+          `campo sconosciuto "${String(p['additionalProperty'])}"`,
         );
         break;
       case 'propertyNames':
         push(
           joinPath(here, String(p['propertyName'])),
-          `field "${String(p['propertyName'])}" is not allowed here`,
+          `il campo "${String(p['propertyName'])}" non è permesso qui`,
         );
         break;
       case 'type':
-        push(here, `expected ${String(p['type'])}`);
+        push(here, `atteso ${String(p['type'])}`);
         break;
       case 'enum':
-        push(here, `must be one of: ${(p['allowedValues'] as unknown[]).map(String).join(', ')}`);
+        push(
+          here,
+          `deve essere uno tra: ${(p['allowedValues'] as unknown[]).map(String).join(', ')}`,
+        );
         break;
       case 'const':
-        push(here, `must be ${JSON.stringify(p['allowedValue'])}`);
+        push(here, `deve essere ${JSON.stringify(p['allowedValue'])}`);
         break;
       case 'pattern':
-        push(here, typeof hint === 'string' ? hint : 'has the wrong format');
+        push(here, typeof hint === 'string' ? hint : 'ha un formato sbagliato');
         break;
       case 'minItems':
-        push(here, `needs at least ${String(p['limit'])} item${p['limit'] === 1 ? '' : 's'}`);
+        push(
+          here,
+          `serv${p['limit'] === 1 ? 'e' : 'ono'} almeno ${String(p['limit'])} ${p['limit'] === 1 ? 'elemento' : 'elementi'}`,
+        );
         break;
       case 'maxItems':
-        push(here, `can have at most ${String(p['limit'])} items`);
+        push(here, `può avere al massimo ${String(p['limit'])} elementi`);
         break;
       case 'minLength':
-        push(here, 'must not be empty');
+        push(here, 'non può essere vuoto');
         break;
       case 'minimum':
-        push(here, `must be at least ${String(p['limit'])}`);
+        push(here, `deve essere almeno ${String(p['limit'])}`);
         break;
       case 'oneOf':
       case 'anyOf':
       case 'not':
-        push(here, typeof hint === 'string' ? hint : 'does not match any allowed form');
+        push(here, typeof hint === 'string' ? hint : 'non corrisponde a nessuna forma consentita');
         break;
       default:
-        push(here, e.message ?? `fails ${e.keyword}`);
+        push(here, e.message ?? `non supera il controllo ${e.keyword}`);
     }
   }
   return out;
@@ -286,13 +292,17 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       check: 'json',
       file,
       line: parsed.error.line,
-      message: `not valid JSON (column ${parsed.error.col}): ${parsed.error.message}`,
+      message: `JSON non valido (colonna ${parsed.error.col}): ${parsed.error.message}`,
     });
     return finish();
   }
   lines = parsed.lines;
   for (const d of parsed.duplicates)
-    error('duplicate-id', d.path, `duplicate key "${d.path.slice(d.path.lastIndexOf('.') + 1)}"`);
+    error(
+      'duplicate-id',
+      d.path,
+      `chiave duplicata "${d.path.slice(d.path.lastIndexOf('.') + 1)}"`,
+    );
   const validate = structureValidator();
   if (!validate(parsed.value)) {
     for (const issue of explainStructure(validate.errors ?? []))
@@ -303,7 +313,11 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
   const storyId = str(story['id']);
 
   if (input.folder !== undefined && storyId !== undefined && storyId !== input.folder) {
-    error('story-id', 'id', `story id "${storyId}" does not match its folder "${input.folder}"`);
+    error(
+      'story-id',
+      'id',
+      `l'id della storia "${storyId}" non corrisponde alla cartella "${input.folder}"`,
+    );
   }
 
   // ---- 2. Indexes and duplicate ids ----
@@ -314,9 +328,9 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
     const base = `locations[${i}]`;
     const asset = str(l['asset']);
     if (asset !== undefined && !library.locations[asset])
-      error('reference', `${base}.asset`, `unknown library location "${asset}"`);
+      error('reference', `${base}.asset`, `luogo della libreria sconosciuto "${asset}"`);
     if (id === undefined) return;
-    if (locations.has(id)) error('duplicate-id', `${base}.id`, `duplicate location id "${id}"`);
+    if (locations.has(id)) error('duplicate-id', `${base}.id`, `id del luogo duplicato "${id}"`);
     else
       locations.set(id, {
         path: base,
@@ -328,7 +342,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
   arr(story['npcs']).forEach((n, i) => {
     const id = isObj(n) ? str(n['id']) : undefined;
     if (id === undefined) return;
-    if (npcs.has(id)) error('duplicate-id', `npcs[${i}].id`, `duplicate NPC id "${id}"`);
+    if (npcs.has(id)) error('duplicate-id', `npcs[${i}].id`, `id PNG duplicato "${id}"`);
     else npcs.set(id, `npcs[${i}]`);
   });
 
@@ -344,12 +358,13 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         error(
           'duplicate-id',
           `quests[${i}].tasks[${j}].id`,
-          `duplicate task id "${tid}" in quest "${id ?? '?'}"`,
+          `id del compito duplicato "${tid}" nella missione "${id ?? '?'}"`,
         );
       else tasks.set(tid, `quests[${i}].tasks[${j}]`);
     });
     if (id === undefined) return;
-    if (quests.has(id)) error('duplicate-id', `quests[${i}].id`, `duplicate quest id "${id}"`);
+    if (quests.has(id))
+      error('duplicate-id', `quests[${i}].id`, `id della missione duplicato "${id}"`);
     else quests.set(id, tasks);
   });
 
@@ -358,7 +373,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
   arr(story['flags']).forEach((f, i) => {
     const id = str(f);
     if (id === undefined) return;
-    if (declaredFlags.has(id)) error('duplicate-id', `flags[${i}]`, `duplicate flag "${id}"`);
+    if (declaredFlags.has(id)) error('duplicate-id', `flags[${i}]`, `flag duplicato "${id}"`);
     declaredFlags.add(id);
   });
 
@@ -371,37 +386,38 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
     const s = str(id);
     if (s === undefined) return undefined;
     const loc = locations.get(s);
-    if (!loc) error('reference', path, `unknown location "${s}"`);
+    if (!loc) error('reference', path, `luogo sconosciuto "${s}"`);
     return loc;
   };
   const needSpawn = (loc: LocEntry | undefined, spawn: unknown, path: string): void => {
     const s = str(spawn);
     if (s !== undefined && loc?.asset && !loc.asset.spawns[s])
-      error('reference', path, `unknown spawn "${s}" in ${loc.asset.id}`);
+      error('reference', path, `punto di comparsa sconosciuto "${s}" in ${loc.asset.id}`);
   };
   const needArea = (loc: LocEntry | undefined, area: unknown, path: string): void => {
     const s = str(area);
     if (s !== undefined && loc?.asset && !loc.asset.areas[s])
-      error('reference', path, `unknown area "${s}" in ${loc.asset.id}`);
+      error('reference', path, `area sconosciuta "${s}" in ${loc.asset.id}`);
   };
   const needNpc = (id: unknown, path: string): void => {
     const s = str(id);
-    if (s !== undefined && !npcs.has(s)) error('reference', path, `unknown NPC "${s}"`);
+    if (s !== undefined && !npcs.has(s)) error('reference', path, `PNG sconosciuto "${s}"`);
   };
   const needActor = (id: unknown, path: string): void => {
     const s = str(id);
     if (s !== undefined && s !== 'player' && !npcs.has(s))
-      error('reference', path, `unknown actor "${s}" (an NPC id or "player")`);
+      error('reference', path, `attore sconosciuto "${s}" (un id PNG o "player")`);
   };
   const needScene = (id: unknown, path: string): void => {
     const s = str(id);
     if (s === undefined) return;
     usedScenes.add(s);
-    if (!sceneIds.has(s)) error('reference', path, `unknown scene "${s}"`);
+    if (!sceneIds.has(s)) error('reference', path, `scena sconosciuta "${s}"`);
   };
   const useFlag = (id: string, path: string): void => {
     usedFlags.add(id);
-    if (!declaredFlags.has(id)) error('reference', path, `flag "${id}" is not declared in "flags"`);
+    if (!declaredFlags.has(id))
+      error('reference', path, `il flag "${id}" non è dichiarato in "flags"`);
   };
   const useFlagMap = (m: unknown, path: string): void => {
     for (const k of keysOf(m)) useFlag(k, joinPath(path, k));
@@ -418,23 +434,27 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       error(
         'tile',
         path,
-        `${what} [${t[0]}, ${t[1]}] is outside ${loc.asset.id} (${loc.asset.size[0]} × ${loc.asset.size[1]})`,
+        `${what} [${t[0]}, ${t[1]}] è fuori da ${loc.asset.id} (${loc.asset.size[0]} × ${loc.asset.size[1]})`,
       );
     else if (isBlocked(loc.asset, t))
-      error('tile', path, `${what} [${t[0]}, ${t[1]}] is a blocked tile in ${loc.asset.id}`);
+      error('tile', path, `${what} [${t[0]}, ${t[1]}] è una casella bloccata in ${loc.asset.id}`);
   };
 
   const checkText = (text: string, path: string): void => {
-    let length = text.length;
+    // Story Schema §5.1: characters are counted as the reader sees them (Unicode NFC) —
+    // an accented letter such as "è" always counts as 1, even if the JSON encoded it
+    // as a base letter plus a combining accent (2 UTF-16 units before normalising).
+    let length = text.normalize('NFC').length;
     for (const m of text.matchAll(PLACEHOLDER)) {
       if (KNOWN_PLACEHOLDERS.has(m[1]!)) length += STORY_LIMITS.placeholderChars - m[0].length;
-      else error('text', path, `unknown placeholder "${m[0]}" (only {player.name} exists in v0.1)`);
+      else
+        error('text', path, `segnaposto sconosciuto "${m[0]}" (in v0.1 esiste solo {player.name})`);
     }
     if (length > STORY_LIMITS.lineChars) {
       error(
         'text',
         path,
-        `line is ${length} characters (max ${STORY_LIMITS.lineChars}; {player.name} counts as ${STORY_LIMITS.placeholderChars}). Split it into more lines`,
+        `la battuta è di ${length} caratteri (massimo ${STORY_LIMITS.lineChars}; {player.name} conta ${STORY_LIMITS.placeholderChars}). Dividila in più battute`,
       );
     }
   };
@@ -444,7 +464,11 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       const lp = `${path}[${i}]`;
       if (typeof line === 'string') {
         if (ctx.kind === 'scene')
-          error('reference', lp, 'a line in a scene needs a "speaker": use { "speaker", "text" }');
+          error(
+            'reference',
+            lp,
+            'una battuta in una scena richiede uno "speaker": usa { "speaker", "text" }',
+          );
         checkText(line, lp);
       } else if (isObj(line)) {
         const speaker = str(line['speaker']);
@@ -457,7 +481,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
           error(
             'reference',
             `${lp}.speaker`,
-            `unknown speaker "${speaker}" (an NPC id, "player" or "narrator")`,
+            `speaker sconosciuto "${speaker}" (un id PNG, "player" o "narrator")`,
           );
         }
         const text = str(line['text']);
@@ -472,7 +496,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
     if (flag !== undefined) useFlag(flag, `${path}.flag`);
     const quest = str(c['quest']);
     if (quest !== undefined && !quests.has(quest))
-      error('reference', `${path}.quest`, `unknown quest "${quest}"`);
+      error('reference', `${path}.quest`, `missione sconosciuta "${quest}"`);
     const task = str(c['task']);
     if (task !== undefined) {
       const [q, t] = task.split('.');
@@ -481,10 +505,10 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         error(
           'reference',
           `${path}.task`,
-          `unknown quest "${q ?? ''}" in task reference "${task}"`,
+          `missione sconosciuta "${q ?? ''}" nel riferimento al compito "${task}"`,
         );
       else if (t === undefined || !tasks.has(t))
-        error('reference', `${path}.task`, `unknown task "${task}"`);
+        error('reference', `${path}.task`, `compito sconosciuto "${task}"`);
     }
     for (const key of ['all', 'any'] as const)
       arr(c[key]).forEach((x, i) => checkCondition(x, `${path}.${key}[${i}]`));
@@ -502,7 +526,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
     for (const [exit, link] of Object.entries(l['links'])) {
       const lp = `locations[${i}].links.${exit}`;
       if (asset && !asset.exits[exit])
-        error('reference', lp, `unknown exit "${exit}" in ${asset.id}`);
+        error('reference', lp, `uscita sconosciuta "${exit}" in ${asset.id}`);
       if (!isObj(link)) continue;
       const target = needLocation(link['location'], `${lp}.location`);
       needSpawn(target, link['spawn'], `${lp}.spawn`);
@@ -522,7 +546,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         error(
           'reference',
           `${base}.character`,
-          `unknown character "${character}" (no folder characters/${character})`,
+          `personaggio sconosciuto "${character}" (nessuna cartella characters/${character})`,
         );
     }
     const placements = arr(n['placements']);
@@ -531,11 +555,11 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       const pp = `${base}.placements[${j}]`;
       checkCondition(p['when'], `${pp}.when`);
       const loc = needLocation(p['location'], `${pp}.location`);
-      checkTile(loc, p['tile'], `${pp}.tile`, 'tile');
+      checkTile(loc, p['tile'], `${pp}.tile`, 'la casella');
       const b = p['behaviour'];
       if (isObj(b) && b['type'] === 'patrol')
         arr(b['path']).forEach((t, k) =>
-          checkTile(loc, t, `${pp}.behaviour.path[${k}]`, 'patrol tile'),
+          checkTile(loc, t, `${pp}.behaviour.path[${k}]`, 'la casella del patrol'),
         );
     });
     const dialogues = arr(n['dialogues']);
@@ -549,7 +573,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       error(
         'dialogue-default',
         `${base}.dialogues[${dialogues.length - 1}].when`,
-        'the last dialogue must have no "when" (it is the default)',
+        'l\'ultimo dialogo non deve avere "when" (è quello predefinito)',
       );
     }
   });
@@ -563,17 +587,18 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
       error(
         'quest-empty',
         q['tasks'] === undefined ? base : `${base}.tasks`,
-        `quest "${str(q['id']) ?? '?'}" has no tasks`,
+        `la missione "${str(q['id']) ?? '?'}" non ha compiti`,
       );
     tasks.forEach((t, j) => {
       if (!isObj(t)) return;
       const tp = `${base}.tasks[${j}]`;
       const objective = str(t['objective']);
-      if (objective !== undefined && objective.length > STORY_LIMITS.objectiveChars) {
+      const objectiveLength = objective?.normalize('NFC').length;
+      if (objectiveLength !== undefined && objectiveLength > STORY_LIMITS.objectiveChars) {
         error(
           'text',
           `${tp}.objective`,
-          `objective is ${objective.length} characters (max ${STORY_LIMITS.objectiveChars})`,
+          `l'obiettivo è di ${objectiveLength} caratteri (massimo ${STORY_LIMITS.objectiveChars})`,
         );
       }
       needScene(t['scene'], `${tp}.scene`);
@@ -602,7 +627,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         error(
           'path',
           `${path}[${k}]`,
-          `path is not straight: [${a[0]}, ${a[1]}] → [${b[0]}, ${b[1]}] changes both x and y`,
+          `il percorso non è rettilineo: [${a[0]}, ${a[1]}] → [${b[0]}, ${b[1]}] cambia sia x che y`,
         );
       }
     }
@@ -630,13 +655,13 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
           case 'music': {
             const track = str(c['track']);
             if (track !== undefined && !library.music.includes(track))
-              error('reference', `${cp}.track`, `unknown track "${track}"`);
+              error('reference', `${cp}.track`, `traccia sconosciuta "${track}"`);
             break;
           }
           case 'sound': {
             const sfx = str(c['sfx']);
             if (sfx !== undefined && !library.sfx.includes(sfx))
-              error('reference', `${cp}.sfx`, `unknown sound effect "${sfx}"`);
+              error('reference', `${cp}.sfx`, `effetto sonoro sconosciuto "${sfx}"`);
             break;
           }
           case 'show': {
@@ -644,7 +669,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
             const npc = str(c['npc']);
             if (npc !== undefined) shownNpcs.add(npc);
             const loc = needLocation(c['location'], `${cp}.location`);
-            checkTile(loc, c['tile'], `${cp}.tile`, 'tile');
+            checkTile(loc, c['tile'], `${cp}.tile`, 'la casella');
             break;
           }
           case 'hide':
@@ -682,11 +707,16 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
   arr(story['flags']).forEach((f, i) => {
     const id = str(f);
     if (id !== undefined && !usedFlags.has(id))
-      add('warning', 'unused-flag', `flags[${i}]`, `flag "${id}" is declared but never used`);
+      add(
+        'warning',
+        'unused-flag',
+        `flags[${i}]`,
+        `il flag "${id}" è dichiarato ma non è mai usato`,
+      );
   });
   for (const id of sceneIds) {
     if (!usedScenes.has(id))
-      add('warning', 'unused-scene', `scenes.${id}`, `scene "${id}" is never used`);
+      add('warning', 'unused-scene', `scenes.${id}`, `la scena "${id}" non è mai usata`);
   }
   arr(story['npcs']).forEach((n, i) => {
     if (!isObj(n)) return;
@@ -696,7 +726,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         'warning',
         'unplaced-npc',
         `npcs[${i}]`,
-        `NPC "${id ?? '?'}" is never placed (no placements and no "show" command)`,
+        `il PNG "${id ?? '?'}" non è mai posizionato (nessun placement e nessun comando "show")`,
       );
     }
   });
@@ -712,7 +742,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         severity: 'warning',
         check: 'character-unused',
         file: dir,
-        message: 'no NPC uses this character folder',
+        message: 'nessun PNG usa questa cartella personaggio',
       });
     }
     if (folder.sheets.length === 0) {
@@ -720,7 +750,7 @@ export function validateStory(input: StoryInput, library: Library): StoryReport 
         severity: 'error',
         check: 'character',
         file: dir,
-        message: 'the folder has no sheets (Asset Spec §4: spr_walk_<layer>_<name>.png)',
+        message: 'la cartella non ha fogli (Asset Spec §4: spr_walk_<layer>_<name>.png)',
       });
       continue;
     }

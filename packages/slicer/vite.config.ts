@@ -14,7 +14,7 @@ export default defineConfig({
         name: 'PokeRPG Slicer',
         short_name: 'Slicer',
         description:
-          'Cuts, aligns and validates character sprite sheets. Runs offline on your device.',
+          'Ritaglia, allinea e valida i fogli sprite dei personaggi. Funziona offline sul tuo dispositivo.',
         display: 'standalone',
         orientation: 'any',
         background_color: '#14161c',

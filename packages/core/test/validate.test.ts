@@ -56,7 +56,7 @@ describe('png-format / srgb (error)', () => {
     ]);
     const [f] = check([{ ...ok, bytes }], 'png-format');
     expect(f).toMatchObject({ severity: 'error', file: 'spr_walk_body_mira.png' });
-    expect(f?.message).toContain('colour type 3');
+    expect(f?.message).toContain('tipo colore 3');
   });
 
   it('fails bytes that are not a PNG', () => {
@@ -126,7 +126,7 @@ describe('sheet-size and unknown-set (error)', () => {
   it('fails a sheet that is not 768 × 512', () => {
     const s = { ...body(), image: createPixelBuffer(800, 512) };
     const [f] = check([s], 'sheet-size');
-    expect(f?.message).toBe('sheet is 800×512 (expected 768×512 for set walk)');
+    expect(f?.message).toBe('il foglio è 800×512 (atteso 768×512 per il set walk)');
     expect(f?.severity).toBe('error');
   });
   it('does not slice an off-grid sheet', () => {
@@ -143,7 +143,7 @@ describe('sheet-size and unknown-set (error)', () => {
 describe('character-level rules', () => {
   it('errors when the body sheet is missing (§7) and passes when present', () => {
     const [f] = check([makeWalkSheetInput('outfit')], 'missing-required-layer');
-    expect(f).toMatchObject({ severity: 'error', message: 'set walk has no body sheet' });
+    expect(f).toMatchObject({ severity: 'error', message: 'il set walk non ha il foglio body' });
     expect(f?.file).toBeUndefined();
     expect(check([body(), makeWalkSheetInput('outfit')], 'missing-required-layer')).toEqual([]);
   });
@@ -238,7 +238,7 @@ describe('ground-line (error > 2 px, warning 1–2 px)', () => {
     const s = body({ frameShift: { walk_up_04: { dx: 0, dy: -3 } } });
     const [f] = check([s], 'ground-line');
     expect(formatFinding(f!)).toBe(
-      'spr_walk_body_mira.png · walk_up_04 · lowest opaque row 116 (expected 119)',
+      'spr_walk_body_mira.png · walk_up_04 · riga opaca più bassa 116 (attesa 119)',
     );
     expect(f?.pixel).toMatchObject({ y: 116 });
   });
@@ -252,7 +252,7 @@ describe('torso-centre (warning outside 64 ± 2)', () => {
   it('warns beyond 2 px', () => {
     const [f] = check([body({ dx: 3 })], 'torso-centre');
     expect(f).toMatchObject({ severity: 'warning', frameKey: 'walk_down_00' });
-    expect(f?.message).toBe('torso centreline x 67.0 (expected 64 ± 2)');
+    expect(f?.message).toBe('asse centrale del torso x 67.0 (atteso 64 ± 2)');
   });
 });
 
@@ -303,7 +303,7 @@ describe('safe-box / overflow zone (warning, all layers)', () => {
     );
     const findings = check([body(), makeWalkSheetInput('headwear', 'x', { dy: -9 })], 'safe-box');
     expect(findings.length).toBeGreaterThan(0);
-    expect(findings[0]?.message).toContain('overflow zone');
+    expect(findings[0]?.message).toContain('zona di sfondamento');
   });
   it('holds hair to the plain safe box (y 20)', () => {
     expect(check([body(), makeWalkSheetInput('hair', 'x', { dy: -4 })], 'safe-box')).toEqual([]);

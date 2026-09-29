@@ -45,9 +45,9 @@ describe('story:pack', () => {
     const r = pack(folder);
     expect(r.code).toBe(0);
     expect(existsSync(zip)).toBe(true);
-    expect(r.out).toContain('Wrote ');
-    expect(r.out).toContain('0 errors');
-    expect(r.out).toContain('OK: no errors');
+    expect(r.out).toContain('Scritto ');
+    expect(r.out).toContain('0 errori');
+    expect(r.out).toContain('OK: nessun errore');
 
     const names = unzipFiles(new Uint8Array(readFileSync(zip))).map((f) => f.path);
     expect(names).toContain('story_template/story.json');
@@ -76,15 +76,15 @@ describe('story:pack', () => {
     const r = pack(folder);
     expect(r.code).toBe(1);
     expect(r.out).toContain('error ·');
-    expect(r.out).toContain('Fix the errors above');
+    expect(r.out).toContain('Correggi gli errori sopra');
   });
 
   it('exits 2 with usage for a missing argument, a zip, a missing folder or no story.json', () => {
     expect(pack().code).toBe(2);
-    expect(pack().out).toContain('Usage:');
+    expect(pack().out).toContain('Uso:');
     expect(pack(zip).code).toBe(2);
     expect(pack(join(work, 'nope')).code).toBe(2);
-    expect(pack(join(folder, 'characters')).out).toContain('no story.json');
+    expect(pack(join(folder, 'characters')).out).toContain('non ha story.json');
     expect(pack('--nope').code).toBe(2);
   });
 

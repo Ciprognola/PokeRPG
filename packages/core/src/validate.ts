@@ -71,7 +71,7 @@ export function validateCharacter(
           severity: 'error',
           check: 'duplicate-layer',
           file,
-          message: `second ${layer} sheet for set ${setId} (already have ${files[0]}); one file per layer per set`,
+          message: `secondo foglio ${layer} per il set ${setId} (hai già ${files[0]}); un file per livello per set`,
         });
       }
     }
@@ -80,7 +80,7 @@ export function validateCharacter(
         add(findings, {
           severity: 'error',
           check: 'missing-required-layer',
-          message: `set ${setId} has no ${required} sheet`,
+          message: `il set ${setId} non ha il foglio ${required}`,
         });
       }
     }
@@ -89,7 +89,7 @@ export function validateCharacter(
         add(findings, {
           severity: 'warning',
           check: 'layer-missing-for-set',
-          message: `layer ${layer} has a sheet in another set but none for set ${setId}`,
+          message: `il livello ${layer} ha un foglio in un altro set ma nessuno per il set ${setId}`,
         });
       }
     }
@@ -132,7 +132,7 @@ function validateSheet(
       severity: 'error',
       check: 'filename',
       file,
-      message: `name does not match spr_<set>_<layer>_<name>[_<variant>].png (lowercase a-z 0-9 -, "_" only between fields)`,
+      message: `il nome non corrisponde a spr_<set>_<layer>_<name>[_<variant>].png (lettere minuscole a-z, cifre 0-9, "-"; "_" solo tra i campi)`,
     });
   }
 
@@ -145,14 +145,14 @@ function validateSheet(
         severity: 'error',
         check: 'file-size',
         file,
-        message: `file is ${bytes.length} bytes (limit ${errorBytes})`,
+        message: `il file è di ${bytes.length} byte (limite ${errorBytes})`,
       });
     } else if (bytes.length > warnBytes) {
       add(out, {
         severity: 'warning',
         check: 'file-size',
         file,
-        message: `file is ${bytes.length} bytes (over ${warnBytes}; error above ${errorBytes})`,
+        message: `il file è di ${bytes.length} byte (oltre ${warnBytes}; errore sopra ${errorBytes})`,
       });
     }
   }
@@ -164,7 +164,7 @@ function validateSheet(
       severity: 'error',
       check: 'unknown-set',
       file,
-      message: `unknown animation set "${setId}"`,
+      message: `set di animazione sconosciuto "${setId}"`,
     });
     return out;
   }
@@ -174,7 +174,7 @@ function validateSheet(
       severity: 'error',
       check: 'sheet-size',
       file,
-      message: `sheet is ${image.width}×${image.height} (expected ${expected.width}×${expected.height} for set ${set.id})`,
+      message: `il foglio è ${image.width}×${image.height} (atteso ${expected.width}×${expected.height} per il set ${set.id})`,
     });
     return out; // cannot slice frames of an off-grid sheet
   }
@@ -213,7 +213,7 @@ function validateSheet(
         check: 'border',
         ...base,
         pixel: borderFirst,
-        message: `content at (${borderFirst.x}, ${borderFirst.y}) inside the ${b} px border (${borderCount} px)`,
+        message: `contenuto in (${borderFirst.x}, ${borderFirst.y}) dentro il bordo di ${b} px (${borderCount} px)`,
       });
     }
 
@@ -235,7 +235,7 @@ function validateSheet(
         check: 'safe-box',
         ...base,
         pixel: boxFirst,
-        message: `opaque content at (${boxFirst.x}, ${boxFirst.y}) outside the ${overflow ? 'overflow zone' : 'safe box'} x ${box.x0}–${box.x1}, y ${box.y0}–${box.y1} (${boxCount} px)`,
+        message: `contenuto opaco in (${boxFirst.x}, ${boxFirst.y}) fuori dalla ${overflow ? 'zona di sfondamento' : 'zona sicura'} x ${box.x0}–${box.x1}, y ${box.y0}–${box.y1} (${boxCount} px)`,
       });
     }
 
@@ -262,7 +262,7 @@ function validateSheet(
         check: 'key-colour',
         ...base,
         pixel: keyFirst,
-        message: `key-colour pixels remain: ${keyCount} px near #FF00FF, first at (${keyFirst.x}, ${keyFirst.y})`,
+        message: `restano pixel del colore chiave: ${keyCount} px vicino a #FF00FF, il primo in (${keyFirst.x}, ${keyFirst.y})`,
       });
     }
 
@@ -275,7 +275,7 @@ function validateSheet(
         severity: 'error',
         check: 'empty-frame',
         ...base,
-        message: 'body frame is empty',
+        message: 'il fotogramma del corpo è vuoto',
       });
       continue;
     }
@@ -284,7 +284,7 @@ function validateSheet(
         severity: 'error',
         check: 'no-opaque-body',
         ...base,
-        message: `body has content but no opaque pixel (alpha >= ${OPAQUE_ALPHA})`,
+        message: `il corpo ha contenuto ma nessun pixel opaco (alpha >= ${OPAQUE_ALPHA})`,
       });
       continue;
     }
@@ -297,7 +297,7 @@ function validateSheet(
           check: 'ground-line',
           ...base,
           pixel: m.bottomPixel,
-          message: `lowest opaque row ${m.bottomRow} (expected ${FRAME.groundRow})`,
+          message: `riga opaca più bassa ${m.bottomRow} (attesa ${FRAME.groundRow})`,
         });
       }
     }
@@ -309,7 +309,7 @@ function validateSheet(
         check: 'body-height',
         ...base,
         pixel: m.topPixel,
-        message: `body height ${m.height} (expected ${FRAME.standardHeight} ± ${TOLERANCES.bodyHeightWarnPx}, top opaque row ${m.topRow})`,
+        message: `altezza del corpo ${m.height} (attesa ${FRAME.standardHeight} ± ${TOLERANCES.bodyHeightWarnPx}, riga opaca più alta ${m.topRow})`,
       });
     }
 
@@ -322,7 +322,7 @@ function validateSheet(
         check: 'torso-centre',
         ...base,
         pixel: { x: Math.floor(m.centreX), y: Math.floor((m.band.from + m.band.to) / 2) },
-        message: `torso centreline x ${m.centreX.toFixed(1)} (expected ${FRAME.torsoCentreX} ± ${TOLERANCES.torsoCentreWarnPx})`,
+        message: `asse centrale del torso x ${m.centreX.toFixed(1)} (atteso ${FRAME.torsoCentreX} ± ${TOLERANCES.torsoCentreWarnPx})`,
       });
     }
   }
@@ -337,7 +337,7 @@ function checkPngFormat(bytes: Uint8Array, file: string, out: Finding[]): void {
         severity: 'error',
         check: 'png-format',
         file,
-        message: `not PNG-32 RGBA (colour type ${info.colorType}, ${info.bitDepth}-bit; expected colour type 6, 8-bit)`,
+        message: `non è PNG-32 RGBA (tipo colore ${info.colorType}, ${info.bitDepth} bit; atteso tipo colore 6, 8 bit)`,
       });
     }
     if (info.iccProfileName !== undefined && !/srgb/i.test(info.iccProfileName)) {
@@ -345,7 +345,7 @@ function checkPngFormat(bytes: Uint8Array, file: string, out: Finding[]): void {
         severity: 'error',
         check: 'srgb',
         file,
-        message: `embedded colour profile "${info.iccProfileName}" is not sRGB`,
+        message: `il profilo colore incorporato "${info.iccProfileName}" non è sRGB`,
       });
     } else if (
       info.iccProfileName === undefined &&
@@ -357,7 +357,7 @@ function checkPngFormat(bytes: Uint8Array, file: string, out: Finding[]): void {
         severity: 'error',
         check: 'srgb',
         file,
-        message: `gamma ${info.gamma} is not sRGB (0.45455) and there is no sRGB chunk`,
+        message: `il gamma ${info.gamma} non è sRGB (0.45455) e non c'è un chunk sRGB`,
       });
     }
   } catch (e) {
@@ -366,7 +366,7 @@ function checkPngFormat(bytes: Uint8Array, file: string, out: Finding[]): void {
       severity: 'error',
       check: 'png-format',
       file,
-      message: `not a valid PNG: ${e.message}`,
+      message: `PNG non valido: ${e.message}`,
     });
   }
 }

@@ -59,7 +59,7 @@ export async function extractLayer(
   if (source.files.length !== FRAMES) {
     throw new ExtractionError(
       'wrong-count',
-      `expected ${FRAMES} frame images, got ${source.files.length}`,
+      `attese ${FRAMES} immagini fotogramma, arrivate ${source.files.length}`,
     );
   }
   const order = orderFrameFiles(source.files.map((f) => f.name));

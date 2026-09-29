@@ -2,27 +2,27 @@
 // Exit code 0 = no errors (warnings are allowed), 1 = errors, 2 = could not read the package.
 import { checkStory } from './story-node.js';
 
-const USAGE = `Check a story package against the Story Schema (docs/STORY_SCHEMA.md).
+const USAGE = `Controlla un pacchetto storia rispetto allo Story Schema (docs/STORY_SCHEMA.md).
 
-Usage:
-  npm run story:check -- <story folder | story .zip> [--json] [--library <assets dir>]
+Uso:
+  npm run story:check -- <cartella storia | zip storia> [--json] [--library <cartella assets>]
 
-  <story folder>   a story_<id>/ folder (contains story.json), e.g. templates/story_template
-  <story .zip>     the same folder zipped
-  --json           print the full report as JSON instead of text
-  --library <dir>  asset library to check locations, music and sounds against (default: assets/)
-  --help, -h       show this message
+  <cartella storia>  una cartella story_<id>/ (contiene story.json), es. templates/story_template
+  <zip storia>       la stessa cartella zippata
+  --json             stampa il report completo come JSON invece che come testo
+  --library <dir>    libreria di asset con cui controllare luoghi, musiche e suoni (default: assets/)
+  --help, -h         mostra questo messaggio
 
-Examples:
+Esempi:
   npm run story:check -- templates/story_template
   npm run story:check -- stories/story_my-tale
 
-The "--" after "story:check" is required: it passes the rest to this tool.
+Il "--" dopo "story:check" è necessario: passa il resto a questo strumento.
 
-Each line is "severity · file:line · path · message". Errors must be fixed; warnings may stay.
-Run the check again after every fix until it prints "0 errors".
+Ogni riga è "livello · file:riga · percorso · messaggio". Gli errori vanno corretti; gli avvisi possono restare.
+Esegui di nuovo il controllo dopo ogni correzione finché non stampa "0 errori".
 
-Exit code: 0 = no errors, 1 = errors found, 2 = the package could not be read.`;
+Codice di uscita: 0 = nessun errore, 1 = errori trovati, 2 = il pacchetto non è leggibile.`;
 
 const args = process.argv.slice(2);
 
@@ -43,9 +43,9 @@ const usageError = (message: string): never => {
   return process.exit(2);
 };
 
-if (unknown) usageError(`Unknown option "${unknown}".`);
+if (unknown) usageError(`Opzione sconosciuta "${unknown}".`);
 if (libIndex >= 0 && (libValue === undefined || libValue.startsWith('-')))
-  usageError('--library needs a folder, e.g. --library assets');
-if (!target) usageError('No story given: say which folder or .zip to check.');
+  usageError('--library richiede una cartella, es. --library assets');
+if (!target) usageError('Nessuna storia indicata: dimmi quale cartella o .zip controllare.');
 
 process.exit(checkStory(target!, libValue, flag('--json')));
