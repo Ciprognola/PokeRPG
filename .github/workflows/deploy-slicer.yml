@@ -36,6 +36,18 @@ jobs:
           mkdir -p site
           cp -r packages/slicer/dist site/slicer
           echo '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=slicer/"><a href="slicer/">Slicer</a>' > site/index.html
+      - name: Build PKR-015 Phaser spikes (throwaway, removed after the engine decision)
+        # Additive: only adds site/spikes/; site/slicer above is untouched. continue-on-error so a
+        # broken spike can never block the Slicer deploy. Runs BEFORE the overrides guard below,
+        # so the guard also scans the spikes' output.
+        continue-on-error: true
+        run: |
+          node spikes/scripts/prepare.mjs
+          for v in 3 4; do
+            SPIKE_PHASER=$v BASE_PATH=/${{ github.event.repository.name }}/spikes/ npx vite build --config spikes/vite.config.ts
+          done
+          mkdir -p site/spikes
+          cp -r spikes/dist/phaser3 spikes/dist/phaser4 site/spikes/
       - name: Verify the deployed site carries no overrides/ content
         # overrides/ is git-ignored (PKR-014) so a clean checkout never has one; this also
         # catches a future build step that reads from it by name and leaks the result in.

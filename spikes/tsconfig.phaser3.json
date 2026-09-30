@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "paths": { "phaser": ["../node_modules/phaser/types/phaser.d.ts"] } }
+}
