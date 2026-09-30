@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <title>PKR-015 spike</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; }
+      #game { position: fixed; inset: 0; }
+      #hud { position: fixed; left: 4px; top: 4px; margin: 0; font: 11px/1.25 monospace; color: #0f0;
+        background: rgba(0,0,0,.55); padding: 3px 5px; pointer-events: none; white-space: pre; z-index: 5; }
+      #pad { position: fixed; left: 8px; bottom: 8px; z-index: 5; display: grid; gap: 4px;
+        grid-template: repeat(3, 56px) / repeat(3, 56px); user-select: none; }
+      #pad button, #aud { font: 20px monospace; background: rgba(255,255,255,.25); color: #fff;
+        border: 1px solid #fff8; border-radius: 8px; touch-action: none; }
+      #aud { position: fixed; right: 8px; bottom: 8px; z-index: 5; width: 96px; height: 56px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <pre id="hud">starting…</pre>
+    <div id="pad">
+      <span></span><button data-d="up">▲</button><span></span>
+      <button data-d="left">◀</button><span></span><button data-d="right">▶</button>
+      <span></span><button data-d="down">▼</button><span></span>
+    </div>
+    <button id="aud">audio loop</button>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
