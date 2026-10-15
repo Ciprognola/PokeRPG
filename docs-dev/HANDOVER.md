@@ -59,7 +59,7 @@ Still accurate after the roadmap change — the tracker/account/clock design its
 
 Phaser runtime (`packages/game` is a placeholder), in-app story importer, character creator, asset-pack importer/map tool, UI shell, life tracker, account. All now have a milestone (M4 UI shell, M6 asset packs/map tool, M7 Private mode/tracker, M8 character creator, M9 account/Campaign mode — see Roadmap above) but nothing is built yet. Don't start anything without a ticket.
 
-**PKR-015** (Phaser 3-vs-4 evaluation, Brief §8 Q3): still no ticket. The PM is deliberately holding it until just before M4 — don't start it early.
+**PKR-015** (Phaser 3-vs-4 evaluation, Brief §8 Q3): **PR open on `chore/PKR-015-phaser-eval`, not merged.** Report: `docs-dev/phaser-evaluation.md` (recommendation: Phaser 4.2.1, pending the PO's Android Chrome test). Throwaway spikes in `spikes/`, published at `/spikes/phaser3/` and `/spikes/phaser4/` by an additive `continue-on-error` step in `deploy-slicer.yml` (only after the PR merges to `main`). **Cleanup after the PO decides:** delete `spikes/` and that workflow step, drop `'spikes/**'` from `eslint.config.js` and `spikes` from `.prettierignore`, then start `packages/game` on the chosen version. iOS Safari and real-device frame rate are not verified.
 
 ## Waiting on the PM (nothing implemented)
 
